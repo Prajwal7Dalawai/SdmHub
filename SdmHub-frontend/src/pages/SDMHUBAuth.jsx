@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import "./SDMHUBAuth.css";
-import sdmhubLogo from "./assets/logo.png";
+import "../assets/css/SDMHUBAuth.css";
+import sdmhubLogo from "../assets/css/logo/logo.png";
 export default function SDMHUBAuth() {
   return (
     <div className="auth-container">
