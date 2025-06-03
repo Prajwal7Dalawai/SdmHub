@@ -1,15 +1,26 @@
-import { useState } from 'react'
-import {SDMHUBAuth} from "./pages/SDMHUBAuth"
-import './App.css'
+//import './App.css'
+import SDMHUBAuth from './pages/SDMHUBAuth.jsx'
+import NewsFeed from './pages/SDMHUBNewsPost.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
+    <div className="App">
       <SDMHUBAuth />
-    </>
+      <NewsFeed />
+    </div>
   )
 }
 
 export default App
+// import React from 'react';
+// import MessagesScreen from './MessageScreen.jsx';
+
+// function App() {
+//   return (
+//     <div>
+//       <MessagesScreen />
+//     </div>
+//   );
+// }
+
+// export default App;

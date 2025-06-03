@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import "../assets/css/SDMHUBAuth.css";
+<<<<<<< HEAD
 import sdmhubLogo from "./assets/logo.png";
+=======
+import sdmhubLogo from "../assets/css/logo/logo.png";
+>>>>>>> 867ba3bef0a6ac6eccbd6d2959db6f0fa94a063c
 export default function SDMHUBAuth() {
   return (
     <div className="auth-container">
