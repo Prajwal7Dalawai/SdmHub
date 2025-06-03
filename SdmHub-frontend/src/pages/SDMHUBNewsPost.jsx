@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import "../assets/css/SDMHUBNewsPost.css";
-import prateekimg from "../assets/css/images/prateekprofile.webp";
-import prajwalimg from "../assets/css/images/prajwalprofile.png";
-import nehaimg from "../assets/css/images/nehaprofile.png";
-import post1img from "../assets/css/images/post1.jpg";  // Add these sample images
-import post2img from "../assets/css/images/post2.jpg";
-import post3img from "../assets/css/images/post3.jpg";
+import prateekimg from "../assets/images/prateekprofile.webp";
+import prajwalimg from "../assets/images/prajwalprofile.png";
+import nehaimg from "../assets/images/nehaprofile.png";
+import post1img from "../assets/images/post1.jpg";  // Add these sample images
+import post2img from "../assets/images/post2.jpg";
+import post3img from "../assets/images/post3.jpg";
 
 export default function NewsFeed() {
  const [posts] = useState([

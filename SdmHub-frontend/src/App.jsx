@@ -5,7 +5,7 @@ import NewsFeed from './pages/SDMHUBNewsPost.jsx'
 function App() {
   return (
     <div className="App">
-      <SDMHUBAuth />
+      {/* <SDMHUBAuth /> */}
       <NewsFeed />
     </div>
   )
