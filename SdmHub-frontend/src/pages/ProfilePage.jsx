@@ -9,7 +9,7 @@ const ProfilePage = () => {
           <div className="profile-section">
             <div className="profile-info">
               <div
-                className="avatar"
+                className="avatarm"
                 style={{
                   backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuCl05wgBwfqs7LKRTkHmvoAh2qcrz3NPuyC6Gd0Q2HNoF_kJ8reB1VmdO5O8jmMhSmKWpNQrCLQf0nYnY_3h7_lOgvivltGhMSLz4WgSCRBcL68aB07TEOUcIOGerhREUrgSFR_Fwr8DG4JWatwMPHHIA0e3NGJ-jQsLb1kqPWX71lrPQOLcPAYXrX9NTT6BAqeUF7ogrEefY-CFK8v5jgyoItbAuFWT5kIMuRJouf9qewkD7aw9m_lsY5MyAJzgJusvrL7fMieNKI")`,
                 }}

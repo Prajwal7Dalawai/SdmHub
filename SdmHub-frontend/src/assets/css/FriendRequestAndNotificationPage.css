@@ -1,0 +1,167 @@
+/* Wrapper */
+.main-content-page {
+  flex: 1;
+  padding: 20px;
+  background-color: #f4f4f4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Section Cards */
+.section-card {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  width: 460px;
+  color: #1e1e1e;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Titles */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  color: #222;
+}
+
+/* Empty Message */
+.no-items {
+  color: #888;
+  text-align: center;
+  font-style: italic;
+  padding: 20px 0;
+}
+
+/* Common: Profile Image */
+.profile-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  box-shadow: 0 0 0 2px white;
+  transition: transform 0.3s ease;
+}
+
+.profile-img:hover {
+  transform: scale(1.05);
+}
+
+/* Friend Request Item */
+.request-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+  .request-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+}
+
+.request-item:last-child {
+  border-bottom: none;
+}
+
+.request-info {
+  flex: 1;
+}
+
+.request-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.mutual-friends {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.request-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Buttons */
+.accept-button,
+.decline-button {
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.accept-button {
+  background-color: #A22B29;
+  color: #fff;
+}
+
+.accept-button:hover {
+  background-color: #841e1e;
+}
+
+.decline-button {
+  background-color: transparent;
+  color: #A22B29;
+  border: 1px solid #A22B29;
+}
+
+.decline-button:hover {
+  background-color: #fceaea;
+}
+
+/* Notification Item */
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-text {
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.notification-name {
+  font-weight: 600;
+  color: #000;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 3px;
+}
