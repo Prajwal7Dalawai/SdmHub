@@ -53,10 +53,6 @@ const ChatWindow = () => {
             ))}
           </div>
 
-          {/* New Chat Button */}
-          <div className="new-chat-btn-container">
-            <button className="new-chat-btn">+ New Chat</button>
-          </div>
         </div>
 
         <div className="chat-box">

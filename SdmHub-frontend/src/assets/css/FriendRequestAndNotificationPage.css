@@ -1,4 +1,4 @@
-/* Wrapper */
+/* General Layout */
 .main-content-page {
   flex: 1;
   padding: 20px;
@@ -9,9 +9,10 @@
   justify-content: center;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden; /* Prevent full page scroll */
 }
 
-/* Section Cards */
+/* Scrollable Cards */
 .section-card {
   background-color: #ffffff;
   padding: 30px;
@@ -19,15 +20,19 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   width: 460px;
   color: #1e1e1e;
+  height: 75vh;
+  overflow-y: auto; /* Scroll within card */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeIn 0.6s ease-in-out;
 }
 
+/* Card hover effect */
 .section-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* Titles */
+/* Section Titles */
 .section-title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -35,9 +40,10 @@
   border-bottom: 2px solid #eee;
   padding-bottom: 10px;
   color: #222;
+  animation: slideIn 0.5s ease-in-out;
 }
 
-/* Empty Message */
+/* Empty message */
 .no-items {
   color: #888;
   text-align: center;
@@ -45,7 +51,7 @@
   padding: 20px 0;
 }
 
-/* Common: Profile Image */
+/* Profile images */
 .profile-img {
   width: 56px;
   height: 56px;
@@ -57,23 +63,17 @@
 }
 
 .profile-img:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
-/* Friend Request Item */
+/* Friend request list */
 .request-item {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px 0;
   border-bottom: 1px solid #eee;
-  .request-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .request-item:last-child {
@@ -82,6 +82,9 @@
 
 .request-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .request-name {
@@ -119,6 +122,7 @@
 
 .accept-button:hover {
   background-color: #841e1e;
+  transform: scale(1.05);
 }
 
 .decline-button {
@@ -129,15 +133,17 @@
 
 .decline-button:hover {
   background-color: #fceaea;
+  transform: scale(1.05);
 }
 
-/* Notification Item */
+/* Notifications */
 .notification-item {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px 0;
   border-bottom: 1px solid #eee;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .notification-item:last-child {
@@ -164,4 +170,47 @@
   font-size: 0.8rem;
   color: #777;
   margin-top: 3px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Scrollbar styling (optional) */
+.section-card::-webkit-scrollbar {
+  width: 6px;
+}
+.section-card::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
 }
