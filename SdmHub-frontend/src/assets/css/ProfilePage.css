@@ -1,26 +1,29 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap");
 
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-html {
+html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden; /* Disable page scrolling */
+  overflow-x: hidden; /* Allow vertical scroll */
+  background-color: #fff;
 }
 
 .profile-container {
   max-width: 1000px;
-  margin: 5px auto;
+  margin: 35px auto;
   padding: 30px 40px;
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 0 16px rgba(0,0,0,0.1);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.1);
   border: 1.5px solid #A22B29;
-
-  height: 100vh;        /* Full viewport height */
-  overflow-y: auto;     /* Scroll inside this container only */
   scroll-behavior: smooth;
 }
-
 
 .profile-header {
   display: flex;
@@ -171,10 +174,27 @@ a:hover {
   background-position: center;
   border-radius: 12px;
   border: 2px solid #A22B29;
-  transition: transform 0.3s ease;
   cursor: pointer;
+  transition: none; /* No animation */
 }
 
 .post:hover {
-  transform: scale(1.05);
+  transform: none; /* No hover scale */
+}
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Exactly 4 columns */
+  gap: 14px; /* Space between posts */
+}
+
+.post {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  border: 2px solid #A22B29;
+  cursor: pointer;
+  transition: none;
 }

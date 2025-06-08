@@ -1,117 +1,144 @@
-/* General Layout */
+/* Container */
 .main-content-page {
   flex: 1;
-  padding: 20px;
-  background-color: #f4f4f4;
+  padding: 40px 20px;
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  gap: 40px;
   justify-content: center;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  overflow: hidden; /* Prevent full page scroll */
 }
 
-/* Scrollable Cards */
+/* Scrollable Card Box */
 .section-card {
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  width: 460px;
-  color: #1e1e1e;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  width: 480px;
+  color: #333;
   height: 75vh;
-  overflow-y: auto; /* Scroll within card */
+  overflow-y: auto;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   animation: fadeIn 0.6s ease-in-out;
+  border: 1px solid #eee;
+  backdrop-filter: blur(6px);
 }
 
-/* Card hover effect */
+/* Card Hover */
 .section-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
 }
 
 /* Section Titles */
 .section-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: bold;
   margin-bottom: 25px;
-  border-bottom: 2px solid #eee;
   padding-bottom: 10px;
-  color: #222;
-  animation: slideIn 0.5s ease-in-out;
+  border-bottom: 2px solid #ddd;
+  color: #2d2d2d;
+  letter-spacing: 0.5px;
 }
 
-/* Empty message */
+/* Empty Message */
 .no-items {
-  color: #888;
   text-align: center;
+  color: #888;
   font-style: italic;
-  padding: 20px 0;
+  font-size: 1rem;
+  padding: 20px;
 }
 
-/* Profile images */
+/* Profile Image */
 .profile-img {
-  width: 56px;
-  height: 56px;
+  width: 58px;
+  height: 58px;
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid #ddd;
+  border: 3px solid #f0f0f0;
   box-shadow: 0 0 0 2px white;
   transition: transform 0.3s ease;
 }
 
 .profile-img:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
-/* Friend request list */
-.request-item {
+/* Request + Notification Item Card */
+.request-item,
+.notification-item {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid #eee;
-  animation: fadeInUp 0.5s ease forwards;
+  padding: 16px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  background: linear-gradient(to bottom, #fff, #f9f9f9);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.request-item:last-child {
-  border-bottom: none;
+.request-item:hover,
+.notification-item:hover {
+  background-color: #fdf1f1;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
+/* Friend Request Info */
 .request-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .request-name {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #222;
+  color: #111;
 }
 
 .mutual-friends {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #777;
+  margin-top: 4px;
 }
 
-.request-actions {
+/* Notification Info */
+.notification-content {
+  flex: 1;
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+}
+
+.notification-text {
+  font-size: 1rem;
+  color: #333;
+}
+
+.notification-name {
+  font-weight: 600;
+  color: #000;
+}
+
+.notification-time {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 4px;
 }
 
 /* Buttons */
 .accept-button,
 .decline-button {
-  border-radius: 20px;
+  border-radius: 18px;
   padding: 6px 16px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  cursor: pointer;
   border: none;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
@@ -126,50 +153,14 @@
 }
 
 .decline-button {
-  background-color: transparent;
+  background: transparent;
   color: #A22B29;
   border: 1px solid #A22B29;
 }
 
 .decline-button:hover {
-  background-color: #fceaea;
+  background-color: #fff1f1;
   transform: scale(1.05);
-}
-
-/* Notifications */
-.notification-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid #eee;
-  animation: fadeInUp 0.5s ease forwards;
-}
-
-.notification-item:last-child {
-  border-bottom: none;
-}
-
-.notification-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.notification-text {
-  color: #333;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.notification-name {
-  font-weight: 600;
-  color: #000;
-}
-
-.notification-time {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 3px;
 }
 
 /* Animations */
@@ -195,22 +186,42 @@
   }
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Scrollbar styling (optional) */
+/* Scrollbar Styling */
 .section-card::-webkit-scrollbar {
   width: 6px;
 }
+
 .section-card::-webkit-scrollbar-thumb {
-  background-color: #ccc;
+  background-color: #bbb;
   border-radius: 10px;
+}
+
+.section-card::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+/* Tabs */
+.tab-menu {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.tab-menu button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 20px;
+  color: #555;
+  transition: background 0.3s, color 0.3s;
+}
+
+.tab-menu .active-tab {
+  background-color: #A22B29;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }

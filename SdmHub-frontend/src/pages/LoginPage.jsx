@@ -44,7 +44,6 @@ const RightPanel = () => {
     <div className="right-panel">
       <h2>SDM Social</h2>
       <div className="welcome-section">
-        <h3>Hey there!</h3>
         <p>
           New to SDM Social?{' '}
           <a href="#" className="create-account-link">

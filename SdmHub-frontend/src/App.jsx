@@ -1,49 +1,50 @@
+// src/App.js
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
-import Sidebar from './pages/Sidebar';
 import FriendRequestAndNotificationPage from "./pages/FriendRequestAndNotificationPage";
 import ChatWindow from "./pages/ChatWindow";
+import Header from "./components/Hearder";
 import React from "react";
 
-// Layout for protected routes
-const MainLayout = ({ children }) => (
-  <div className="app-container" style={{ display: "flex", minHeight: "100vh" }}>
-    <Sidebar />
-    <div style={{ flex: 1, padding: '0px' }}>{children}</div>
-  </div>
+// Layout for authenticated pages
+const LayoutWithHeader = ({ children }) => (
+  <>
+    <Header />
+    <div>{children}</div>
+  </>
 );
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
+        {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Protected routes with sidebar */}
+        {/* Routes with Header */}
         <Route
           path="/friendAndNotify"
           element={
-            <MainLayout>
+            <LayoutWithHeader>
               <FriendRequestAndNotificationPage />
-            </MainLayout>
+            </LayoutWithHeader>
           }
         />
         <Route
           path="/chat"
           element={
-            <MainLayout>
+            <LayoutWithHeader>
               <ChatWindow />
-            </MainLayout>
+            </LayoutWithHeader>
           }
         />
         <Route
           path="/profile"
           element={
-            <MainLayout>
+            <LayoutWithHeader>
               <ProfilePage />
-            </MainLayout>
+            </LayoutWithHeader>
           }
         />
       </Routes>
