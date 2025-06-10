@@ -8,7 +8,7 @@ import post2img from "../assets/images/IN10CT.png";
 import post3img from "../assets/images/post3.jpg";
 
 export default function NewsFeed() {
- const [posts] = useState([
+  const [posts] = useState([
     {
       id: 1,
       user: "Neha",
@@ -45,37 +45,50 @@ export default function NewsFeed() {
   ]);
 
   return (
-    <div className="container">
-      <aside className="sidebar">
-        <div className="profile">
-          <img src={prateekimg} alt="user"  className="profile-avatar" />
-          <span>Prateek_psp</span>
+    <div className="linkedin-container">
+      {/* Left Sidebar */}
+      <aside className="linkedin-sidebar">
+        <div className="sidebar-card profile-card">
+          <img src={prateekimg} alt="user" className="profile-avatar-large" />
+          <h2>Prajwal Dalawai <span className="verified-badge">✔️</span></h2>
+          <p className="profile-title">CSE'26, SDMCET, DHARWAD<br />Hubli-Dharwad, Karnataka</p>
+          <div className="profile-org">🏫 SDM College of Engg & Tech , Dharwad</div>
         </div>
-        <nav>
-          <ul>
-            <li className="active">🏠 Home</li>
-            <li>🔍 Explore</li>
-            <li>🔔 Notifications</li>
-            <li>✉️ Messages</li>
-          </ul>
-        </nav>
-        <button className="create-post-btn">Create Post</button>
+        <div className="sidebar-card stats-card">
+          <div className="sidebar-stat-row">
+            <span>Profile viewers</span>
+            <span className="stat-value">35</span>
+          </div>
+          <div className="sidebar-stat-row">
+            <span>Post impressions</span>
+            <span className="stat-value">49</span>
+          </div>
+        </div>
+        <div className="sidebar-card premium-card">
+          <span className="premium-icon">🔶</span> Gain exclusive tools & insights<br />
+          <span className="premium-link">Redeem Premium for ₹0</span>
+        </div>
+        <div className="sidebar-card nav-card">
+          <div>🔖 Saved items</div>
+          <div>👥 Groups</div>
+          <div>📰 Newsletters</div>
+          <div>📅 Events</div>
+        </div>
       </aside>
 
-      <main className="main-feed">
-        <h1>Home</h1>
-
-        <div className="post-creator">
-          <img src={prateekimg} alt="user"  className="profile-avatar" />
-          <input type="text" placeholder="What's on your mind?" />
-          <button className="post-btn">📷 Post</button>
+      {/* Center Feed */}
+      <main className="linkedin-feed">
+        <div className="feed-card post-creator-card">
+          <img src={prateekimg} alt="user" className="profile-avatar" />
+          <input type="text" placeholder="Start a post" className="feed-input" />
+          <button className="feed-action-btn">🎥 Video</button>
+          <button className="feed-action-btn">📷 Photo</button>
+          <button className="feed-action-btn">📝 Write article</button>
         </div>
-
-        <h2>Latest Posts</h2>
-
-        <div className="posts">
+        <div className="feed-divider" />
+        <div className="posts-list">
           {posts.map((post) => (
-            <div className="post" key={post.id}>
+            <div className="feed-card post-card" key={post.id}>
               <div className="post-header">
                 <img src={post.avatar} alt={post.user} className="profile-avatar" />
                 <div>
@@ -83,23 +96,41 @@ export default function NewsFeed() {
                   <span className="time">{post.time}</span>
                 </div>
               </div>
-             
               {post.image && (
-              <div className="post-image">
-                <img src={post.image} alt="post" />
-              </div>
-               )}
-              <p>{post.caption}</p>
-
+                <div className="post-image"><img src={post.image} alt="post" /></div>
+              )}
+              <p className="post-caption">{post.caption}</p>
               <div className="post-actions">
-                <span>❤️ {post.likes}</span>
+                <span>👍 {post.likes}</span>
                 <span>💬 {post.comments}</span>
-                <span>⚠️ {post.shares}</span>
+                <span>🔗 {post.shares}</span>
               </div>
             </div>
           ))}
         </div>
       </main>
+
+      {/* Right News/Trending */}
+      <aside className="linkedin-rightbar">
+        <div className="rightbar-card news-card">
+          <h3>LinkedIn News</h3>
+          <ul className="news-list">
+            <li><strong>Warner Bros. Discovery to split</strong><br /><span className="news-meta">35m ago • 65,546 readers</span></li>
+            <li><strong>Microsoft debuts new Xbox devices</strong><br /><span className="news-meta">1h ago • 12,691 readers</span></li>
+            <li><strong>Glenmark gets DCGI nod for cancer d...</strong><br /><span className="news-meta">1h ago • 4,037 readers</span></li>
+            <li><strong>Dividend payouts hit new high</strong><br /><span className="news-meta">4h ago • 1,057 readers</span></li>
+            <li><strong>GCCs struggle to retain talent</strong><br /><span className="news-meta">4h ago • 802 readers</span></li>
+          </ul>
+        </div>
+        <div className="rightbar-card puzzles-card">
+          <h4>Today's puzzles</h4>
+          <ul className="puzzles-list">
+            <li>Zip #84 <span className="puzzle-meta">4 connections played</span></li>
+            <li>Tango #245 <span className="puzzle-meta">Harmonize the grid</span></li>
+            <li>Queens #405 <span className="puzzle-meta">Crown each region</span></li>
+          </ul>
+        </div>
+      </aside>
     </div>
   );
 }

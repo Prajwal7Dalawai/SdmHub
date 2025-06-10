@@ -4,19 +4,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
-  name: String,
-  email: String,
-  password_hash: String,
-  role: String,
-  department: String,
-  graduation_year: Number,
-  enrollment_year: Number,
-  profile_pic: String,
-  bio: String,
-  created_at: Date
-});
-
 const postSchema = new Schema({
   author_id: { type: Schema.Types.ObjectId, ref: 'User' },
   content: String,
