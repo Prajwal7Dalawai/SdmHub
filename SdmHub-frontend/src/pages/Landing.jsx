@@ -15,10 +15,14 @@ import {
   FaLinkedin
 } from 'react-icons/fa'; // Import all the Fa icons you're using
 import '../assets/css/Landing.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const Landing = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+
+    const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -150,9 +154,23 @@ const Landing = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
+            onClick={() => navigate('/sign')} 
           >
             Join SDMHUB Now
           </motion.button>
+          <motion.button
+  className="hero-button"
+  variants={buttonVariants}
+  whileHover="hover"
+  whileTap="tap"
+  initial={{ opacity: 0, scale: 0.8 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
+  onClick={() => navigate('/login')} // 👈 This is the routing part
+>
+  Login Now
+</motion.button>
+
         </div>
         <motion.div
           className="hero-image"

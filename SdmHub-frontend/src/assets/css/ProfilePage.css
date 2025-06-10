@@ -198,3 +198,190 @@ a:hover {
   cursor: pointer;
   transition: none;
 }
+
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: #fff;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.profile-container {
+  max-width: 1000px;
+  margin: 35px auto;
+  padding: 30px 40px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid #A22B29;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  border: 3px solid #A22B29;
+}
+
+.profile-info h1 {
+  font-size: 28px;
+  color: #111;
+  font-weight: 700;
+}
+
+.profile-info p {
+  margin-top: 8px;
+  color: #555;
+  font-weight: 500;
+}
+
+.edit-section {
+  margin: 30px 0;
+}
+
+.edit-section h3 {
+  color: #A22B29;
+  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 700;
+  border-left: 5px solid #A22B29;
+  padding-left: 12px;
+}
+
+.edit-section label {
+  display: block;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.edit-section input,
+.edit-section textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 6px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+.edit-section textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-section input:focus,
+.edit-section textarea:focus {
+  border-color: #A22B29;
+  outline: none;
+}
+
+.button-group {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.button-group button {
+  background-color: #A22B29;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+  background-color: #7e1f22;
+}
+
+/* Form Styles */
+.edit-form {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-form label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+.edit-form input,
+.edit-form textarea {
+  padding: 12px 14px;
+  margin-top: 6px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+  border-color: #A22B29;
+  outline: none;
+  box-shadow: 0 0 5px rgba(162, 43, 41, 0.3);
+}
+.avatar-edit-label {
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin: 0 auto;
+  transition: transform 0.2s;
+  position: relative;
+  border: 2px solid #ccc;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #000000a0;
+  color: white;
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 50%;
+  transform: translate(25%, 25%);
+}

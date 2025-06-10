@@ -6,6 +6,7 @@ import FriendRequestAndNotificationPage from "./pages/FriendRequestAndNotificati
 import ChatWindow from "./pages/ChatWindow";
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
+import EditProfile from "./pages/EditProfile";
 import React from "react";
 
 // Layout for authenticated pages
@@ -47,6 +48,14 @@ function App() {
           element={
             <LayoutWithHeader>
               <ProfilePage />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/editProfile"
+          element={
+            <LayoutWithHeader>
+              <EditProfile />
             </LayoutWithHeader>
           }
         />
