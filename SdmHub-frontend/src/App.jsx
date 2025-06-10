@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import FriendRequestAndNotificationPage from "./pages/FriendRequestAndNotificationPage";
 import ChatWindow from "./pages/ChatWindow";
 import Header from "./components/Hearder";
+import Landing from "./pages/Landing";
 import React from "react";
 
 // Layout for authenticated pages
@@ -21,8 +22,10 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Landing />} />
 
         {/* Routes with Header */}
+        
         <Route
           path="/friendAndNotify"
           element={
