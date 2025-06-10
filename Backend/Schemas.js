@@ -4,13 +4,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const postSchema = new Schema({
-  author_id: { type: Schema.Types.ObjectId, ref: 'User' },
-  content: String,
-  image_urls: [String],
-  created_at: Date,
-  visibility: String
-});
 
 const commentSchema = new Schema({
   post_id: { type: Schema.Types.ObjectId, ref: 'Post' },
