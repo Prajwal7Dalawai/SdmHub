@@ -218,7 +218,7 @@ body.dark-mode .theme-toggle:hover {
 /* Hero Section */
 .hero-section {
   min-height: 100vh;
-  padding-top: 100px;
+  padding-top: 20px;
   padding-bottom: 60px;
   background: linear-gradient(135deg, var(--dark-red) 0%, var(--maroon) 100%);
   color: white;
@@ -238,8 +238,20 @@ body.dark-mode .hero-section {
 .hero-content {
   flex: 1;
   max-width: 600px;
-  padding: 0 40px;
+  padding: 40px;
   z-index: 2;
+  background-color: rgba(139, 0, 0, 0.1);
+  border: 2px solid var(--dark-red);
+  border-radius: 20px;
+  margin-left: 40px;
+  box-shadow: 0 8px 32px rgba(139, 0, 0, 0.2);
+  margin-top: 20px;
+}
+
+body.dark-mode .hero-content {
+  background-color: rgba(139, 0, 0, 0.15);
+  border-color: var(--light-red-accent);
+  box-shadow: 0 8px 32px rgba(139, 0, 0, 0.3);
 }
 
 .hero-image {
