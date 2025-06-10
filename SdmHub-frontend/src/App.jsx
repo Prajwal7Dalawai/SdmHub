@@ -6,6 +6,7 @@ import FriendRequestAndNotificationPage from "./pages/FriendRequestAndNotificati
 import ChatWindow from "./pages/ChatWindow";
 import SDMHUBAuth from "./pages/SDMHUBAuth";
 import Header from "./components/Hearder";
+import Landing from "./pages/Landing";
 import NewsFeed from "./pages/SDMHUBNewsPost";
 import React from "react";
 
@@ -23,10 +24,12 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<SDMHUBAuth />} />
         <Route path="/feed" element={<NewsFeed />} />
 
         {/* Routes with Header */}
+        
         <Route
           path="/friendAndNotify"
           element={
