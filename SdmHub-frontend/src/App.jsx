@@ -7,6 +7,7 @@ import ChatWindow from "./pages/ChatWindow";
 import SDMHUBAuth from "./pages/SDMHUBAuth";
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
+import EditProfile from "./pages/EditProfile";
 import NewsFeed from "./pages/SDMHUBNewsPost";
 import React from "react";
 
@@ -51,6 +52,14 @@ function App() {
           element={
             <LayoutWithHeader>
               <ProfilePage />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/editProfile"
+          element={
+            <LayoutWithHeader>
+              <EditProfile />
             </LayoutWithHeader>
           }
         />

@@ -218,7 +218,7 @@ body.dark-mode .theme-toggle:hover {
 /* Hero Section */
 .hero-section {
   min-height: 100vh;
-  padding-top: 20px;
+  padding-top: 100px;
   padding-bottom: 60px;
   background: linear-gradient(135deg, var(--dark-red) 0%, var(--maroon) 100%);
   color: white;
