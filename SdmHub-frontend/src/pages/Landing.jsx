@@ -17,7 +17,6 @@ import {
 import '../assets/css/Landing.css';
 import { useNavigate } from 'react-router-dom';
 
-
 const Landing = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
@@ -170,7 +169,9 @@ const Landing = () => {
 >
   Login Now
 </motion.button>
-
+          >
+            Join SDMHUB Now
+          </motion.button>
         </div>
         <motion.div
           className="hero-image"

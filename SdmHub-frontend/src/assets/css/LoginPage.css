@@ -51,6 +51,7 @@
   margin: 0 0 15px 0;
   letter-spacing: 1.2px;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .left-panel p {
@@ -59,6 +60,8 @@
   max-width: 420px;
   margin-top: 20px;
   opacity: 0.85;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .footer-logo {
@@ -69,6 +72,7 @@
   color: #eee;
   gap: 10px;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .footer-logo span {
@@ -86,6 +90,8 @@
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .giant-logo:hover {
@@ -113,6 +119,7 @@
   margin-bottom: 35px;
   color: #A22B29;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .welcome-section {
@@ -120,6 +127,7 @@
   max-width: 380px;
   color: #444;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .welcome-section h3 {
@@ -176,8 +184,10 @@
   border: 2px solid #ddd;
   border-radius: 0;
   box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s, color 0.3s;
   outline-offset: 2px;
+  background-color: #fff;
+  color: #333;
 }
 
 .form-group input::placeholder {
@@ -188,6 +198,8 @@
 .form-group input:focus {
   border-color: #A22B29;
   box-shadow: 0 0 8px rgba(162, 43, 41, 0.5);
+  background-color: #fff7e6;
+  color: #7f1d1d;
 }
 
 /* Login Button */
@@ -204,6 +216,7 @@
   position: relative;
   overflow: hidden;
   user-select: none;
+  -webkit-user-select: none;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 15px rgba(162, 43, 41, 0.4);
 }
@@ -260,18 +273,23 @@
   border-radius: 0;
   font-size: 1.1rem;
   font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .google-login-button img {
   width: 20px;
   height: 20px;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .google-login-button:hover {
@@ -290,6 +308,8 @@
   margin-top: 25px;
   font-size: 0.9rem;
   color: #666;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .forgot-password a {
@@ -302,4 +322,29 @@
 .forgot-password a:hover {
   color: #7f1d1d;
   text-decoration: underline;
+}
+
+/* Responsive: Stack panels on small screens */
+@media (max-width: 900px) {
+  .login-page-container {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .left-panel, .right-panel {
+    flex: none;
+    width: 100vw;
+    height: auto;
+    min-height: unset;
+    padding: 32px 10vw;
+  }
+  .left-panel {
+    align-items: center;
+    text-align: center;
+    padding-bottom: 0;
+  }
+  .right-panel {
+    align-items: center;
+    text-align: center;
+    padding-top: 0;
+  }
 }
