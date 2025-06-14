@@ -15,12 +15,10 @@ import {
   FaLinkedin
 } from 'react-icons/fa'; // Import all the Fa icons you're using
 import '../assets/css/Landing.css';
-import { useLoader } from "../components/LoaderContext";
 import { useNavigate } from 'react-router-dom';
 
 const Landing = () => {
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const handleJoinNow = () => {
     navigate('/signup');
@@ -39,6 +37,8 @@ const Landing = () => {
 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+
+    const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -162,18 +162,30 @@ const Landing = () => {
           >
             The exclusive social hub for SDM students and alumni. Your private network to connect with classmates, discover opportunities, and build lasting relationships.
           </motion.p>
-          <motion.button
-            className="hero-button"
-            variants={buttonVariants}
-            whileHover="hover"
-            whileTap="tap"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
-            onClick={handleJoinNow}
-          >
-            Join SDMHUB Now
-          </motion.button>
+<motion.button
+  className="hero-button"
+  variants={buttonVariants}
+  whileHover="hover"
+  whileTap="tap"
+  initial={{ opacity: 0, scale: 0.8 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
+  onClick={handleJoinNow}
+>
+  Join SDMHUB Now
+</motion.button>
+<motion.button
+  className="hero-button"
+  variants={buttonVariants}
+  whileHover="hover"
+  whileTap="tap"
+  initial={{ opacity: 0, scale: 0.8 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 1.8, duration: 0.5, type: "spring", stiffness: 200 }}
+  onClick={() => navigate('/login')}
+>
+  Login Now
+</motion.button>
         </div>
         <motion.div
           className="hero-image"

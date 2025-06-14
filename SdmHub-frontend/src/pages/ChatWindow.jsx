@@ -12,23 +12,58 @@ const messageListData = [
   { id: 6, name: 'Leslie Alexander', sender: 'Leslie Alexander', lastMessage: 'I’ll send the report by tonight.', avatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
 ];
 
-// Starting conversation messages with timestamp and status
-const initialConversation = [
-  { id: 1, sender: 'other', message: 'Hi there, nice to meet you. My name is Jenny Wilson, and I’m from Jakarta.', timestamp: Date.now() - 3600000 * 5, status: 'seen' },
-  { id: 2, sender: 'other', message: 'Good evening. I’d like to order a chicken salad, please.', timestamp: Date.now() - 3600000 * 4.5, status: 'seen' },
-  { id: 3, sender: 'you', message: 'Hi there, nice to meet you too. I’m Savannah Nguyen from Bandung, pleased to meet you 🙏', timestamp: Date.now() - 3600000 * 4, status: 'seen' },
-  { id: 4, sender: 'other', message: 'How has your day been so far?', timestamp: Date.now() - 3600000 * 3.5, status: 'seen' },
-  { id: 5, sender: 'you', message: 'It’s been good! Just finishing up some design tasks at work.', timestamp: Date.now() - 3600000 * 3, status: 'delivered' },
-  { id: 6, sender: 'other', message: 'That sounds productive. Let’s catch up this weekend?', timestamp: Date.now() - 3600000 * 2.5, status: 'delivered' },
-  { id: 7, sender: 'you', message: 'Sure! I’d love that 😊', timestamp: Date.now() - 3600000 * 2, status: 'delivered' },
-  { id: 8, sender: 'other', message: 'Great! I’ll message you the details later.', timestamp: Date.now() - 3600000 * 1.5, status: 'delivered' },
-];
-
+// Add unique messages per user for demonstration
+const userConversations = {
+  'Jenny Wilson': [
+    { id: 1, sender: 'other', message: 'Hi, how are you today?', timestamp: Date.now() - 7200000, status: 'seen' },
+    { id: 2, sender: 'you', message: 'Doing well, just wrapped up some work.', timestamp: Date.now() - 7100000, status: 'seen' },
+    { id: 3, sender: 'other', message: 'Awesome! Want to grab a coffee later?', timestamp: Date.now() - 7000000, status: 'delivered' },
+    { id: 4, sender: 'you', message: 'Sounds good! Around 3 PM?', timestamp: Date.now() - 6900000, status: 'delivered' },
+    { id: 5, sender: 'other', message: 'Perfect! See you then.', timestamp: Date.now() - 6800000, status: 'delivered' },
+  ],
+  'Bessie Cooper': [
+    { id: 1, sender: 'other', message: 'You coming to the birthday party?', timestamp: Date.now() - 6600000, status: 'seen' },
+    { id: 2, sender: 'you', message: 'Absolutely! Can’t wait 🎉', timestamp: Date.now() - 6500000, status: 'delivered' },
+    { id: 3, sender: 'other', message: 'Great! It starts at 7.', timestamp: Date.now() - 6400000, status: 'seen' },
+    { id: 4, sender: 'you', message: 'Got it. Bringing a gift too!', timestamp: Date.now() - 6300000, status: 'delivered' },
+    { id: 5, sender: 'other', message: 'Awesome, see you there!', timestamp: Date.now() - 6200000, status: 'delivered' },
+  ],
+  'Guy Hawkins': [
+    { id: 1, sender: 'other', message: 'I sent the documents you asked for.', timestamp: Date.now() - 6000000, status: 'seen' },
+    { id: 2, sender: 'you', message: 'Got them. Thanks a ton!', timestamp: Date.now() - 5900000, status: 'seen' },
+    { id: 3, sender: 'other', message: 'No problem. Let me know if you need anything else.', timestamp: Date.now() - 5800000, status: 'delivered' },
+    { id: 4, sender: 'you', message: 'Will do! Appreciate the quick turnaround.', timestamp: Date.now() - 5700000, status: 'delivered' },
+    { id: 5, sender: 'other', message: 'Anytime!', timestamp: Date.now() - 5600000, status: 'delivered' },
+  ],
+  'Courtney Henry': [
+    { id: 1, sender: 'other', message: 'Let’s catch up on the marketing strategy tomorrow.', timestamp: Date.now() - 5400000, status: 'seen' },
+    { id: 2, sender: 'you', message: 'Sure, I’ve added it to my calendar.', timestamp: Date.now() - 5300000, status: 'seen' },
+    { id: 3, sender: 'other', message: 'Perfect. See you at 10 AM?', timestamp: Date.now() - 5200000, status: 'delivered' },
+    { id: 4, sender: 'you', message: 'Yes, 10 AM works for me.', timestamp: Date.now() - 5100000, status: 'delivered' },
+    { id: 5, sender: 'other', message: 'Great, looking forward to it.', timestamp: Date.now() - 5000000, status: 'delivered' },
+  ],
+  'Robert Fox': [
+    { id: 1, sender: 'other', message: 'Can we push the deadline to Monday?', timestamp: Date.now() - 5000000, status: 'seen' },
+    { id: 2, sender: 'you', message: 'Yes, but please update the team.', timestamp: Date.now() - 4900000, status: 'delivered' },
+    { id: 3, sender: 'other', message: 'Will do. Thanks for being flexible!', timestamp: Date.now() - 4800000, status: 'seen' },
+    { id: 4, sender: 'you', message: 'No problem. Just make sure everyone is aware.', timestamp: Date.now() - 4700000, status: 'delivered' },
+    { id: 5, sender: 'other', message: 'Understood. Will send an email now.', timestamp: Date.now() - 4600000, status: 'delivered' },
+  ],
+  'Leslie Alexander': [
+    { id: 1, sender: 'other', message: 'Are the designs finalized?', timestamp: Date.now() - 4500000, status: 'seen' },
+    { id: 2, sender: 'you', message: 'Yes, sent them this morning.', timestamp: Date.now() - 4400000, status: 'seen' },
+    { id: 3, sender: 'other', message: 'Excellent! I’ll review them shortly.', timestamp: Date.now() - 4300000, status: 'delivered' },
+    { id: 4, sender: 'you', message: 'Let me know if you have any feedback.', timestamp: Date.now() - 4200000, status: 'delivered' },
+    { id: 5, sender: 'other', message: 'Will do. Thanks!', timestamp: Date.now() - 4100000, status: 'delivered' },
+  ]
+};
 const ChatWindow = () => {
   const [messageInput, setMessageInput] = useState('');
-  const [conversation, setConversation] = useState(initialConversation);
+  const [selectedUser, setSelectedUser] = useState('Jenny Wilson');
+  const [conversations, setConversations] = useState(userConversations);
 
-  // Handle sending new message
+  const conversation = conversations[selectedUser] || [];
+
   const sendMessage = () => {
     if (messageInput.trim() === '') return;
     const newMsg = {
@@ -36,39 +71,40 @@ const ChatWindow = () => {
       sender: 'you',
       message: messageInput,
       timestamp: Date.now(),
-      status: 'delivered', // new messages start as delivered
+      status: 'delivered',
     };
-    setConversation((prev) => [...prev, newMsg]);
+    setConversations((prev) => ({
+      ...prev,
+      [selectedUser]: [...prev[selectedUser], newMsg],
+    }));
     setMessageInput('');
   };
 
-  // Handle delete message
   const handleDelete = (id) => {
-    setConversation((prev) => prev.filter((msg) => msg.id !== id));
+    setConversations((prev) => ({
+      ...prev,
+      [selectedUser]: prev[selectedUser].filter((msg) => msg.id !== id),
+    }));
   };
 
-  // Handle copy message
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Message copied to clipboard!');
+      alert('Message copied!');
     });
   };
 
-  // Handle forward message (you can expand this)
   const handleForward = (id) => {
     const msg = conversation.find((m) => m.id === id);
-    if (msg) {
-      alert(`Forwarding message: "${msg.message}" (Implement forwarding logic)`);
-    }
+    alert(`Forwarding message: "${msg.message}"`);
   };
 
-  // Handle edit message
   const handleEdit = (id, newText) => {
-    setConversation((prev) =>
-      prev.map((msg) =>
-        msg.id === id ? { ...msg, message: newText, timestamp: Date.now(), status: 'delivered' } : msg
-      )
-    );
+    setConversations((prev) => ({
+      ...prev,
+      [selectedUser]: prev[selectedUser].map((msg) =>
+        msg.id === id ? { ...msg, message: newText, timestamp: Date.now() } : msg
+      ),
+    }));
   };
 
   return (
@@ -76,29 +112,26 @@ const ChatWindow = () => {
       <div className="chat-panel">
         <div className="chat-list-section">
           <h3 className="chat-list-heading">Chats</h3>
-
-          <div className="chat-list-search-container">
-            <input type="text" placeholder="Search chats..." className="chat-list-search-input" />
-          </div>
-
+          <input type="text" placeholder="Search..." className="chat-list-search-input" />
           <div className="chat-list">
             {messageListData.map((item) => (
-              <MessageListItem
-                key={item.id}
-                avatar={item.avatar}
-                name={item.name}
-                lastMessage={item.lastMessage}
-                active={item.name === 'Jenny Wilson'}
-                sender={item.sender}
-              />
+              <div key={item.id} onClick={() => setSelectedUser(item.name)}>
+                <MessageListItem
+                  avatar={item.avatar}
+                  name={item.name}
+                  lastMessage={item.lastMessage}
+                  active={item.name === selectedUser}
+                  sender={item.sender}
+                />
+              </div>
             ))}
           </div>
         </div>
 
         <div className="chat-box">
           <div className="chat-header-small">
-            <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="Jenny" />
-            <span>Jenny Wilson</span>
+            <img src={messageListData.find(u => u.name === selectedUser)?.avatar} alt={selectedUser} />
+            <span>{selectedUser}</span>
           </div>
 
           <div className="chat-messages">
@@ -119,7 +152,6 @@ const ChatWindow = () => {
           </div>
 
           <div className="input-area">
-            <img src="https://randomuser.me/api/portraits/women/50.jpg" alt="You" />
             <input
               type="text"
               placeholder="Write a message..."
@@ -132,7 +164,7 @@ const ChatWindow = () => {
                 }
               }}
             />
-            <button className="attachment-button" title="Attach files">📎</button>
+            <button className="attachment-button">📎</button>
             <button className="send-button" onClick={sendMessage}>Send</button>
           </div>
         </div>
