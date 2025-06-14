@@ -7,6 +7,9 @@ import ChatWindow from "./pages/ChatWindow";
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
 import EditProfile from "./pages/EditProfile";
+import SDMHUBAuth from "./pages/SDMHUBAuth";
+import NewsFeed from "./pages/NewsFeed";
+import AuthForm from './pages/AuthForm';
 import React from "react";
 
 // Layout for authenticated pages
@@ -23,8 +26,10 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signUp" element={<SDMHUBAuth />} />
         <Route path="/" element={<Landing />} />
-
+        <Route path="/auth" element={<AuthForm />} />
+        
         {/* Routes with Header */}
         
         <Route
@@ -32,6 +37,14 @@ function App() {
           element={
             <LayoutWithHeader>
               <FriendRequestAndNotificationPage />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/feed"
+          element={
+            <LayoutWithHeader>
+              <NewsFeed />
             </LayoutWithHeader>
           }
         />

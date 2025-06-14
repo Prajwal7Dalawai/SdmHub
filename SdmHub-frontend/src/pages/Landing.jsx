@@ -154,22 +154,10 @@ const Landing = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
-            onClick={() => navigate('/sign')} 
+            onClick={() => navigate('/login')} 
           >
-            Join SDMHUB Now
-          </motion.button>
-          <motion.button
-  className="hero-button"
-  variants={buttonVariants}
-  whileHover="hover"
-  whileTap="tap"
-  initial={{ opacity: 0, scale: 0.8 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
-  onClick={() => navigate('/login')} // 👈 This is the routing part
->
-  Login Now
-</motion.button>
+            Get Started
+          </motion.button> 
 
         </div>
         <motion.div
@@ -426,6 +414,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 200 }}
+            onClick={() => navigate('/signUp')} 
           >
             Get Started Now
           </motion.button>
