@@ -15,10 +15,30 @@ import {
   FaLinkedin
 } from 'react-icons/fa'; // Import all the Fa icons you're using
 import '../assets/css/Landing.css';
+import { useLoader } from "../components/LoaderContext";
+import { useNavigate } from 'react-router-dom';
 
 const Landing = () => {
-    const [isDarkMode, setIsDarkMode] = useState(false);
-    const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  const { setLoading } = useLoader();
+  const navigate = useNavigate();
+
+  const handleJoinNow = () => {
+    navigate('/signup');
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    return () => {
+      clearTimeout(timer);
+      setLoading(false);
+    };
+  }, [setLoading]);
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -150,6 +170,7 @@ const Landing = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
+            onClick={handleJoinNow}
           >
             Join SDMHUB Now
           </motion.button>
@@ -408,6 +429,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 200 }}
+            onClick={handleJoinNow}
           >
             Get Started Now
           </motion.button>

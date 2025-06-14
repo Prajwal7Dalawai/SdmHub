@@ -9,6 +9,7 @@ import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
 import NewsFeed from "./pages/SDMHUBNewsPost";
 import React from "react";
+import Loader from "./components/loader";
 
 // Layout for authenticated pages
 const LayoutWithHeader = ({ children }) => (
@@ -23,6 +24,7 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path="/load" element={<Loader />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<SDMHUBAuth />} />
