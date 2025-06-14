@@ -8,16 +8,6 @@
   overflow: hidden;
 }
 
-.container {
-  position: center;
-  width: 100vw;
-  height: 100vh;
-  background: #fff;
-  border-radius: 0;
-  box-shadow: none;
-  margin: 0;
-  overflow: hidden;
-}
 
 
 .form-box {
