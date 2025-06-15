@@ -29,7 +29,7 @@ const Header = () => {
       </div>
 
       <div className="header-right">
-        <Link to="/" className="icon-container">
+        <Link to="/feed" className="icon-container">
           <FaHome className="icon" />
         </Link>
         <Link to="/profile" className="icon-container">

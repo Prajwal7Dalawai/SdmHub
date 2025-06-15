@@ -124,7 +124,7 @@ body.dark-mode .header {
 .header > .container {
   display: flex;
   justify-content: space-between;
-  align-items:center;
+  align-items: center;
   width: 100%;
   min-height: 48px;
 }
@@ -239,6 +239,8 @@ body.dark-mode .hero-section {
 .hero-content {
   flex: 1;
   max-width: 600px;
+  padding: 0 40px;
+  z-index: 2;
   padding: 40px;
   z-index: 2;
   background-color: rgba(139, 0, 0, 0.1);

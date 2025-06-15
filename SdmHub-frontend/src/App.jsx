@@ -8,6 +8,7 @@ import SDMHUBAuth from "./pages/SDMHUBAuth";
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
 import EditProfile from "./pages/EditProfile";
+import AuthForm from './pages/AuthForm';
 import NewsFeed from "./pages/SDMHUBNewsPost";
 import React, { Suspense, useEffect } from "react";
 import { LoadingProvider, useLoading } from "./context/LoadingContext";
@@ -66,6 +67,56 @@ const SuspenseWrapper = ({ children }) => (
 function App() {
   return (
     <Router>
+      <Routes>
+        {/* Public Route */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signUp" element={<SDMHUBAuth />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/auth" element={<AuthForm />} />
+        
+        {/* Routes with Header */}
+        
+        <Route
+          path="/friendAndNotify"
+          element={
+            <LayoutWithHeader>
+              <FriendRequestAndNotificationPage />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/feed"
+          element={
+            <LayoutWithHeader>
+              <NewsFeed />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <LayoutWithHeader>
+              <ChatWindow />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <LayoutWithHeader>
+              <ProfilePage />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
+          path="/editProfile"
+          element={
+            <LayoutWithHeader>
+              <EditProfile />
+            </LayoutWithHeader>
+          }
+        />
+      </Routes>
       <LoadingProvider>
         <PageHandler />
         <Routes>

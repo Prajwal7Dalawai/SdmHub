@@ -163,6 +163,25 @@ const Landing = () => {
           >
             The exclusive social hub for SDM students and alumni. Your private network to connect with classmates, discover opportunities, and build lasting relationships.
           </motion.p>
+          <motion.button
+            className="hero-button"
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
+            onClick={() => navigate('/login')} 
+          >
+            Get Started
+          </motion.button> 
+
+        </div>
+        <motion.div
+          className="hero-image"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.4, duration: 0.8 }}
 <motion.button
   className="hero-button"
   variants={buttonVariants}
