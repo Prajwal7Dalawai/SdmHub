@@ -1,0 +1,408 @@
+/* ===== Light Theme Defaults ===== */
+:root {
+  --bg-color: #fefcfc;
+  --sidebar-bg: #fefcfc;
+  --main-bg: #d0c0db;
+  --text-color: #000;
+  --nav-text: #444;
+  --nav-hover-bg: #d0c0db;
+  --nav-hover-color: #000;
+  --border-color: #eee;
+  --card-bg: #fff;
+  --input-border: #ddd;
+  --post-border: #e0e0e0;
+  --button-bg: #e63946;
+  --button-text: #fff;
+  --avatar-border: #ccc;
+  --caption-color: #888;
+  --action-color: #c0392b;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Dark Theme Overrides ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #121212;
+    --sidebar-bg: #121212;
+    --main-bg: #2c2c2c;
+    --text-color: #eee;
+    --nav-text: #aaa;
+    --nav-hover-bg: #333;
+    --nav-hover-color: #fff;
+    --border-color: #333;
+    --card-bg: #2a2a2a;
+    --input-border: #555;
+    --post-border: #444;
+    --button-bg: #e63946;
+    --button-text: #fff;
+    --avatar-border: #888;
+    --caption-color: #bbb;
+    --action-color: #ff7675;
+    --shadow-color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f3f2ef;
+  color: #222;
+}
+
+.linkedin-container {
+  display: grid !important;
+  grid-template-columns: 1fr 2fr 1fr !important; /* Force Desktop Layout */
+  gap: 20px !important;
+  padding: 20px !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  min-height: calc(100vh - 60px) !important;
+}
+
+/* Sidebar Styles */
+.linkedin-sidebar {
+  position: sticky !important;
+  top: 80px !important;
+  height: fit-content !important;
+  display: block !important; /* Force visible on desktop by default */
+}
+
+.sidebar-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.2);
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.profile-avatar-large {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+}
+
+.profile-title {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.profile-org {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+.verified-badge {
+  color: #0a66c2;
+  font-size: 0.9rem;
+}
+
+.sidebar-stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.stat-value {
+  color: #0a66c2;
+  font-weight: 600;
+}
+
+.premium-card {
+  background: #fffbf2;
+  border: 1px solid #e6d9b8;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.premium-icon {
+  color: #b24020;
+}
+
+.premium-link {
+  color: #0a66c2;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-card > div {
+  margin: 8px 0;
+  color: #666;
+  cursor: pointer;
+}
+
+/* Feed Styles */
+.linkedin-feed {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+}
+
+.feed-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.2);
+}
+
+.post-creator-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.feed-input {
+  flex: 1 !important;
+  padding: 12px !important;
+  border: none !important;
+  border-radius: 24px !important;
+  font-size: 0.9rem !important;
+  overflow: hidden !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background: white !important;
+  background-image: none !important; /* Ensure no background image */
+  background-size: 0 0 !important; /* Aggressively hide background images */
+  box-shadow: none !important;
+  text-indent: 0 !important;
+  outline: none !important;
+  line-height: normal !important;
+  text-align: left !important;
+}
+
+.feed-input::-webkit-search-decoration,
+.feed-input::-webkit-search-cancel-button,
+.feed-input::-webkit-search-results-button,
+.feed-input::-webkit-search-results-decoration {
+  display: none !important;
+}
+
+/* Webkit autofill styles override (more aggressive) */
+.feed-input:-webkit-autofill,
+.feed-input:-webkit-autofill:hover,
+.feed-input:-webkit-autofill:focus,
+.feed-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+    -webkit-text-fill-color: #000 !important;
+    background-image: none !important;
+    background-color: white !important;
+    appearance: none !important;
+}
+
+.feed-action-btn {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.feed-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 10px 0;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.post-header strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.time {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.post-image img {
+  width: 100%;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+.post-caption {
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+
+.post-actions {
+  display: flex;
+  gap: 20px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Rightbar Styles */
+.linkedin-rightbar {
+  display: block !important; /* Force visibility on desktop */
+  position: sticky !important;
+  top: 80px !important;
+  height: fit-content !important;
+  grid-column: 3 !important; /* Explicitly place in third column */
+}
+
+.rightbar-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.2);
+  min-width: 280px; /* Ensure a minimum width */
+}
+
+.news-list, .puzzles-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.news-list li, .puzzles-list li {
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+
+.news-meta, .puzzle-meta {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-button {
+  display: none !important;
+}
+
+/* Responsive Styles for Tablet (max 1024px) */
+@media (max-width: 1024px) {
+  .linkedin-container {
+    grid-template-columns: 2fr 1fr !important; /* Tablet: Feed | Right (Left sidebar hidden) */
+    gap: 10px !important;
+  }
+  
+  .linkedin-sidebar {
+    display: none !important; /* Hide left sidebar on tablet and below */
+  }
+
+  .linkedin-rightbar {
+    grid-column: 2 !important; /* Ensure right sidebar is in the second column on tablet */
+    display: block !important; /* Ensure visibility on tablet */
+  }
+}
+
+/* Responsive Styles for Mobile (max 768px) */
+@media (max-width: 768px) {
+  .linkedin-container {
+    grid-template-columns: 1fr !important; /* Mobile: Only Feed */
+    padding: 10px !important;
+  }
+
+  .linkedin-feed {
+    grid-column: 1 !important; /* Ensure feed takes full column on mobile */
+  }
+
+  .mobile-menu-button {
+    display: block !important;
+  }
+
+  .linkedin-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 80% !important;
+    height: 100vh !important;
+    background: white !important;
+    z-index: 999 !important;
+    padding: 20px !important;
+    transition: left 0.3s ease !important;
+    overflow-y: auto !important;
+    display: none !important; /* Hidden by default on mobile unless active */
+  }
+
+  .linkedin-sidebar.active {
+    left: 0 !important;
+    padding-top: 80px !important;
+    display: block !important; /* Show when active */
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 998 !important;
+  }
+
+  .sidebar-overlay.active {
+    display: block !important;
+  }
+
+  .feed-card {
+    padding: 15px !important;
+  }
+
+  .post-creator-card {
+    flex-wrap: wrap !important;
+  }
+
+  .feed-action-btn {
+    flex: 1 !important;
+    text-align: center !important;
+  }
+
+  .linkedin-rightbar {
+    display: none !important; /* Hide right sidebar on mobile */
+  }
+}
+
+/* Close button for mobile sidebar */
+.sidebar-close {
+  display: none !important;
+  position: fixed !important;
+  top: 30px !important; /* Adjusted position */
+  right: 20px !important; /* Adjusted position */
+  background: none !important;
+  border: none !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  color: #666 !important;
+  z-index: 1002 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+@media (max-width: 768px) {
+  .sidebar-close {
+    display: block !important;
+  }
+
+  .linkedin-sidebar.active .profile-card {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}

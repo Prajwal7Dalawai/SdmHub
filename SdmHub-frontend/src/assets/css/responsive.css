@@ -1,0 +1,273 @@
+/* Global Responsive Styles */
+
+/* Common breakpoints */
+:root {
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* Base responsive container */
+.responsive-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Responsive grid system */
+.responsive-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem !important;
+  }
+  h2 {
+    font-size: 1.75rem !important;
+  }
+  h3 {
+    font-size: 1.5rem !important;
+  }
+  p {
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  h3 {
+    font-size: 1.25rem !important;
+  }
+  p {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Responsive layout utilities */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  
+  .show-on-mobile {
+    display: block !important;
+  }
+
+  .stack-on-mobile {
+    flex-direction: column !important;
+  }
+
+  .full-width-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .center-on-mobile {
+    text-align: center !important;
+  }
+
+  .padding-mobile {
+    padding: 15px !important;
+  }
+}
+
+/* Responsive form elements */
+@media (max-width: 768px) {
+  input, 
+  textarea, 
+  select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px !important;
+  }
+
+  button {
+    width: 100% !important;
+    margin: 10px 0 !important;
+  }
+
+  .form-group {
+    margin-bottom: 15px !important;
+  }
+}
+
+/* Responsive navigation */
+@media (max-width: 768px) {
+  .nav-menu {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 80% !important;
+    height: 100vh !important;
+    background: white !important;
+    transition: 0.3s !important;
+    z-index: 1000 !important;
+  }
+
+  .nav-menu.active {
+    left: 0 !important;
+  }
+
+  .nav-toggle {
+    display: block !important;
+  }
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+  .responsive-table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+  }
+}
+
+/* Responsive images */
+.responsive-image {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Responsive cards */
+@media (max-width: 768px) {
+  .card {
+    width: 100% !important;
+    margin: 10px 0 !important;
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 30px 15px !important;
+  }
+
+  .content-padding {
+    padding: 20px 15px !important;
+  }
+}
+
+/* Responsive flexbox utilities */
+@media (max-width: 768px) {
+  .flex-wrap-mobile {
+    flex-wrap: wrap !important;
+  }
+
+  .flex-column-mobile {
+    flex-direction: column !important;
+  }
+
+  .flex-center-mobile {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+/* Responsive margins and paddings */
+@media (max-width: 768px) {
+  .m-0-mobile {
+    margin: 0 !important;
+  }
+
+  .p-0-mobile {
+    padding: 0 !important;
+  }
+
+  .mt-1-mobile {
+    margin-top: 0.5rem !important;
+  }
+
+  .mb-1-mobile {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Responsive chat and messaging */
+@media (max-width: 768px) {
+  .chat-container {
+    height: calc(100vh - 60px) !important;
+  }
+
+  .message-list {
+    width: 100% !important;
+  }
+
+  .chat-window {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1000 !important;
+  }
+}
+
+/* Responsive profile page */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .profile-stats {
+    justify-content: center !important;
+    margin-top: 15px !important;
+  }
+
+  .profile-content {
+    padding: 15px !important;
+  }
+}
+
+/* Responsive news feed */
+@media (max-width: 768px) {
+  .news-feed {
+    padding: 10px !important;
+  }
+
+  .post-card {
+    margin: 10px 0 !important;
+  }
+
+  .post-actions {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* Responsive notifications */
+@media (max-width: 768px) {
+  .notification-list {
+    width: 100% !important;
+  }
+
+  .notification-item {
+    padding: 10px !important;
+  }
+}
+
+/* Responsive friend requests */
+@media (max-width: 768px) {
+  .friend-request-list {
+    width: 100% !important;
+  }
+
+  .friend-request-item {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .friend-request-actions {
+    margin-top: 10px !important;
+    justify-content: center !important;
+  }
+} 
