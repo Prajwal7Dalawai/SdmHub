@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { FaUser, FaBell, FaBookmark, FaBriefcase, FaUsers, FaHome, FaCrown, FaTimes } from 'react-icons/fa'
 import "../assets/css/SDMHUBNewsPost.css";
 import prateekimg from "../assets/images/prateekprofile.webp";
 import prajwalimg from "../assets/images/prajwalprofile.png";
@@ -7,7 +8,13 @@ import post1img from "../assets/images/post1.jpg";
 import post2img from "../assets/images/IN10CT.png";
 import post3img from "../assets/images/post3.jpg";
 
-export default function NewsFeed() {
+const NewsFeed = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const [posts] = useState([
     {
       id: 1,
@@ -46,8 +53,23 @@ export default function NewsFeed() {
 
   return (
     <div className="linkedin-container">
+      {/* Mobile Menu Button */}
+      <button className="mobile-menu-button" onClick={toggleSidebar}>
+        <FaUser />
+      </button>
+
+      {/* Sidebar Overlay */}
+      <div 
+        className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} 
+        onClick={toggleSidebar}
+      />
+
       {/* Left Sidebar */}
-      <aside className="linkedin-sidebar">
+      <div className={`linkedin-sidebar ${isSidebarOpen ? 'active' : ''}`}>
+        <button className="sidebar-close" onClick={toggleSidebar}>
+          <FaTimes />
+        </button>
+
         <div className="sidebar-card profile-card">
           <img src={prateekimg} alt="user" className="profile-avatar-large" />
           <h2>Prajwal Dalawai <span className="verified-badge">✔️</span></h2>
@@ -69,12 +91,13 @@ export default function NewsFeed() {
           <span className="premium-link">Redeem Premium for ₹0</span>
         </div>
         <div className="sidebar-card nav-card">
-          <div>🔖 Saved items</div>
-          <div>👥 Groups</div>
-          <div>📰 Newsletters</div>
-          <div>📅 Events</div>
+          <div><FaHome /> Home</div>
+          <div><FaUsers /> My Network</div>
+          <div><FaBriefcase /> Jobs</div>
+          <div><FaBell /> Notifications</div>
+          <div><FaBookmark /> Saved</div>
         </div>
-      </aside>
+      </div>
 
       {/* Center Feed */}
       <main className="linkedin-feed">
@@ -134,3 +157,5 @@ export default function NewsFeed() {
     </div>
   );
 }
+
+export default NewsFeed;

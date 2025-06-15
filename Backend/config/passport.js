@@ -1,6 +1,18 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('../models/userSchema');
+const bcrypt = require('bcrypt');
+
+// Helper function to hash password
+async function hashPassword(password) {
+    const saltRounds = 10;
+    return await bcrypt.hash(password, saltRounds);
+}
+
+// Helper function to compare password
+async function comparePassword(password, hash) {
+    return await bcrypt.compare(password, hash);
+}
 
 passport.use(new LocalStrategy(
     {
@@ -13,7 +25,10 @@ passport.use(new LocalStrategy(
             if (!user) {
                 return done(null, false, { message: 'Incorrect email.' });
             }
-            if (user.password_hash !== password) { // In production, use proper password comparison
+            
+            // Compare passwords using bcrypt
+            const isMatch = await comparePassword(password, user.password_hash);
+            if (!isMatch) {
                 return done(null, false, { message: 'Incorrect password.' });
             }
             return done(null, user);
@@ -36,4 +51,7 @@ passport.deserializeUser(async function(id, done) {
     }
 });
 
-module.exports = passport; 
+module.exports = {
+    hashPassword,
+    comparePassword
+}; 

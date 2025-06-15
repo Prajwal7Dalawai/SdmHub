@@ -124,14 +124,14 @@ body.dark-mode .header {
 .header > .container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items:center;
   width: 100%;
   min-height: 48px;
 }
 
 .logo {
   font-family: 'Lato', sans-serif;
-  font-size: 1.5em;
+  font-size: 1.8em;
   font-weight: 800;
   color: var(--dark-red);
   letter-spacing: -1px;
@@ -228,6 +228,7 @@ body.dark-mode .theme-toggle:hover {
   align-items: center;
   justify-content: space-between;
   position: relative;
+  padding-left: 40px;
   overflow: hidden;
 }
 
@@ -258,6 +259,7 @@ body.dark-mode .hero-content {
   flex: 1;
   max-width: 600px;
   padding: 0 40px;
+  margin-right: 60px;
   z-index: 2;
 }
 

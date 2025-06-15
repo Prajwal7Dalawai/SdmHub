@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import '../assets/css/LoginPage.css'; // Adjust the path as needed
 import logo from '../assets/images/sdm_logo.png';
-
+import { authService } from '../services/auth.service';
 
 // --- Left Panel Component ---
 const LeftPanel = () => {
@@ -27,13 +28,44 @@ const LeftPanel = () => {
 
 // --- Right Panel Component ---
 const RightPanel = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Login attempt with:', { email, password });
-    alert('Login functionality will be available soon!');
+    setError('');
+    setLoading(true);
+
+    try {
+      const credentials = {
+        email,
+        password
+      };
+
+      const data = await authService.login(credentials);
+      
+      if (data.success) {
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect based on profile completion
+        if (data.user.profile_completion < 100) {
+          navigate('/editprofile');
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        setError(data.message || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message || 'An error occurred during login. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -44,14 +76,16 @@ const RightPanel = () => {
     <div className="right-panel">
       <h2>SDM Social</h2>
       <div className="welcome-section">
-        <p>
+        <p onClick={() => navigate('/signup')}>
           New to SDM Social?{' '}
-          <a href="#" className="create-account-link">
+          <Link to="/signup" className="create-account-link">
             Sign up now
-          </a>
+          </Link>
         </p>
         <p>Join the platform built for SDMCET students and alumni.</p>
       </div>
+
+      {error && <div className="error-message">{error}</div>}
 
       <form className="login-form" onSubmit={handleLogin}>
         <div className="form-group">
@@ -74,10 +108,15 @@ const RightPanel = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength="6"
           />
         </div>
-        <button type="submit" className="login-button">
-          Log In
+        <button 
+          type="submit" 
+          className="login-button"
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : 'Log In'}
         </button>
       </form>
 
@@ -91,16 +130,16 @@ const RightPanel = () => {
 
       <p className="forgot-password">
         Forgot your password?{' '}
-        <a href="#" className="click-here-link">
+        <Link to="/forgot-password" className="click-here-link">
           Reset here
-        </a>
+        </Link>
       </p>
     </div>
   );
 };
 
 // --- Main LoginPage Component ---
-const LoginPage = () => {
+export default function LoginPage() {
   return (
     <div className="login-page-container">
       <LeftPanel />
@@ -109,4 +148,3 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;

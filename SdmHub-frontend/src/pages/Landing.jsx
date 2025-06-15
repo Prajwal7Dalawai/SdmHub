@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fa'; // Import all the Fa icons you're using
 import '../assets/css/Landing.css';
 import { useNavigate } from 'react-router-dom';
+import { useLoader } from '../components/LoaderContext'; // Import useLoader
 
 const Landing = () => {
   const { setLoading } = useLoader();
@@ -174,24 +175,12 @@ const Landing = () => {
 >
   Join SDMHUB Now
 </motion.button>
-<motion.button
-  className="hero-button"
-  variants={buttonVariants}
-  whileHover="hover"
-  whileTap="tap"
-  initial={{ opacity: 0, scale: 0.8 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ delay: 1.8, duration: 0.5, type: "spring", stiffness: 200 }}
-  onClick={() => navigate('/login')}
->
-  Login Now
-</motion.button>
         </div>
         <motion.div
           className="hero-image"
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.4, duration: 0.8 }}
+          transition={{ delay: 1.2, duration: 1.2 }}
         >
           <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3" alt="Students collaborating" />
         </motion.div>

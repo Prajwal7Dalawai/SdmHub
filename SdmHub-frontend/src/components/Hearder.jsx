@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../assets/css/Header.css';
 import { FaBell, FaHome, FaUser, FaSearch, FaCommentDots, FaSignOutAlt } from 'react-icons/fa';
 import logo from '../assets/images/sdm_logo.png';
 
 const Header = () => {
+  const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -42,7 +43,7 @@ const Header = () => {
           <span className="badge">4</span>
         </Link>
 
-        <div className="avatar-wrapper" onClick={toggleDropdown}>
+        <div className="avatar-wrapper" onClick={() => navigate('/profile')}>
           <img
             src="https://randomuser.me/api/portraits/women/1.jpg"
             alt="User Avatar"

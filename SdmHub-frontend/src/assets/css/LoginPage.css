@@ -324,27 +324,86 @@
   text-decoration: underline;
 }
 
-/* Responsive: Stack panels on small screens */
-@media (max-width: 900px) {
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .left-panel h1 {
+    font-size: 3rem;
+  }
+
+  .left-panel p {
+    font-size: 1rem;
+  }
+
+  .giant-logo {
+    width: 200px;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
   .login-page-container {
     flex-direction: column;
-    min-height: 100vh;
   }
-  .left-panel, .right-panel {
-    flex: none;
-    width: 100vw;
-    height: auto;
-    min-height: unset;
-    padding: 32px 10vw;
-  }
+
   .left-panel {
-    align-items: center;
-    text-align: center;
-    padding-bottom: 0;
+    display: none; /* Hide left panel on mobile */
   }
+
   .right-panel {
-    align-items: center;
-    text-align: center;
-    padding-top: 0;
+    flex: 1;
+    padding: 30px 20px;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+
+  .right-panel h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+  }
+
+  .welcome-section {
+    margin-bottom: 25px;
+  }
+
+  .login-form {
+    max-width: 100%;
+  }
+
+  .form-group input {
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .right-panel {
+    padding: 20px 15px;
+  }
+
+  .right-panel h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+
+  .welcome-section p {
+    font-size: 0.9rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .login-button {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  .google-login-button {
+    padding: 10px 15px;
+    font-size: 0.95rem;
   }
 }
