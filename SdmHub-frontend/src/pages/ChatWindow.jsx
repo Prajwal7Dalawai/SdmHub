@@ -4,7 +4,7 @@ import ChatBubble from './ChatBubble';
 import '../assets/css/style.css';
 
 const messageListData = [
-  { id: 1, name: 'Jenny Wilson', lastMessage: 'Hi there, nice to meet you.', avatar: 'https://randomuser.me/api/portraits/women/1.jpg' },
+  { id: 1, name: 'Jenny Wilson', lastMessage: 'Hlo there, nice to meet you.', avatar: 'https://randomuser.me/api/portraits/women/1.jpg' },
   { id: 2, name: 'Bessie Cooper', lastMessage: 'How are you, my friend', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
   { id: 3, name: 'Guy Hawkins', lastMessage: 'Where are you right now', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
   { id: 4, name: 'Courtney Henry', lastMessage: 'Let’s catch up tomorrow.', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
