@@ -33,7 +33,7 @@ const ProfilePage = () => {
           <p>University of InnovaTech | Computer Science</p>
           <p>Passionate about coding and building innovative solutions.</p>
           <div className="button-group">
-            <button>Edit Profile</button>
+            <button onClick={() => navigate('/editProfile')}>Edit Profile</button>
             <button>Share Profile</button>
           </div>
         </div>

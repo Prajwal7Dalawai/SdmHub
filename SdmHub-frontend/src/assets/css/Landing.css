@@ -56,7 +56,7 @@ a {
 }
 
 /* Buttons */
-button {
+.hero-button {
   padding: 14px 30px;
   border: none;
   border-radius: 10px;
@@ -68,6 +68,7 @@ button {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
+
 
 .hero-button {
   background-color: var(--crimson);
@@ -244,7 +245,7 @@ body.dark-mode .hero-section {
 
 .hero-image {
   flex: 1;
-  max-width: 600px;
+  max-width: 800px;
   padding: 0 40px;
   z-index: 2;
 }

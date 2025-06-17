@@ -16,6 +16,8 @@ import {
 } from 'react-icons/fa'; // Import all the Fa icons you're using
 import '../assets/css/Landing.css';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/images/sdm_logo.png';
+import sdm from '../assets/images/sdmcet_campus.jpg';
 
 
 const Landing = () => {
@@ -80,14 +82,21 @@ const Landing = () => {
         transition={{ type: "spring", stiffness: 120, damping: 14 }}
       >
         <div className="container">
-          <motion.div
-            className="logo"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            SDMHUB
-          </motion.div>
+        <motion.div
+          className="logo"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} // add flex to align logo and text
+        >
+          <img
+            src={logo} // replace with actual path
+            alt="College Logo"
+            style={{ height: '40px', width: 'auto' }}
+          />
+          SDMHUB
+        </motion.div>
+  
           <nav className="nav-links">
             <motion.a href="#features" whileHover={{ color: isDarkMode ? '#B22222' : '#8B0000', scale: 1.05 }}>Features</motion.a>
             <motion.a href="#how-it-works" whileHover={{ color: isDarkMode ? '#B22222' : '#8B0000', scale: 1.05 }}>How It Works</motion.a>
@@ -166,7 +175,7 @@ const Landing = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.4, duration: 0.8 }}
         >
-          <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3" alt="Students collaborating" />
+          <img src={sdm} />
         </motion.div>
       </section>
 
