@@ -4,12 +4,12 @@ import ChatBubble from './ChatBubble';
 import '../assets/css/style.css';
 
 const messageListData = [
-  { id: 1, name: 'Jenny Wilson', sender: 'Jenny Wilson', lastMessage: 'Hi there, nice to meet you.', avatar: 'https://randomuser.me/api/portraits/women/1.jpg' },
-  { id: 2, name: 'Bessie Cooper', sender: 'Bessie Cooper', lastMessage: 'How are you, my friend', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
-  { id: 3, name: 'Guy Hawkins', sender: 'Guy Hawkins', lastMessage: 'Where are you right now', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
-  { id: 4, name: 'Courtney Henry', sender: 'Courtney Henry', lastMessage: 'Let’s catch up tomorrow.', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
-  { id: 5, name: 'Robert Fox', sender: 'Robert Fox', lastMessage: 'Meeting rescheduled to 4 PM.', avatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
-  { id: 6, name: 'Leslie Alexander', sender: 'Leslie Alexander', lastMessage: 'I’ll send the report by tonight.', avatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
+  { id: 1, name: 'Jenny Wilson', lastMessage: 'Hi there, nice to meet you.', avatar: 'https://randomuser.me/api/portraits/women/1.jpg' },
+  { id: 2, name: 'Bessie Cooper', lastMessage: 'How are you, my friend', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
+  { id: 3, name: 'Guy Hawkins', lastMessage: 'Where are you right now', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
+  { id: 4, name: 'Courtney Henry', lastMessage: 'Let’s catch up tomorrow.', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
+  { id: 5, name: 'Robert Fox',  lastMessage: 'Meeting rescheduled to 4 PM.', avatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
+  { id: 6, name: 'Leslie Alexander', lastMessage: 'I’ll send the report by tonight.', avatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
 ];
 
 // Add unique messages per user for demonstration
