@@ -20,19 +20,24 @@ passport.use(new LocalStrategy(
         passwordField: 'password'
     },
     async function(email, password, done) {
+        console.log('Attempting login for email:', email);
         try {
             const user = await User.findOne({ email: email });
             if (!user) {
+                console.log('Login failed: User not found for email:', email);
                 return done(null, false, { message: 'Incorrect email.' });
             }
             
-            // Compare passwords using bcrypt
+            console.log('User found:', user.email);
             const isMatch = await comparePassword(password, user.password_hash);
             if (!isMatch) {
+                console.log('Login failed: Incorrect password for email:', email);
                 return done(null, false, { message: 'Incorrect password.' });
             }
+            console.log('Login successful for user:', user.email);
             return done(null, user);
         } catch (err) {
+            console.error('Passport LocalStrategy error:', err);
             return done(err);
         }
     }

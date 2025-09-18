@@ -56,7 +56,7 @@ a {
 }
 
 /* Buttons */
-button {
+.hero-button {
   padding: 14px 30px;
   border: none;
   border-radius: 10px;
@@ -68,6 +68,7 @@ button {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
+
 
 .hero-button {
   background-color: var(--crimson);
@@ -131,7 +132,7 @@ body.dark-mode .header {
 
 .logo {
   font-family: 'Lato', sans-serif;
-  font-size: 1.8em;
+  font-size: 1.5em;
   font-weight: 800;
   color: var(--dark-red);
   letter-spacing: -1px;
@@ -228,7 +229,6 @@ body.dark-mode .theme-toggle:hover {
   align-items: center;
   justify-content: space-between;
   position: relative;
-  padding-left: 40px;
   overflow: hidden;
 }
 
@@ -241,27 +241,12 @@ body.dark-mode .hero-section {
   max-width: 600px;
   padding: 0 40px;
   z-index: 2;
-  padding: 40px;
-  z-index: 2;
-  background-color: rgba(139, 0, 0, 0.1);
-  border: 2px solid var(--dark-red);
-  border-radius: 20px;
-  margin-left: 40px;
-  box-shadow: 0 8px 32px rgba(139, 0, 0, 0.2);
-  margin-top: 20px;
-}
-
-body.dark-mode .hero-content {
-  background-color: rgba(139, 0, 0, 0.15);
-  border-color: var(--light-red-accent);
-  box-shadow: 0 8px 32px rgba(139, 0, 0, 0.3);
 }
 
 .hero-image {
   flex: 1;
-  max-width: 600px;
+  max-width: 800px;
   padding: 0 40px;
-  margin-right: 60px;
   z-index: 2;
 }
 

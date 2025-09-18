@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../assets/css/LoginPage.css'; // Adjust the path as needed
-import logo from '../assets/images/sdm_logo.png';
+import logo from '../assets/images/app_logo.png';
 import { authService } from '../services/auth.service';
+import usePageTitle from '../hooks/usePageTitle';
 
 // --- Left Panel Component ---
 const LeftPanel = () => {
@@ -45,20 +46,24 @@ const RightPanel = () => {
         password
       };
 
-      const data = await authService.login(credentials);
+      const response = await authService.login(credentials);
+      console.log('Login response data:', response);
       
-      if (data.success) {
+      if (response.data.success) {
         // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('token', response.data.token);
         
-        // Redirect based on profile completion
-        if (data.user.profile_completion < 100) {
+        // Redirect based on user status
+        if (response.data.user.isNewUser) {
+          navigate('/editprofile');
+        } else if (response.data.user.profile_completion < 60) {
           navigate('/editprofile');
         } else {
-          navigate('/dashboard');
+          navigate('/feed');
         }
       } else {
-        setError(data.message || 'Login failed. Please try again.');
+        setError(response.data.message || 'Login failed. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -140,6 +145,7 @@ const RightPanel = () => {
 
 // --- Main LoginPage Component ---
 export default function LoginPage() {
+  usePageTitle('Login - SdmHub');
   return (
     <div className="login-page-container">
       <LeftPanel />

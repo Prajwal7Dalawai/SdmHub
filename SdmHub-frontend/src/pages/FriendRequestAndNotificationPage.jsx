@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../assets/css/FriendRequestAndNotificationPage.css';
+import usePageTitle from '../hooks/usePageTitle';
 
 const DUMMY_FRIEND_REQUESTS = [
   { id: 1, name: 'Sophia Clark', mutualFriends: 2, profilePic: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop' },
@@ -14,6 +15,7 @@ const DUMMY_NOTIFICATIONS = [
 ];
 
 const FriendRequestAndNotificationPage = () => {
+  usePageTitle('Notifications');
   const [friendRequests, setFriendRequests] = useState(DUMMY_FRIEND_REQUESTS);
   const [activeTab, setActiveTab] = useState('likes');
 

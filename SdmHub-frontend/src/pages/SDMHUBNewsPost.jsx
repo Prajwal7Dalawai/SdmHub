@@ -9,13 +9,13 @@ import post2img from "../assets/images/IN10CT.png";
 import post3img from "../assets/images/post3.jpg";
 
 const NewsFeed = () => {
+  console.log('NewsFeed component rendering');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const [posts] = useState([
+  const [newPost, setNewPost] = useState({
+    caption: '',
+    image: null
+  });
+  const [posts, setPosts] = useState([
     {
       id: 1,
       user: "Neha",
@@ -50,6 +50,50 @@ const NewsFeed = () => {
       shares: 1,
     },
   ]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handlePostChange = (e) => {
+    setNewPost({
+      ...newPost,
+      caption: e.target.value
+    });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewPost({
+          ...newPost,
+          image: reader.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePostSubmit = () => {
+    if (newPost.caption.trim() === '' && !newPost.image) return;
+
+    const newPostData = {
+      id: posts.length + 1,
+      user: "Prajwal Dalawai",
+      time: "Just now",
+      caption: newPost.caption,
+      avatar: prateekimg,
+      image: newPost.image,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+    };
+
+    setPosts([newPostData, ...posts]);
+    setNewPost({ caption: '', image: null });
+  };
 
   return (
     <div className="linkedin-container">
@@ -102,11 +146,53 @@ const NewsFeed = () => {
       {/* Center Feed */}
       <main className="linkedin-feed">
         <div className="feed-card post-creator-card">
-          <img src={prateekimg} alt="user" className="profile-avatar" />
-          <input type="text" placeholder="Start a post" className="feed-input" />
-          <button className="feed-action-btn">🎥 Video</button>
-          <button className="feed-action-btn">📷 Photo</button>
-          <button className="feed-action-btn">📝 Write article</button>
+          <div className="post-creator-header">
+            <img src={prateekimg} alt="user" className="profile-avatar" />
+            <input 
+              type="text" 
+              placeholder="Start a post" 
+              className="feed-input"
+              value={newPost.caption}
+              onChange={handlePostChange}
+            />
+          </div>
+          {newPost.image && (
+            <div className="post-preview">
+              <img src={newPost.image} alt="preview" />
+              <button 
+                className="remove-image-btn"
+                onClick={() => setNewPost({...newPost, image: null})}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          )}
+          <div className="post-creator-actions">
+            <div className="action-buttons" style={{ display: 'flex', gap: '12px' }}>
+              <label className="feed-action-btn">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageUpload}
+                  style={{ display: 'none' }}
+                />
+                📷 Photo
+              </label>
+              <button className="feed-action-btn">🎥 Video</button>
+              <button className="feed-action-btn">📝 Write article</button>
+            </div>
+            <div style={{background: 'lime', color: 'black', fontSize: '2rem', padding: '20px', zIndex: 9999}}>
+              TEST DIV - Should be visible
+            </div>
+            <button 
+              className="post-submit-btn"
+              style={{ background: 'red', color: 'white', border: '2px solid black', zIndex: 9999 }}
+              onClick={handlePostSubmit}
+              disabled={!newPost.caption.trim() && !newPost.image}
+            >
+              Post
+            </button>
+          </div>
         </div>
         <div className="feed-divider" />
         <div className="posts-list">

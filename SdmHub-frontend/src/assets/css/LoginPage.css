@@ -84,9 +84,9 @@
   width: 240px;
   height: auto;
   object-fit: contain;
-  background-color: white;
+  background-color: transparent;
   border-radius: 0;
-  padding: 30px;
+  padding: 0;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   cursor: default;

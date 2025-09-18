@@ -1,27 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../assets/css/Header.css';
 import { FaBell, FaHome, FaUser, FaSearch, FaCommentDots, FaSignOutAlt } from 'react-icons/fa';
-import logo from '../assets/images/sdm_logo.png';
+import logo from '../assets/images/app_logo_cropped.png';
+import { apiService } from '../services/api.service';
+
+const DEFAULT_PROFILE_PIC = 'https://res.cloudinary.com/drvcis27v/image/upload/v1750180422/default_rxs4pw.png';
 
 const Header = () => {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [userProfilePic, setUserProfilePic] = useState(DEFAULT_PROFILE_PIC);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiService.get('/auth/profile');
+        if (response.data.success) {
+          setUserProfilePic(response.data.user.profile_pic || DEFAULT_PROFILE_PIC);
+        }
+      } catch (error) {
+        setUserProfilePic(DEFAULT_PROFILE_PIC);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-  const handleLogout = () => {
-    // Logic for logout
-    console.log('Logged out');
+  const handleLogout = async () => {
+    try {
+      const response = await apiService.get('/auth/logout');
+      if (response.data.success) {
+        console.log('Logged out successfully');
+        navigate('/login');
+      } else {
+        console.error('Logout failed:', response.data.message);
+        alert('Logout failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      alert('Error during logout. Please try again.');
+    }
     setShowDropdown(false);
   };
 
   return (
     <header className="header-container">
       <div className="header-left">
-        <img src={logo} alt="SDMCET Logo" className="logo-img" />
+        <Link to="/">
+          <img src={logo} alt="SDMCET Logo" className="logo-img" style={{ cursor: 'pointer' }} />
+        </Link>
         <div className="search-box">
           <FaSearch className="search-icon" />
           <input type="text" placeholder="Search..." />
@@ -45,7 +76,7 @@ const Header = () => {
 
         <div className="avatar-wrapper" onClick={() => navigate('/profile')}>
           <img
-            src="https://randomuser.me/api/portraits/women/1.jpg"
+            src={userProfilePic}
             alt="User Avatar"
             className="avatarm"
           />

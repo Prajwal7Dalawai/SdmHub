@@ -5,6 +5,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, "Full name is required"]
   },
+  course: {
+    type: String,
+    default: ""
+  },
+  description: {
+    type: String,
+    default: ""
+  },
   email: {
     type: String,
     required: [true, "email is required"],
@@ -17,11 +25,9 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     match: [/^2SD\d{2}[A-Z]{2}\d{3}$/, "Please enter a valid USN in the format 2SDYYSSNNN"]
   },
-  password_hash: String,
-  role: {
-    type: String,
-    enum: ['student', 'faculty'],
-    // required: [true, "Role must be specified"]
+  password_hash: {
+    type:String,
+    required:true
   },
   user_profile: {
     type: String,
@@ -43,6 +49,10 @@ const UserSchema = new mongoose.Schema({
   },
   profile_pic: {
     type: String,
+    default: "https://res.cloudinary.com/drvcis27v/image/upload/v1750180422/default_rxs4pw.png"
+  },
+  profile_pic_public_id: {
+    type: String,
     default: "",
   },
   bio: {
@@ -55,10 +65,30 @@ const UserSchema = new mongoose.Schema({
     min: 0,
     max: 100
   },
+  isNewUser: {
+    type: Boolean,
+    default: true
+  },
   created_at: {
     type: Date,
-    required: true
-  }
+  },
+  links: {
+    linkedin: { type: String, default: '' },
+    github: { type: String, default: '' },
+    portfolio: { type: String, default: '' },
+    instagram: { type: String, default: '' }
+  },
+  cgpa: { type: String, default: '' },
+  courses: { type: String, default: '' },
+  certifications: { type: String, default: '' },
+  skills: { type: String, default: '' },
+  languages: { type: String, default: '' },
+  careerInterests: { type: String, default: '' },
+  projects: { type: String, default: '' },
+  clubs: { type: String, default: '' },
+  events: { type: String, default: '' },
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }]
 });
 
 module.exports = mongoose.model('User', UserSchema); 

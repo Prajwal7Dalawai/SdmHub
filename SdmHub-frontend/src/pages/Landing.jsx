@@ -16,28 +16,15 @@ import {
 } from 'react-icons/fa'; // Import all the Fa icons you're using
 import '../assets/css/Landing.css';
 import { useNavigate } from 'react-router-dom';
-import { useLoader } from '../components/LoaderContext'; // Import useLoader
+import logo from '../assets/images/app_logo_cropped.png';
+import sdm from '../assets/images/sdmcet_campus.jpg';
+import usePageTitle from '../hooks/usePageTitle';
+
 
 const Landing = () => {
-  const { setLoading } = useLoader();
-
-  const handleJoinNow = () => {
-    navigate('/signup');
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-    return () => {
-      clearTimeout(timer);
-      setLoading(false);
-    };
-  }, [setLoading]);
-
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+    usePageTitle('SdmHub');
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
 
     const navigate = useNavigate();
 
@@ -97,14 +84,21 @@ const Landing = () => {
         transition={{ type: "spring", stiffness: 120, damping: 14 }}
       >
         <div className="container">
-          <motion.div
-            className="logo"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            SDMHUB
-          </motion.div>
+        <motion.div
+          className="logo"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} // add flex to align logo and text
+        >
+          <img
+            src={logo} // replace with actual path
+            alt="College Logo"
+            style={{ height: '40px', width: 'auto' }}
+          />
+          SDMHUB
+        </motion.div>
+  
           <nav className="nav-links">
             <motion.a href="#features" whileHover={{ color: isDarkMode ? '#B22222' : '#8B0000', scale: 1.05 }}>Features</motion.a>
             <motion.a href="#how-it-works" whileHover={{ color: isDarkMode ? '#B22222' : '#8B0000', scale: 1.05 }}>How It Works</motion.a>
@@ -182,26 +176,8 @@ const Landing = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.4, duration: 0.8 }}
-<motion.button
-  className="hero-button"
-  variants={buttonVariants}
-  whileHover="hover"
-  whileTap="tap"
-  initial={{ opacity: 0, scale: 0.8 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ delay: 1.6, duration: 0.5, type: "spring", stiffness: 200 }}
-  onClick={handleJoinNow}
->
-  Join SDMHUB Now
-</motion.button>
-        </div>
-        <motion.div
-          className="hero-image"
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.2, duration: 1.2 }}
         >
-          <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3" alt="Students collaborating" />
+          <img src={sdm} />
         </motion.div>
       </section>
 
@@ -449,7 +425,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 200 }}
-            onClick={handleJoinNow}
+            onClick={() => navigate('/signUp')} 
           >
             Get Started Now
           </motion.button>

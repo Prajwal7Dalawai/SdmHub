@@ -3,6 +3,8 @@ const session = require('express-session')
 const passport = require('passport')
 require('./config/passport')
 const authRoutes = require('./routes/auth')
+const uploadRoutes = require('./routes/upload')
+const postsRoutes = require('./routes/posts')
 const {connectToDatabase} = require('./models/auth');
 const cors = require('cors');
 
@@ -25,7 +27,7 @@ app.use(session({
     cookie: {
         secure: false, // Set to true if using HTTPS
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     }
 }))
 
@@ -45,14 +47,20 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/auth', authRoutes)
+app.use('/upload', uploadRoutes)
+app.use('/posts', postsRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
+    if (err && err.stack) {
+        console.error('Stack:', err.stack);
+    }
     res.status(500).json({
         success: false,
         message: 'Internal server error',
-        error: err.message
+        error: err.message,
+        stack: err.stack // send stack trace for debugging
     });
 });
 

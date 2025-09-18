@@ -17,6 +17,10 @@ class AuthService {
     async editProfile(profileData) {
         return apiService.post(API_CONFIG.ENDPOINTS.AUTH.EDIT_PROFILE, profileData);
     }
+
+    async getProfile() {
+        return apiService.get('/auth/profile');
+    }
 }
 
 export const authService = new AuthService(); 

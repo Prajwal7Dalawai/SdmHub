@@ -166,50 +166,127 @@ body {
   margin-bottom: 0;
 }
 .post-creator-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.2);
+}
+.post-creator-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-bottom: 18px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
-.profile-avatar {
-  width: 48px;
-  height: 48px;
+.post-creator-header .profile-avatar {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #eee;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 .feed-input {
   flex: 1;
-  padding: 14px 18px;
-  border-radius: 30px;
-  border: 1.5px solid #ddd;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 24px;
+  padding: 12px 16px;
+  font-size: 14px;
   background: #f3f2ef;
-  font-size: 1.08rem;
-  color: #222;
-  margin-right: 8px;
-  transition: background 0.3s, color 0.3s, border-color 0.3s;
+  transition: background-color 0.2s;
+}
+.feed-input:hover {
+  background: #e8e6e1;
 }
 .feed-input:focus {
-  background: #fffbe6;
-  color: #a22b29;
-  border-color: #a22b29;
   outline: none;
+  background: white;
+  border-color: #0a66c2;
+}
+.post-creator-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,.15);
+}
+.action-buttons {
+  display: flex;
+  gap: 12px;
 }
 .feed-action-btn {
-  background: #f3f2ef;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
   border: none;
-  color: #a22b29;
-  font-weight: 700;
-  font-size: 1.05rem;
-  border-radius: 8px;
-  padding: 10px 16px;
-  margin-left: 4px;
+  background: none;
+  color: #666;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 .feed-action-btn:hover {
-  background: #fffbe6;
-  color: #7f1d1d;
+  background: #f3f2ef;
+}
+.post-submit-btn {
+  padding: 8px 24px;
+  background: #0a66c2;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+  text-align: center;
+  margin-left: 16px;
+  display: block;
+}
+.post-submit-btn:hover {
+  background: #004182;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.post-submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.post-preview {
+  position: relative;
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.post-preview img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+}
+.remove-image-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.remove-image-btn:hover {
+  background: rgba(0,0,0,0.8);
 }
 .feed-divider {
   height: 1px;
@@ -228,20 +305,17 @@ body {
 .post-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
   margin-bottom: 10px;
 }
 .post-header strong {
-  font-size: 1.12rem;
-  color: #222;
-  font-weight: 700;
-  display: block;
+  font-size: 1rem;
+  font-weight: 600;
 }
 .post-header .time {
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   color: #888;
-  margin-left: 2px;
-  font-weight: 500;
+  margin-left: 0;
 }
 .post-image {
   margin: 12px 0 10px 0;
@@ -359,4 +433,32 @@ body {
     margin-top: 0;
     padding: 0 2vw;
   }
+}
+
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  border: none;
+  box-shadow: none;
+  vertical-align: middle;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-header strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.post-header .time {
+  font-size: 0.9rem;
+  color: #888;
+  margin-left: 0;
 }
