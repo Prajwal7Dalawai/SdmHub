@@ -42,9 +42,10 @@ const RightPanel = () => {
 
     try {
       const credentials = {
-        email,
+        email, 
         password
       };
+      console.log("🔍 Frontend sending payload:", credentials); // 👈 add here
 
       const response = await authService.login(credentials);
       console.log('Login response data:', response);
@@ -120,8 +121,9 @@ const RightPanel = () => {
           type="submit" 
           className="login-button"
           disabled={loading}
+          onClick = {handleLogin}
         >
-          {loading ? 'Logging in...' : 'Log In'}
+          {loading ? 'Logging in..' : 'Log In'}
         </button>
       </form>
 

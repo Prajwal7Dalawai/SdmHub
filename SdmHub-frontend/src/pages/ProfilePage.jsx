@@ -18,8 +18,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [avatarLoading, setAvatarLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+  const [friendsCount, setFriendsCount] = useState(0);
 
   const handleLogout = async () => {
     try {
@@ -51,6 +50,7 @@ const ProfilePage = () => {
           setUserProfile(data.user);
           console.log('User profile set:', data.user);
           setUserPosts(data.user.posts || []);
+          setFriendsCount(data.user.friendsList ? data.user.friendsList.length : 0);
         } else {
           setError(data.message || 'Failed to fetch profile');
         }
@@ -180,19 +180,16 @@ const ProfilePage = () => {
           </div>
 
           <div className="stats-section">
-            <div className="stat">
-              <h2>{userPosts.length}</h2>
-              <p>Posts</p>
-            </div>
-            <div className="stat">
-              <h2>{followersCount}</h2>
-              <p>Followers</p>
-            </div>
-            <div className="stat">
-              <h2>{followingCount}</h2>
-              <p>Following</p>
-            </div>
-          </div>
+  <div className="stat">
+    <h2>{userPosts.length}</h2>
+    <p>Posts</p>
+  </div>
+  <div className="stat">
+    <h2>{friendsCount}</h2>
+    <p>Friends</p>
+  </div>
+</div>
+
 
           {/* Description above Academic & Skills */}
           {userProfile?.description && (

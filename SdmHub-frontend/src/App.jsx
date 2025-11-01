@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
-import FriendRequestAndNotificationPage from "./pages/FriendRequestAndNotificationPage";
+import FriendRequestPage from "./pages/FriendRequestPage";
 import ChatWindow from "./pages/ChatWindow";
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
@@ -33,10 +33,10 @@ function App() {
         {/* Routes with Header */}
         
         <Route
-          path="/friendAndNotify"
+          path="/friend"
           element={
             <LayoutWithHeader>
-              <FriendRequestAndNotificationPage />
+              <FriendRequestPage />
             </LayoutWithHeader>
           }
         />
