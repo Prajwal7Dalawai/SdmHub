@@ -1,9 +1,22 @@
 import { useState } from 'react'
+<<<<<<< HEAD
+import "../assets/css/SDMHUBAuth.css";
+import sdmhubLogo from "../assets/logo/logo.png";
+export default function SDMHUBAuth() {
+  return (
+    <div className="auth-container">
+      <div className="auth-box">
+        <div className="logo">
+  <img src={sdmhubLogo} alt="SDMHUB Logo" className="logo-image" />
+</div>
+        <p className="subtitle">Sign up to see photos and updates from your friends.</p>
+=======
 import { Link } from 'react-router-dom';
 import "../assets/css/LoginPage.css";
 import sdmhubLogo from "../assets/images/app_logo.png";
 import { authService } from '../services/auth.service';
 import usePageTitle from '../hooks/usePageTitle';
+>>>>>>> 02f89bcad184f84793c476313f0da7ae869c7c03
 
 // --- Left Panel Component ---
 const LeftPanel = () => (

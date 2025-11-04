@@ -22,6 +22,13 @@ const LayoutWithHeader = ({ children }) => (
 
 function App() {
   return (
+<<<<<<< HEAD
+    <div className="App">
+      {/* <SDMHUBAuth /> */}
+      <NewsFeed />
+    </div>
+  )
+=======
     <Router>
       <Routes>
         {/* Public Route */}
@@ -75,6 +82,7 @@ function App() {
       </Routes>
     </Router>
   );
+>>>>>>> 02f89bcad184f84793c476313f0da7ae869c7c03
 }
 
 export default App;
