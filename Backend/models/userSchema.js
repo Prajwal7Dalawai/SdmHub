@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   first_name: {
@@ -26,26 +26,22 @@ const UserSchema = new mongoose.Schema({
     match: [/^2SD\d{2}[A-Z]{2}\d{3}$/, "Please enter a valid USN in the format 2SDYYSSNNN"]
   },
   password_hash: {
-    type:String,
-    required:true
+    type: String,
+    required: true
   },
   user_profile: {
     type: String,
-    enum: ['Student', 'Alumni', 'Faculty'],
-    // required: [true, "User profile must be specified"]
+    enum: ['Student', 'Alumni', 'Faculty']
   },
   department: {
     type: String,
-    enum: ["cse", "ise", "aiml", "ce", "me", "civil", "ece", "eee"],
-    // required: true
+    enum: ["cse", "ise", "aiml", "ce", "me", "civil", "ece", "eee"]
   },
   graduation_year: {
-    type: Number,
-    // required: true
+    type: Number
   },
   enrollment_year: {
-    type: Number,
-    // required: true
+    type: Number
   },
   profile_pic: {
     type: String,
@@ -71,13 +67,18 @@ const UserSchema = new mongoose.Schema({
   },
   created_at: {
     type: Date,
+    default: Date.now
   },
+
+  // ----------- 🔗 Links -----------
   links: {
     linkedin: { type: String, default: '' },
     github: { type: String, default: '' },
     portfolio: { type: String, default: '' },
     instagram: { type: String, default: '' }
   },
+
+  // ----------- 📚 Academic -----------
   cgpa: { type: String, default: '' },
   courses: { type: String, default: '' },
   certifications: { type: String, default: '' },
@@ -87,8 +88,34 @@ const UserSchema = new mongoose.Schema({
   projects: { type: String, default: '' },
   clubs: { type: String, default: '' },
   events: { type: String, default: '' },
+
+  // ----------- 👥 Followers / Following -----------
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
-  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }]
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+
+  // ----------- 🧑‍🤝‍🧑 Friend System -----------
+  sentRequest: [
+    {
+      username: { type: String, default: '' },
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    }
+  ],
+  request: [
+    {
+      username: { type: String, default: '' },
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    }
+  ],
+  friendsList: [
+    {
+      friendName: { type: String, default: '' },
+      friendId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    }
+  ],
+  totalRequest: {
+    type: Number,
+    default: 0
+  }
 });
 
-module.exports = mongoose.model('User', UserSchema); 
+module.exports = mongoose.model('User', UserSchema);

@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../assets/css/Header.css';
-import { FaBell, FaHome, FaUser, FaSearch, FaCommentDots, FaSignOutAlt } from 'react-icons/fa';
+import { 
+  FaBell, 
+  FaHome, 
+  FaUser, 
+  FaSearch, 
+  FaCommentDots, 
+  FaSignOutAlt, 
+  FaUserFriends 
+} from 'react-icons/fa';
 import logo from '../assets/images/app_logo_cropped.png';
 import { apiService } from '../services/api.service';
 
@@ -34,14 +42,11 @@ const Header = () => {
     try {
       const response = await apiService.get('/auth/logout');
       if (response.data.success) {
-        console.log('Logged out successfully');
         navigate('/login');
       } else {
-        console.error('Logout failed:', response.data.message);
         alert('Logout failed. Please try again.');
       }
     } catch (error) {
-      console.error('Error during logout:', error);
       alert('Error during logout. Please try again.');
     }
     setShowDropdown(false);
@@ -63,17 +68,23 @@ const Header = () => {
         <Link to="/feed" className="icon-container">
           <FaHome className="icon" />
         </Link>
-        <Link to="/profile" className="icon-container">
-          <FaUser className="icon" />
-        </Link>
         <Link to="/chat" className="icon-container">
           <FaCommentDots className="icon" />
         </Link>
-        <Link to="/friendAndNotify" className="icon-container">
+
+        {/* Friend system icon */}
+        <Link to="/friend" className="icon-container">
+          <FaUserFriends className="icon" />
+          <span className="badge">2</span> {/* Pending friend requests */}
+        </Link>
+
+        {/* Notification icon */}
+        <Link to="/Notify" className="icon-container">
           <FaBell className="icon" />
           <span className="badge">4</span>
         </Link>
 
+        {/* User avatar */}
         <div className="avatar-wrapper" onClick={() => navigate('/profile')}>
           <img
             src={userProfilePic}

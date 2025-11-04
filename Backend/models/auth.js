@@ -72,7 +72,19 @@ const auth_docs = [
     {
       id: '2SD22CS010',
       name: 'Anantnag Kumbar',
-    }
+    },
+    {
+      id: '2SD22CS129',
+      name: 'Neha Nayak',
+    },
+    {
+      id: '2SD22CS130',
+      name: 'Pooja S D',
+    },
+    {
+      id: '2SD22CS409',
+      name: 'Smital K',
+    },
 ];
 
 const auth_docs_schema = new mongoose.Schema({
@@ -84,7 +96,7 @@ const auth_docs_model = mongoose.model('auth_docs', auth_docs_schema);
 
 async function connectToDatabase() {
     try {
-        await mongoose.connect('mongodb://localhost:27017/SdmHub');
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/SdmHub');
         console.log('Connected to MongoDB successfully');
         return true;
     } catch (error) {
