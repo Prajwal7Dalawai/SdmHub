@@ -9,6 +9,9 @@ const postsRoutes = require('./routes/posts')
 const {connectToDatabase} = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
+const conversationRoutes = require("./routes/conversation.js");
+const messageRoutes = require("./routes/message.js");
+const conversation = require('./models/conversation');
 
 
 const app = express()
@@ -52,8 +55,10 @@ app.use((req, res, next) => {
 app.use('/auth', authRoutes)
 app.use('/upload', uploadRoutes)
 app.use('/posts', postsRoutes)
-app.use('/api/users', require('./routes/users'));
+app.use('/api/users', require('./routes/user'));
 app.use('/api/friends', friendsRoutes);
+app.use('/api/conversations', conversationRoutes);
+app.use('/api/messages', messageRoutes);
 
 
 // Error handling middleware
