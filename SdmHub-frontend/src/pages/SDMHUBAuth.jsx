@@ -1,4 +1,5 @@
 import { useState } from 'react'
+<<<<<<< HEAD
 import "../assets/css/SDMHUBAuth.css";
 import sdmhubLogo from "../assets/logo/logo.png";
 export default function SDMHUBAuth() {
@@ -9,32 +10,133 @@ export default function SDMHUBAuth() {
   <img src={sdmhubLogo} alt="SDMHUB Logo" className="logo-image" />
 </div>
         <p className="subtitle">Sign up to see photos and updates from your friends.</p>
+=======
+import { Link } from 'react-router-dom';
+import "../assets/css/LoginPage.css";
+import sdmhubLogo from "../assets/images/app_logo.png";
+import { authService } from '../services/auth.service';
+import usePageTitle from '../hooks/usePageTitle';
+>>>>>>> 02f89bcad184f84793c476313f0da7ae869c7c03
 
-  
-
-        <form className="auth-form">
-          <input type="text" placeholder="USN" required />
-          <input type="text" placeholder="Name" required />
-          <input type="text" placeholder="Email" required />
-          <input type="password" placeholder="Password" required />
-
-          <p className="small-text">
-            People who use our service may have uploaded your contact information to SDMHUB.{" "}
-            <a href="#">Learn More</a>
-          </p>
-
-          <p className="small-text">
-            By signing up, you agree to our <a href="#">Terms</a>, <a href="#">Privacy Policy</a> and{" "}
-            <a href="#">Cookies Policy</a>.
-          </p>
-
-          <button type="submit" className="signup-button">Sign up</button>
-        </form>
+// --- Left Panel Component ---
+const LeftPanel = () => (
+  <div className="left-panel">
+    <div className="logo-placeholder">
+      <div className="logo-wrapper">
+        <img src={sdmhubLogo} alt="SDMHUB Logo" className="giant-logo" />
       </div>
+    </div>
+    <h1>Welcome to</h1>
+    <h1>SDM Social! 👋</h1>
+    <p>
+      Connect, collaborate, and grow with your SDMCET community. Share moments, ideas, and opportunities – all in one place.
+    </p>
+    <div className="footer-logo">
+      <span style={{ color: 'white' }}>📱</span>
+      <p>© 2025 SDM Social. All rights reserved.</p>
+    </div>
+  </div>
+);
 
-      <div className="login-box">
-        Have an account? <a href="#">Log in</a>
+// --- Right Panel Component ---
+const RightPanel = () => {
+  const [usn, setUsn] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await authService.signup({
+        USN: usn,
+        first_name: name,
+        email,
+        password
+      });
+      if (res.data.success) {
+        alert('Signup successful! Please log in.');
+        window.location.href = '/login';
+      } else {
+        alert(res.data.message || 'Signup failed.');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Signup failed.');
+    }
+  };
+
+  return (
+    <div className="right-panel">
+      <h2>Sign Up</h2>
+      <div className="welcome-section">
+        <p>Already have an account?{' '}
+          <Link to="/login" className="create-account-link">Log in</Link>
+        </p>
+        <p>Join the platform built for SDMCET students and alumni.</p>
       </div>
+      <form className="login-form" onSubmit={handleSignup}>
+        <div className="form-group">
+          <label htmlFor="usn">USN</label>
+          <input
+            type="text"
+            id="usn"
+            placeholder="Your USN"
+            value={usn}
+            onChange={e => setUsn(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            placeholder="Your Name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="yourname@sdmcet.in"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="login-button">Sign Up</button>
+      </form>
+      <p className="small-text">
+        People who use our service may have uploaded your contact information to SDMHUB. <a href="#">Learn More</a>
+      </p>
+      <p className="small-text">
+        By signing up, you agree to our <a href="#">Terms</a>, <a href="#">Privacy Policy</a> and <a href="#">Cookies Policy</a>.
+      </p>
+    </div>
+  );
+};
+
+export default function SDMHUBAuth() {
+  usePageTitle('Signup - SdmHub');
+  return (
+    <div className="login-page-container">
+      <LeftPanel />
+      <RightPanel />
     </div>
   );
 }

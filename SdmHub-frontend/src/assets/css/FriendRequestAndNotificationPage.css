@@ -1,0 +1,424 @@
+.friends-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
+  background: #f6f6f6;
+  min-height: 100vh;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  width: 440px;
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  border: none;
+  background: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #555;
+}
+
+.tab.active {
+  background: #f9f9f9;
+  border: 1px solid #dcdcdc;
+  color: #e63946;
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.section h4 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.friend-request-bubbles {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bubble {
+  text-align: center;
+}
+
+.bubble img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  object-fit: cover;
+}
+
+.bubble p {
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+.action-btns {
+  display: flex;
+  gap: 1rem;
+}
+
+.people-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.person-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.person-info img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.person-info h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.person-info p {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.btn {
+  border: none;
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn.accept {
+  background: #e63946;
+  color: #fff;
+}
+
+.btn.decline {
+  border: 1px solid #e63946;
+  background: transparent;
+  color: #e63946;
+}
+
+.btn.message {
+  background: #f1f1f1;
+  color: #333;
+}
+
+.btn.add {
+  background: #e63946;
+  color: #fff;
+}
+
+.empty-text {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .friends-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 90%;
+  }
+}
+/* Toast */
+.toast {
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.btn.add { background-color: #007bff; color: white; }
+.btn.sent { background-color: #6c757d; color: white; cursor: default; }
+.btn.accept { background-color: #28a745; color: white; }
+.btn.decline { background-color: #dc3545; color: white; }
+.btn:disabled { opacity: 0.7; pointer-events: none; }
+
+
+.search-wrapper {
+  margin-bottom: 12px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+/* Search bar styling */
+.search-wrapper {
+  margin-bottom: 12px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+/* Button for already friends */
+.btn.friend {
+  background-color: #4caf50;
+  color: white;
+  cursor: default;
+}
+.friends-wrapper {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap; /* wrap on smaller screens */
+}
+
+/* Cards styling */
+.card {
+  flex: 1;
+  min-width: 300px; /* don't shrink too much */
+  max-width: 450px; /* keep reasonable width */
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  height: 550px; /* compact height */
+}
+
+/* Section inside card scrollable */
+.card .section {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+/* Optional: nice scrollbar */
+.card .section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card .section::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.card .section::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.friends-wrapper {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background-color: #f7f5f2; /* light background similar to your profile page */
+}
+
+/* Cards styling */
+.card {
+  flex: 1;
+  min-width: 300px;
+  max-width: 450px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #9b2c2c; /* main red border */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 550px;
+}
+
+/* Card heading */
+.card h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #9b2c2c; /* main red color for heading */
+  border-bottom: 2px solid #f0e6e6;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.tab {
+  padding: 6px 12px;
+  border: none;
+  background-color: #f0e6e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  color: #9b2c2c;
+}
+
+.tab.active {
+  background-color: #9b2c2c;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Section inside card scrollable */
+.card .section {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 5px;
+}
+
+/* People item */
+.people-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0e6e6;
+}
+
+.person-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.person-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #9b2c2c;
+}
+
+/* Button styles */
+.btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn.add {
+  background-color: #9b2c2c;
+  color: #fff;
+}
+
+.btn.sent {
+  background-color: #d16060;
+  color: #fff;
+  cursor: default;
+}
+
+.btn.friend {
+  background-color: #bd5757;
+  color: #fff;
+  cursor: default;
+}
+
+
+/* Search input */
+.search-wrapper {
+  margin-bottom: 10px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #9b2c2c;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* Toasts */
+.toasts-container .toast {
+  background-color: #9b2c2c;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  font-size: 0.9rem;
+}
+
+/* Accept and Reject buttons */
+.btn.accept {
+  background-color: #28a745; /* bright green */
+  color: #fff;
+  margin-right: 5px;
+}
+
+.btn.decline {
+  background-color: #dc3545; /* bright red */
+  color: #fff;
+}
