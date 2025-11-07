@@ -1,33 +1,60 @@
-const Message = require("../models/message");
+const mongoose = require("mongoose");
 
-const sendMessage = async (req, res) => {
-  try {
-    const { conversationId, senderId, message } = req.body;
+const MessageSchema = new mongoose.Schema(
+  {
+    conversation_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Conversation",
+      required: true,
+    },
+    sender_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
-    if (!conversationId || !senderId || !message) {
-      return res.status(400).json({ message: "Invalid data" });
-    }
+    seq: {
+      type: Number,
+      required: true, // will be assigned when creating messages
+      index: true,
+    },
 
-    // get last message seq
-    const lastMessage = await Message.findOne({ conversation_id: conversationId })
-      .sort({ seq: -1 })
-      .select("seq");
+    type: {
+      type: String,
+      enum: ["text", "attachment", "system"],
+      default: "text",
+    },
 
-    const nextSeq = lastMessage ? lastMessage.seq + 1 : 1;
+    content: {
+      type: String,
+      default: null,
+    },
 
-    const newMessage = await Message.create({
-      conversation_id: conversationId,
-      sender_id: senderId,
-      content: message,
-      seq: nextSeq,
-      type: "text"
-    });
+    reply_to: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+      default: null,
+    },
 
-    return res.status(201).json(newMessage);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
+    attachments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Attachment", // we will add that model later when needed
+      },
+    ],
 
-module.exports = { sendMessage };
+    edited_at: {
+      type: Date,
+      default: null,
+    },
+
+    deleted_at: {
+      type: Date,
+      default: null,
+    },
+  },
+  { timestamps: true }
+);
+
+MessageSchema.index({ conversation_id: 1, seq: 1 });
+module.exports = mongoose.model("Message", MessageSchema);
