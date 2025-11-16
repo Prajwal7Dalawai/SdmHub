@@ -1,66 +1,57 @@
 // ChatWindowDynamic.jsx
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
+
 import MessageListItem from "./MessageListItem";
 import ChatBubble from "./ChatBubble";
 import usePageTitle from "../hooks/usePageTitle";
 import "../assets/css/style.css";
 
-// Services (you said these are already implemented)
 import { authService } from "../services/auth.service";
 import { chatService } from "../services/chat.service";
 import { userService } from "../services/user.service";
 
-// Socket config — change URL if needed
-const SOCKET_URL = "http://localhost:8080";
+const SOCKET_URL = "http://localhost:3000";
 const socket = io(SOCKET_URL, { transports: ["websocket"] });
 
 const ChatWindow = () => {
   usePageTitle("Messages");
 
-  const [currentUser, setCurrentUser] = useState(null); // logged-in user
-  const [users, setUsers] = useState([]);               // all chatable users (left list)
-  const [selectedUser, setSelectedUser] = useState(null); // the receiver object
-  const [messages, setMessages] = useState([]);         // messages with selectedUser
+  const [currentUser, setCurrentUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [conversationId, setConversationId] = useState(null);
+
   const [input, setInput] = useState("");
-  const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+
   const messagesEndRef = useRef(null);
 
-  // ---------- 1) load current user and user list ----------
+  // -----------------------------------------
+  // Load logged-in user + chat list
+  // -----------------------------------------
   useEffect(() => {
     async function init() {
       try {
-        const profileRes = await authService.getProfile();
-        const me = profileRes.data.user;
+        const profile = await authService.getProfile();
+        const me = profile.data.user;
         setCurrentUser(me);
 
-        // fetch all users (exclude self)
-        const usersRes = await userService.getAllUsers();
-        const all = (usersRes.data || []).filter(u => u._id !== me._id);
-        setUsers(all);
+        const list = await userService.getChatList();
+        const filtered = (list || []).filter((u) => u.id !== me.id);
+        setUsers(filtered);
 
-        // auto-select first user (optional)
-        if (all.length > 0) setSelectedUser(all[0]);
-      } catch (err) {
-        console.error("Init error:", err);
-      }
+        if (filtered.length > 0) setSelectedUser(filtered[0]);
+      } catch (err) {}
     }
     init();
   }, []);
 
-  // ---------- 2) join socket room as soon as logged-in user is available ----------
-  useEffect(() => {
-    if (!currentUser) return;
-    socket.emit("join", currentUser._id);
-    // optionally listen to connection errors
-    socket.on("connect_error", (err) => console.warn("Socket connect error", err));
-    return () => {
-      socket.off("connect_error");
-    };
-  }, [currentUser]);
-
-  // ---------- 3) fetch messages for the selected user ----------
+  // -----------------------------------------
+  // Fetch messages for selected conversation
+  // -----------------------------------------
   useEffect(() => {
     if (!currentUser || !selectedUser) {
       setMessages([]);
@@ -70,172 +61,131 @@ const ChatWindow = () => {
     async function fetchMessages() {
       setLoadingMessages(true);
       try {
-        const res = await chatService.getMessages(currentUser._id, selectedUser._id);
-        // expected: array of message objects matching messageSchema
-        setMessages(res.data || []);
-        // optional: inform backend to mark delivered/read - depends on your API
-        // await chatService.markDelivered(currentUser._id, selectedUser._id);
+        const res = await chatService.getMessages(selectedUser.id);
+        const msgs = res.messages || [];
+        const convId = res.conversation_id ? res.conversation_id.toString() : null;
+
+        setMessages(msgs);
+
+        if (!convId) {
+          if (conversationId) socket.emit("leave_conversation", conversationId);
+          setConversationId(null);
+          return;
+        }
+
+        setConversationId(convId);
       } catch (err) {
-        console.error("Failed to load messages:", err);
+      } finally {
+        setLoadingMessages(false);
       }
-      setLoadingMessages(false);
     }
+
     fetchMessages();
   }, [currentUser, selectedUser]);
 
-  // ---------- 4) listen for real-time incoming messages ----------
+  // -----------------------------------------
+  // Join/leave socket room
+  // -----------------------------------------
+  useEffect(() => {
+    if (!conversationId) return;
+
+    socket.emit("join_conversation", conversationId);
+
+    return () => {
+      socket.emit("leave_conversation", conversationId);
+    };
+  }, [conversationId]);
+
+  // -----------------------------------------
+  // Listen for new incoming messages
+  // -----------------------------------------
   useEffect(() => {
     const handler = (msg) => {
-      // msg should be the saved message object with sender_id, receiver_id, ciphertext, created_at, etc.
-      if (!currentUser || !selectedUser) return;
-
-      // Only append if message belongs to the open convo (sender or receiver)
-      const match =
-        (msg.sender_id === selectedUser._id && msg.receiver_id === currentUser._id) ||
-        (msg.sender_id === currentUser._id && msg.receiver_id === selectedUser._id);
-
-      if (match) {
-        setMessages(prev => [...prev, msg]);
-      }
-
-      // you may also want to update the users list preview (last message) — implement if desired
+      if (msg.conversation_id !== conversationId) return;
+      setMessages((prev) => [...prev, msg]);
     };
 
-    socket.on("receiveMessage", handler);
-    return () => {
-      socket.off("receiveMessage", handler);
-    };
-  }, [currentUser, selectedUser]);
+    socket.on("new_message", handler);
+    return () => socket.off("new_message", handler);
+  }, [conversationId]);
 
-  // ---------- 5) send message ----------
+  // -----------------------------------------
+  // Send message
+  // -----------------------------------------
   const handleSend = async () => {
-    if (!input.trim() || !currentUser || !selectedUser) return;
+    if (!input.trim() || !selectedUser || !currentUser) return;
+
     setSending(true);
 
-    // Build payload according to your schema
-    const payload = {
-      sender_id: currentUser._id,
-      receiver_id: selectedUser._id,
-      ciphertext: input.trim(),
-      created_at: new Date()
-    };
-
     try {
-      // Persist to backend (chatService.sendMessage should POST /api/chat and return saved doc)
-      const res = await chatService.sendMessage(payload);
-      const saved = res.data;
+      await chatService.sendMessage({
+        recieverId: selectedUser.id,
+        message: input.trim(),
+      });
 
-      // Emit via socket for real-time delivery
-      socket.emit("sendMessage", saved);
-
-      // Optimistically add to chat
-      setMessages(prev => [...prev, saved]);
       setInput("");
-    } catch (err) {
-      console.error("Send failed:", err);
-      // show notification to user as needed
-    }
+    } catch (err) {}
 
     setSending(false);
   };
 
-  // ---------- 6) edit message ----------
-  const handleEdit = async (messageId, newText) => {
-    if (!messageId) return;
-    try {
-      const res = await chatService.editMessage(messageId, { ciphertext: newText });
-      const updated = res.data;
-      setMessages(prev => prev.map(m => (m._id === messageId ? updated : m)));
-    } catch (err) {
-      console.error("Edit error:", err);
-    }
-  };
-
-  // ---------- 7) delete message ----------
-  const handleDelete = async (messageId) => {
-    if (!messageId) return;
-    try {
-      await chatService.deleteMessage(messageId);
-      setMessages(prev => prev.filter(m => m._id !== messageId));
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
-  };
-
-  // ---------- 8) copy / forward ----------
-  const handleCopy = (text) => {
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-      // small UX cue
-      alert("Message copied to clipboard");
-    });
-  };
-
-  const handleForward = (messageId) => {
-    const msg = messages.find(m => m._id === messageId);
-    if (!msg) return;
-    // For now simple alert — implement forward UI as needed
-    alert(`Forwarding: ${msg.ciphertext}`);
-  };
-
-  // ---------- 9) scroll to bottom whenever messages change ----------
+  // -----------------------------------------
+  // Auto-scroll bottom
+  // -----------------------------------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ---------- 10) UI render ----------
+  // -----------------------------------------
+  // UI
+  // -----------------------------------------
   return (
     <div className="app-container">
       <div className="chat-panel">
-        {/* Left: user list */}
+
+        {/* LEFT - User List */}
         <div className="chat-list-section">
           <h3 className="chat-list-heading">Chats</h3>
           <input type="text" placeholder="Search..." className="chat-list-search-input" />
+
           <div className="chat-list">
-            {users.map(u => (
-              <div key={u._id} onClick={() => setSelectedUser(u)}>
+            {users.map((u) => (
+              <div key={u.id} onClick={() => setSelectedUser(u)}>
                 <MessageListItem
-                  avatar={u.profile_pic || "https://via.placeholder.com/40"}
-                  name={u.first_name || u.name || "Unknown"}
-                  lastMessage={/* optional: show last message snippet, implement if you maintain it */ ""}
-                  active={selectedUser?._id === u._id}
-                  sender={u.first_name}
+                  avatar={u.profile_pic}
+                  name={u.name}
+                  active={selectedUser?.id === u.id}
                 />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Middle: chat box */}
+        {/* MIDDLE - Chat Window */}
         <div className="chat-box">
           <div className="chat-header-small">
-            <img
-              src={selectedUser?.profile_pic || "https://via.placeholder.com/40"}
-              alt={selectedUser?.first_name || "Select"}
-            />
-            <span>{selectedUser?.first_name || "Select a chat"}</span>
+            <img src={selectedUser?.profile_pic} alt="" />
+            <span>{selectedUser?.name || "Select a chat"}</span>
           </div>
 
+          {/* Messages */}
           <div className="chat-messages" style={{ minHeight: 300 }}>
             {loadingMessages ? (
               <div>Loading messages...</div>
             ) : (
               <>
-                {messages.map(msg => {
-                  const isYou = msg.sender_id === currentUser?._id || msg.sender_id === currentUser?._id?.toString();
-                  const status = msg.is_read ? "seen" : (msg.delivered ? "delivered" : "sent");
+                {messages.map((msg) => {
+                  const isYou =
+                    msg.sender_id?._id?.toString() === currentUser?._id?.toString()
+                      ? "you"
+                      : "other";
+
                   return (
                     <ChatBubble
                       key={msg._id}
-                      id={msg._id}
-                      sender={isYou ? "you" : "other"}
-                      message={msg.ciphertext}
-                      timestamp={msg.created_at}
-                      status={status}
-                      onDelete={() => handleDelete(msg._id)}
-                      onEdit={(id, newText) => handleEdit(id, newText)}
-                      onCopy={() => handleCopy(msg.ciphertext)}
-                      onForward={() => handleForward(msg._id)}
+                      sender={isYou}
+                      message={msg.content}
+                      timestamp={msg.updatedAt}
                     />
                   );
                 })}
@@ -248,17 +198,29 @@ const ChatWindow = () => {
           <div className="input-area">
             <input
               type="text"
-              placeholder={selectedUser ? `Message ${selectedUser.first_name}` : "Select a user to start"}
               value={input}
+              placeholder={selectedUser ? `Message ${selectedUser.name}` : ""}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               disabled={!selectedUser || sending}
             />
+
             <button className="attachment-button" disabled={!selectedUser}>📎</button>
-            <button className="send-button" onClick={handleSend} disabled={!selectedUser || sending}>
+
+            <button
+              className="send-button"
+              onClick={handleSend}
+              disabled={!selectedUser || sending}
+            >
               {sending ? "Sending..." : "Send"}
             </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -266,4 +228,3 @@ const ChatWindow = () => {
 };
 
 export default ChatWindow;
-// ChatWindowDynamic.jsx

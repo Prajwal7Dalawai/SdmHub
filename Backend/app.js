@@ -13,38 +13,42 @@ const conversationRoutes = require("./routes/conversation.js");
 const messageRoutes = require("./routes/message.js");
 const http = require("http");
 const { Server } = require("socket.io");
+const flash = require('connect-flash');
+const { initSocket } = require("./socket");
 
-const app = express();  // ✅ DEFINE APP FIRST
+
+const app = express();
 const port = 3000;
 
+// ✅ Create one shared session middleware
+const sessionMiddleware = session({
+  secret: 'something',
+  resave: false,
+  saveUninitialized: false
+});
+
+app.use(sessionMiddleware);
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Flash after session
+app.use(flash());
+
 // ================= Socket.io Setup =================
-const server = http.createServer(app); // ✅ Now app exists
+const server = http.createServer(app);
+const io = initSocket(server);
 
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"]
-  }
-});
-
-io.on("connection", (socket) => {
-  console.log("⚡ User connected:", socket.id);
-
-  socket.on("join_conversation", (conversationId) => {
-    socket.join(conversationId);
-    console.log("Joined:", conversationId);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("❌ User disconnected:", socket.id);
-  });
+// ✅ Share session with WebSockets
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
 });
 
 
-// Middleware
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
+  origin: 'http://localhost:5173',
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -60,16 +64,15 @@ app.use('/api/messages', messageRoutes);
 
 // Error Handler
 app.use((err, req, res, next) => {
-    console.error("Error:", err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+  console.error("Error:", err);
+  res.status(500).json({ success: false, message: 'Internal server error' });
 });
-
 
 // ================= Database + Server Start ===============
 connectToDatabase()
   .then(() => {
     console.log('Connected to MongoDB');
-    server.listen(port, () => console.log(`Server running at ${port}`)); // ✅ Use server not app
+    server.listen(port, () => console.log(`Server running at ${port}`));
   })
   .catch(err => {
     console.error('Failed to start server:', err);

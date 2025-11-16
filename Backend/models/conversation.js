@@ -7,14 +7,21 @@ const ConversationSchema = new mongoose.Schema(
       enum: ["dm", "group"],
       required: true,
     },
+
     title: {
       type: String,
-      default: null, // only needed for groups
+      required: function () {
+        return this.type === "group";
+      },
+      default: null,
     },
+
     creator_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: function () {
+        return this.type === "group";
+      },
     },
   },
   { timestamps: true }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../assets/css/style.css';
 
-const ChatBubble = ({ id, sender, message, timestamp, status, onDelete, onEdit, onCopy, onForward }) => {
+const ChatBubble = ({id, sender, message, timestamp, onDelete}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(message);
@@ -63,16 +63,18 @@ const ChatBubble = ({ id, sender, message, timestamp, status, onDelete, onEdit, 
         )}
         <div className="message-meta">
           <span className="timestamp">{formattedTime}</span>
-          {sender === 'you' && (
-            <span className={`status ${status.toLowerCase()}`}>
-              {status === 'seen' ? '✓✓' : status === 'delivered' ? '✓' : ''}
-            </span>
-          )}
+          {sender === 'you' 
+          // && (
+          //   <span className={`status ${status.toLowerCase()}`}>
+          //     {/* {status === 'seen' ? '✓✓' : status === 'delivered' ? '✓' : ''} */}
+          //   </span>
+          // )
+          }
         </div>
       </div>
 
       {/* Context menu */}
-      {showMenu && !editing && (
+       {showMenu && !editing && (
         <ul className="context-menu">
           <li onClick={() => { onDelete(id); setShowMenu(false); }}>Delete</li>
           <li onClick={() => { onForward(id); setShowMenu(false); }}>Forward</li>
