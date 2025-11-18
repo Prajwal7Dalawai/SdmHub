@@ -1,11 +1,12 @@
+// routes/friends.js
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const User = require('../models/userSchema'); // adjust path if needed
+const User = require('../models/userSchema'); // adjust if needed
+const sendNotification = require('../utils/sendNotification'); // <- your helper
 
 // ✅ Helper to get currently logged-in user's ID
 function getUserId(req) {
-  // Try Passport session → JWT user → frontend-sent userId
   return (
     req.user?.id ||
     req.session?.passport?.user ||
@@ -24,7 +25,7 @@ router.post('/request/:id', async (req, res) => {
     if (!senderId)
       return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
 
-    if (senderId === receiverId)
+    if (String(senderId) === String(receiverId))
       return res.status(400).json({ msg: "You can't send request to yourself." });
 
     const [sender, receiver] = await Promise.all([
@@ -44,6 +45,7 @@ router.post('/request/:id', async (req, res) => {
     if ((sender.sentRequest || []).some(r => String(r.userId) === String(receiverId)))
       return res.status(400).json({ msg: 'Request already sent.' });
 
+    // push into receiver.request and sender.sentRequest
     receiver.request = receiver.request || [];
     receiver.request.push({ username: sender.first_name, userId: sender._id });
     receiver.totalRequest = (receiver.totalRequest || 0) + 1;
@@ -52,6 +54,20 @@ router.post('/request/:id', async (req, res) => {
     sender.sentRequest.push({ username: receiver.first_name, userId: receiver._id });
 
     await Promise.all([receiver.save(), sender.save()]);
+
+    // Trigger notification (non-blocking)
+    try {
+      await sendNotification({
+        user_id: receiver._id,   // who should receive the notification
+        sender_id: sender._id,   // who triggered the action
+        type: 'friend_request',
+        meta: { senderName: sender.first_name }
+      });
+    } catch (notifErr) {
+      console.error('Notification error (friend request):', notifErr);
+      // don't fail the main operation if notification fails
+    }
+
     res.status(200).json({ message: 'Friend request sent!' });
   } catch (err) {
     console.error('Error sending request:', err);
@@ -62,8 +78,8 @@ router.post('/request/:id', async (req, res) => {
 // ----------------- POST /accept/:id -----------------
 router.post('/accept/:id', async (req, res) => {
   try {
-    const receiverId = getUserId(req);
-    const senderId = req.params.id;
+    const receiverId = getUserId(req); // the user who accepted (current user)
+    const senderId = req.params.id;    // the user who originally sent request
 
     if (!receiverId)
       return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
@@ -98,6 +114,19 @@ router.post('/accept/:id', async (req, res) => {
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
+
+    // Trigger notification to original sender that their request was accepted
+    try {
+      await sendNotification({
+        user_id: sender._id,         // notify the sender (they will be notified)
+        sender_id: receiver._id,     // accepted by receiver
+        type: 'friend_accept',
+        meta: { accepterName: receiver.first_name }
+      });
+    } catch (notifErr) {
+      console.error('Notification error (friend accept):', notifErr);
+    }
+
     res.status(200).json({ message: 'Friend request accepted!' });
   } catch (err) {
     console.error('Error accepting friend request:', err);
@@ -127,6 +156,7 @@ router.post('/decline/:id', async (req, res) => {
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
+
     res.status(200).json({ message: 'Friend request declined!' });
   } catch (err) {
     console.error('Decline error:', err);
@@ -205,7 +235,6 @@ router.get('/sent', async (req, res) => {
 });
 
 // ----------------- GET /friends -----------------
-// ----------------- GET /friends (with mutual friends count) -----------------
 router.get('/', async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -252,7 +281,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 });
-
 
 // ----------------- GET /suggestions -----------------
 router.get('/suggestions', async (req, res) => {

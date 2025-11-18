@@ -6,17 +6,18 @@ require('./config/passport')
 const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
 const postsRoutes = require('./routes/posts')
-const {connectToDatabase} = require('./models/auth');
+const { connectToDatabase } = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
 const mutualRoutes = require("./routes/recommend");
+const NotificationsRoutes = require("./routes/notifications");
 
 const app = express()
 const port = 3000
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:5173', // Update this to match your frontend URL
+    origin: 'http://localhost:5173',
     credentials: true
 }));
 app.use(express.json())
@@ -24,13 +25,13 @@ app.use(express.urlencoded({ extended: true }))
 
 // Session configuration
 app.use(session({
-    secret: 'your-secret-key', // Change this to a secure secret in production
+    secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // Set to true if using HTTPS
+        secure: false,
         httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+        maxAge: 30 * 24 * 60 * 60 * 1000
     }
 }))
 
@@ -54,7 +55,10 @@ app.use('/upload', uploadRoutes)
 app.use('/posts', postsRoutes)
 app.use('/api/users', require('./routes/users'));
 app.use('/api/friends', friendsRoutes);
-app.use("/api/recommend", mutualRoutes); 
+app.use("/api/recommend", mutualRoutes);
+
+// ⭐ ADD THIS
+app.use("/api/notifications", NotificationsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -66,7 +70,7 @@ app.use((err, req, res, next) => {
         success: false,
         message: 'Internal server error',
         error: err.message,
-        stack: err.stack // send stack trace for debugging
+        stack: err.stack
     });
 });
 
@@ -76,4 +80,3 @@ connectToDatabase().then(() => {
 }).catch((err) => {
     console.error('Failed to start server:', err)
 })
-
