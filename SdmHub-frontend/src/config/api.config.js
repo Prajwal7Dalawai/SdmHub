@@ -7,6 +7,9 @@ export const API_CONFIG = {
             LOGIN: '/auth/login',
             LOGOUT: '/auth/logout',
             EDIT_PROFILE: '/auth/editprofile'
+        },
+        CHAT: {
+            Users: '/api/messages/chat-list/:userId'
         }
     }
 }; 

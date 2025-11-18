@@ -9,74 +9,73 @@ const postsRoutes = require('./routes/posts')
 const {connectToDatabase} = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
+const conversationRoutes = require("./routes/conversation.js");
+const messageRoutes = require("./routes/message.js");
+const http = require("http");
+const { Server } = require("socket.io");
+const flash = require('connect-flash');
+const { initSocket } = require("./socket");
 
 
-const app = express()
-const port = 3000
+const app = express();
+const port = 3000;
 
-// Middleware
-app.use(cors({
-    origin: 'http://localhost:5173', // Update this to match your frontend URL
-    credentials: true
-}));
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-// Session configuration
-app.use(session({
-    secret: 'your-secret-key', // Change this to a secure secret in production
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false, // Set to true if using HTTPS
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    }
-}))
-
-// Initialize Passport
-app.use(passport.initialize())
-app.use(passport.session())
-
-// Debug middleware
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`, {
-        body: req.body,
-        session: req.session,
-        cookies: req.cookies
-    });
-    next();
+// ✅ Create one shared session middleware
+const sessionMiddleware = session({
+  secret: 'something',
+  resave: false,
+  saveUninitialized: false
 });
+
+app.use(sessionMiddleware);
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Flash after session
+app.use(flash());
+
+// ================= Socket.io Setup =================
+const server = http.createServer(app);
+const io = initSocket(server);
+
+// ✅ Share session with WebSockets
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
+
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/auth', authRoutes)
-app.use('/upload', uploadRoutes)
-app.use('/posts', postsRoutes)
-app.use('/api/users', require('./routes/users'));
+app.use('/auth', authRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/posts', postsRoutes);
+app.use('/api/users', require('./routes/user'));
 app.use('/api/friends', friendsRoutes);
+app.use('/api/conversations', conversationRoutes);
+app.use('/api/messages', messageRoutes);
 
-
-// Error handling middleware
+// Error Handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    if (err && err.stack) {
-        console.error('Stack:', err.stack);
-    }
-    res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: err.message,
-        stack: err.stack // send stack trace for debugging
-    });
+  console.error("Error:", err);
+  res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
+// ================= Database + Server Start ===============
+connectToDatabase()
+  .then(() => {
+    console.log('Connected to MongoDB');
+    server.listen(port, () => console.log(`Server running at ${port}`));
+  })
+  .catch(err => {
+    console.error('Failed to start server:', err);
+});
 
-
-
-connectToDatabase().then(() => {
-    console.log('Connected to MongoDB')
-    app.listen(port, () => console.log(`Server is running on port ${port}!`))
-}).catch((err) => {
-    console.error('Failed to start server:', err)
-})
-
+module.exports.io = io;

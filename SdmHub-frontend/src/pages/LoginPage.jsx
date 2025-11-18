@@ -51,6 +51,7 @@ const RightPanel = () => {
       console.log('Login response data:', response);
       
       if (response.data.success) {
+        console.log("response data here lodu:",response.data.user);
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('token', response.data.token);

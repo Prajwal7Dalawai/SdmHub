@@ -4,8 +4,13 @@ import "../assets/css/SDMHUBNewsPost.css";
 import prateekimg from "../assets/images/prateekprofile.webp";
 import prajwalimg from "../assets/images/prajwalprofile.png";
 import nehaimg from "../assets/images/nehaprofile.png";
+<<<<<<< HEAD
+import post1img from "../assets/images/post1.jpg";  // Add these sample images
+import post2img from "../assets/images/post2.jpg";
+=======
 import post1img from "../assets/images/post1.jpg"; 
 import post2img from "../assets/images/IN10CT.png";
+>>>>>>> 02f89bcad184f84793c476313f0da7ae869c7c03
 import post3img from "../assets/images/post3.jpg";
 
 const NewsFeed = () => {
