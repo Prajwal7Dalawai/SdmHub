@@ -1,8 +1,11 @@
-const Comment = new Schema({
-  post_id: { type: Schema.Types.ObjectId, ref: 'Post' },
-  author_id: { type: Schema.Types.ObjectId, ref: 'User' },
-  content: String,
-  created_at: Date
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+const CommentSchema = new Schema({
+  post_id: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
+  author_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  content: { type: String, required: true },
+  created_at: { type: Date, default: Date.now }
 });
 
-module.exports=Comment
+module.exports = mongoose.model('Comment', CommentSchema);

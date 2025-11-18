@@ -9,42 +9,30 @@ const API_BASE = "http://localhost:3000/api";
 const FriendRequestPage = () => {
   usePageTitle("Friends");
 
-  // UI state
   const [activeTabBox1, setActiveTabBox1] = useState("requests");
-  const [activeTabBox2, setActiveTabBox2] = useState("friends");
+  const [activeSuggestionFilter, setActiveSuggestionFilter] = useState("mutual"); // default mutual
 
   const [friendRequests, setFriendRequests] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
   const [friends, setFriends] = useState([]);
-
+  const [suggestions, setSuggestions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-
   const [sentRequests, setSentRequests] = useState([]);
   const [toasts, setToasts] = useState([]);
 
   const pushToast = (text, ttl = 3000) => {
     const id = Date.now() + Math.random();
     setToasts((t) => [...t, { id, text }]);
-    setTimeout(() => setToasts((t) => t.filter(x => x.id !== id)), ttl);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), ttl);
   };
 
-  // ---------- FETCH FUNCTIONS ----------
+  // ---------- Fetch Functions ----------
   const fetchFriendRequests = async () => {
     try {
       const res = await axios.get(`${API_BASE}/friends/requests`, { withCredentials: true });
       setFriendRequests(res.data || []);
     } catch (err) {
       console.error("Error fetching friend requests:", err);
-    }
-  };
-
-  const fetchSuggestions = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/friends/suggestions`, { withCredentials: true });
-      setSuggestions(res.data || []);
-    } catch (err) {
-      console.error("Error fetching suggestions:", err);
     }
   };
 
@@ -60,21 +48,46 @@ const FriendRequestPage = () => {
   const fetchSentRequests = async () => {
     try {
       const res = await axios.get(`${API_BASE}/friends/sent`, { withCredentials: true });
-      const sentIds = (res.data || []).map(u => String(u._id));
+      const sentIds = (res.data || []).map((u) => String(u._id));
       setSentRequests(sentIds);
     } catch (err) {
       console.error("Error fetching sent requests:", err);
     }
   };
 
-  // ---------- SEARCH ----------
+  // ---------- Suggestions Fetcher ----------
+  const fetchSuggestions = async (filter = activeSuggestionFilter) => {
+    try {
+      let endpoint = `${API_BASE}/recommend/mutual`;
+
+      if (filter === "community") {
+        endpoint = `${API_BASE}/community`;
+      }
+
+      const res = await axios.get(endpoint, { withCredentials: true });
+      let data = res.data || [];
+
+      if (filter === "mutual") {
+        // ✅ Show only top 5 based on mutual friends
+        data = data.sort((a, b) => b.mutualFriends - a.mutualFriends).slice(0, 5);
+      }
+
+      setSuggestions(data);
+    } catch (err) {
+      console.error("Error fetching suggestions:", err);
+    }
+  };
+
+  // ---------- Search ----------
   const searchUsers = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
       return;
     }
     try {
-      const res = await axios.get(`${API_BASE}/users/search?query=${encodeURIComponent(query)}`, { withCredentials: true });
+      const res = await axios.get(`${API_BASE}/users/search?query=${encodeURIComponent(query)}`, {
+        withCredentials: true,
+      });
       const results = (res.data || []).map((u) => ({ ...u, _id: u._id || u.id }));
       setSearchResults(results);
     } catch (err) {
@@ -83,12 +96,7 @@ const FriendRequestPage = () => {
   };
 
   const debouncedSearch = useCallback(debounce(searchUsers, 300), []);
-
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
   const handleSearchInput = (e) => {
     const query = e.target.value;
@@ -96,41 +104,29 @@ const FriendRequestPage = () => {
     debouncedSearch(query);
   };
 
-  // ---------- ACTIONS ----------
+  // ---------- Actions ----------
   const handleSendFriendRequest = async (id) => {
     if (!id) return;
-    setSentRequests(prev => prev.includes(id) ? prev : [...prev, id]);
-
+    setSentRequests((prev) => (prev.includes(id) ? prev : [...prev, id]));
     try {
       await axios.post(`${API_BASE}/friends/request/${id}`, {}, { withCredentials: true });
       pushToast("Friend request sent!");
-      fetchSuggestions();
-      if (activeTabBox1 === "search" && searchTerm.trim() !== "") {
-        searchUsers(searchTerm);
-      }
+      fetchSuggestions(activeSuggestionFilter);
+      if (activeTabBox1 === "search" && searchTerm.trim() !== "") searchUsers(searchTerm);
     } catch (err) {
-      setSentRequests(prev => prev.filter(x => x !== id));
-      const msg = err.response?.data?.msg || "Error sending request";
-      console.error("Error sending friend request:", err.response?.data || err.message);
-      pushToast(msg);
+      setSentRequests((prev) => prev.filter((x) => x !== id));
+      pushToast(err.response?.data?.msg || "Error sending request");
     }
   };
 
   const handleAcceptFriendRequest = async (id) => {
     if (!id) return;
-    setFriendRequests(prev => prev.filter(req => String(req._id) !== String(id)));
-
+    setFriendRequests((prev) => prev.filter((req) => String(req._id) !== String(id)));
     try {
-      const userId = localStorage.getItem("userId");
-      await axios.post(
-        `${API_BASE}/friends/accept/${id}`,
-        { userId },
-        { withCredentials: true }
-      );
+      await axios.post(`${API_BASE}/friends/accept/${id}`, {}, { withCredentials: true });
       pushToast("Friend request accepted!");
       fetchFriends();
     } catch (err) {
-      console.error("❌ Error accepting request:", err);
       pushToast(err.response?.data?.msg || "Error accepting request");
       fetchFriendRequests();
     }
@@ -138,32 +134,36 @@ const FriendRequestPage = () => {
 
   const handleDeclineFriendRequest = async (id) => {
     if (!id) return;
-    setFriendRequests(prev => prev.filter(req => String(req._id) !== String(id)));
-
+    setFriendRequests((prev) => prev.filter((req) => String(req._id) !== String(id)));
     try {
       await axios.post(`${API_BASE}/friends/decline/${id}`, {}, { withCredentials: true });
       pushToast("Friend request declined");
     } catch (err) {
-      console.error("Error declining request:", err);
       pushToast(err.response?.data?.msg || "Error declining request");
       fetchFriendRequests();
     }
   };
 
-  // ---------- MOUNT ----------
+  // ---------- Effects ----------
   useEffect(() => {
     fetchFriendRequests();
-    fetchSuggestions();
     fetchFriends();
+    fetchSuggestions(activeSuggestionFilter);
     fetchSentRequests();
   }, []);
 
-  // ---------- RENDER ----------
+  useEffect(() => {
+    fetchSuggestions(activeSuggestionFilter);
+  }, [activeSuggestionFilter]);
+
+  const filteredSuggestions = suggestions;
+
+  // ---------- Render ----------
   return (
     <div className="friends-wrapper">
       {/* Toasts */}
-      <div className="toasts-container" style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>
-        {toasts.map(t => (
+      <div className="toasts-container" style={{ position: "fixed", top: 16, right: 16, zIndex: 9999 }}>
+        {toasts.map((t) => (
           <div key={t.id} className="toast">{t.text}</div>
         ))}
       </div>
@@ -173,15 +173,23 @@ const FriendRequestPage = () => {
         <h2>Connect with Others</h2>
 
         <div className="tabs">
-          <button className={`tab ${activeTabBox1 === "requests" ? "active" : ""}`} onClick={() => setActiveTabBox1("requests")}>Friend Requests</button>
-          <button className={`tab ${activeTabBox1 === "suggestions" ? "active" : ""}`} onClick={() => setActiveTabBox1("suggestions")}>People You May Know</button>
-          <button className={`tab ${activeTabBox1 === "search" ? "active" : ""}`} onClick={() => setActiveTabBox1("search")}>Search Friend</button>
+          <button className={`tab ${activeTabBox1 === "requests" ? "active" : ""}`} onClick={() => setActiveTabBox1("requests")}>
+            Friend Requests
+          </button>
+          <button className={`tab ${activeTabBox1 === "friends" ? "active" : ""}`} onClick={() => setActiveTabBox1("friends")}>
+            Your Friends
+          </button>
+          <button className={`tab ${activeTabBox1 === "search" ? "active" : ""}`} onClick={() => setActiveTabBox1("search")}>
+            Search Friend
+          </button>
         </div>
 
-        {/* FRIEND REQUESTS */}
+        {/* ---------- Friend Requests ---------- */}
         {activeTabBox1 === "requests" && (
           <div className="section">
-            {friendRequests.length === 0 ? <p className="empty-text">No new requests</p> :
+            {friendRequests.length === 0 ? (
+              <p className="empty-text">No new requests</p>
+            ) : (
               friendRequests.map((req) => (
                 <div key={req._id} className="people-item">
                   <div className="person-info">
@@ -196,18 +204,52 @@ const FriendRequestPage = () => {
                     <button className="btn decline" onClick={() => handleDeclineFriendRequest(req._id)}>❌ Decline</button>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
           </div>
         )}
 
-        {/* SUGGESTIONS */}
-        {activeTabBox1 === "suggestions" && (
+        {/* ---------- Your Friends ---------- */}
+        {activeTabBox1 === "friends" && (
           <div className="section">
-            {suggestions.length === 0 ? <p className="empty-text">No suggestions available</p> :
-              suggestions.map((person) => {
-                const isSent = sentRequests.includes(String(person._id));
-                const isFriend = friends.some(f => String(f._id) === String(person._id));
+            {friends.length === 0 ? (
+              <p className="empty-text">You have no friends yet</p>
+            ) : (
+              friends.map((f) => (
+                <div key={f._id} className="people-item">
+                  <div className="person-info">
+                    <img src={f.profilePic} alt={f.name} />
+                    <div>
+                      <h5>{f.name}</h5>
+                      <p>{f.mutualFriends || 0} mutual friends</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
+        {/* ---------- Search Friend ---------- */}
+        {activeTabBox1 === "search" && (
+          <div className="section">
+            <div className="search-wrapper">
+              <input
+                type="text"
+                placeholder="Search for a friend..."
+                value={searchTerm}
+                onChange={handleSearchInput}
+                className="search-input"
+              />
+            </div>
+            {searchTerm.trim() === "" ? (
+              <p className="empty-text">Start typing to search for friends</p>
+            ) : searchResults.length === 0 ? (
+              <p className="empty-text">No users found</p>
+            ) : (
+              searchResults.map((person) => {
+                const isSent = sentRequests.includes(String(person._id));
+                const isFriend = friends.some((f) => String(f._id) === String(person._id));
                 return (
                   <div key={person._id} className="people-item">
                     <div className="person-info">
@@ -226,71 +268,62 @@ const FriendRequestPage = () => {
                     </button>
                   </div>
                 );
-              })}
-          </div>
-        )}
-
-        {/* SEARCH */}
-        {activeTabBox1 === "search" && (
-          <div className="section">
-            <div className="search-wrapper">
-              <input
-                type="text"
-                placeholder="Search for a friend..."
-                value={searchTerm}
-                onChange={handleSearchInput}
-                className="search-input"
-              />
-            </div>
-
-            {searchTerm.trim() === "" ? <p className="empty-text">Start typing to search for friends</p> :
-              searchResults.length === 0 ? <p className="empty-text">No users found</p> :
-                searchResults.map((person) => {
-                  const isSent = sentRequests.includes(String(person._id));
-                  const isFriend = friends.some(f => String(f._id) === String(person._id));
-
-                  return (
-                    <div key={person._id} className="people-item">
-                      <div className="person-info">
-                        <img src={person.profilePic} alt={person.name} />
-                        <div>
-                          <h5>{person.name}</h5>
-                          <p>{person.mutualFriends || 0} mutual friends</p>
-                        </div>
-                      </div>
-                      <button
-                        className={`btn ${isFriend ? "friend" : isSent ? "sent" : "add"}`}
-                        onClick={() => handleSendFriendRequest(person._id)}
-                        disabled={isFriend || isSent}
-                      >
-                        {isFriend ? "✔ Already Friend" : isSent ? "✅ Request Sent" : "➕ Add Friend"}
-                      </button>
-                    </div>
-                  );
-                })}
+              })
+            )}
           </div>
         )}
       </div>
 
       {/* ---------- BOX 2 ---------- */}
       <div className="card network-card">
-        <h2>Your Friends</h2>
+        <h2>People You May Know</h2>
+
+        {/* ✅ Two Filters */}
+        <div className="tabs small-tabs">
+          <button
+            className={`tab ${activeSuggestionFilter === "mutual" ? "active" : ""}`}
+            onClick={() => setActiveSuggestionFilter("mutual")}
+          >
+            Based on Mutual Friends
+          </button>
+          <button
+            className={`tab ${activeSuggestionFilter === "community" ? "active" : ""}`}
+            onClick={() => setActiveSuggestionFilter("community")}
+          >
+            Explore by Domain
+          </button>
+        </div>
 
         <div className="section">
-          {friends.length === 0 ? (
-            <p className="empty-text">You have no friends yet</p>
+          {filteredSuggestions.length === 0 ? (
+            <p className="empty-text">No suggestions available</p>
           ) : (
-            friends.map((f) => (
-              <div key={f._id} className="people-item">
-                <div className="person-info">
-                  <img src={f.profilePic} alt={f.name} />
-                  <div>
-                    <h5>{f.name}</h5>
-                    <p>{f.mutualFriends || 0} mutual friends</p>
+            filteredSuggestions.map((person) => {
+              const isSent = sentRequests.includes(String(person._id));
+              const isFriend = friends.some((f) => String(f._id) === String(person._id));
+              return (
+                <div key={person._id} className="people-item">
+                  <div className="person-info">
+                    <img src={person.profilePic} alt={person.name} />
+                    <div>
+                      <h5>{person.name}</h5>
+                      <p>{person.mutualFriends || 0} mutual friends</p>
+                    </div>
                   </div>
+                  <button
+                    className={`btn ${isFriend ? "friend" : isSent ? "sent" : "add"}`}
+                    onClick={() => handleSendFriendRequest(person._id)}
+                    disabled={isFriend || isSent}
+                  >
+                    {isFriend
+                      ? "✔ Already Friend"
+                      : isSent
+                      ? "✅ Request Sent"
+                      : "➕ Add Friend"}
+                  </button>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
