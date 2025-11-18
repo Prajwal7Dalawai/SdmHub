@@ -6,11 +6,16 @@ const User = require('../models/userSchema'); // adjust path if needed
 // ✅ Helper to get currently logged-in user's ID
 function getUserId(req) {
   // Try Passport session → JWT user → frontend-sent userId
-  return req.user?.id || req.session?.passport?.user || req.body?.userId || null;
+  return (
+    req.user?.id ||
+    req.session?.passport?.user ||
+    req.body?.userId ||
+    req.query?.userId ||
+    null
+  );
 }
 
 // ----------------- POST /request/:id -----------------
-// Send friend request
 router.post('/request/:id', async (req, res) => {
   try {
     const senderId = getUserId(req);
@@ -30,28 +35,23 @@ router.post('/request/:id', async (req, res) => {
     if (!sender || !receiver)
       return res.status(404).json({ msg: 'User not found.' });
 
-    // Already friends?
     if ((receiver.friendsList || []).some(f => String(f.friendId) === String(senderId)))
       return res.status(400).json({ msg: 'You are already friends.' });
 
-    // Request already exists?
     if ((receiver.request || []).some(r => String(r.userId) === String(senderId)))
       return res.status(400).json({ msg: 'Request already sent.' });
 
     if ((sender.sentRequest || []).some(r => String(r.userId) === String(receiverId)))
       return res.status(400).json({ msg: 'Request already sent.' });
 
-    // Add to receiver’s requests
     receiver.request = receiver.request || [];
     receiver.request.push({ username: sender.first_name, userId: sender._id });
     receiver.totalRequest = (receiver.totalRequest || 0) + 1;
 
-    // Add to sender’s sent requests
     sender.sentRequest = sender.sentRequest || [];
     sender.sentRequest.push({ username: receiver.first_name, userId: receiver._id });
 
     await Promise.all([receiver.save(), sender.save()]);
-
     res.status(200).json({ message: 'Friend request sent!' });
   } catch (err) {
     console.error('Error sending request:', err);
@@ -62,11 +62,11 @@ router.post('/request/:id', async (req, res) => {
 // ----------------- POST /accept/:id -----------------
 router.post('/accept/:id', async (req, res) => {
   try {
-    const receiverId = getUserId(req); // logged-in user
-    const senderId = req.params.id;    // user who sent the request
+    const receiverId = getUserId(req);
+    const senderId = req.params.id;
 
     if (!receiverId)
-      return res.status(401).json({ msg: "Unauthorized. Please log in." });
+      return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
 
     const [receiver, sender] = await Promise.all([
       User.findById(receiverId),
@@ -76,7 +76,6 @@ router.post('/accept/:id', async (req, res) => {
     if (!receiver || !sender)
       return res.status(404).json({ msg: 'User not found.' });
 
-    // Add each other as friends (avoid duplicates)
     receiver.friendsList = receiver.friendsList || [];
     sender.friendsList = sender.friendsList || [];
 
@@ -88,32 +87,23 @@ router.post('/accept/:id', async (req, res) => {
       sender.friendsList.push({ friendName: receiver.first_name, friendId: receiver._id });
     }
 
-    // Add followers/following (only push ObjectId, schema expects ObjectId)
     receiver.followers = receiver.followers || [];
     sender.following = sender.following || [];
 
-    if (!receiver.followers.includes(sender._id)) {
-      receiver.followers.push(sender._id);
-    }
+    if (!receiver.followers.includes(sender._id)) receiver.followers.push(sender._id);
+    if (!sender.following.includes(receiver._id)) sender.following.push(receiver._id);
 
-    if (!sender.following.includes(receiver._id)) {
-      sender.following.push(receiver._id);
-    }
-
-    // Remove pending requests
     receiver.request = (receiver.request || []).filter(r => String(r.userId) !== String(senderId));
     sender.sentRequest = (sender.sentRequest || []).filter(r => String(r.userId) !== String(receiverId));
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
-
     res.status(200).json({ message: 'Friend request accepted!' });
   } catch (err) {
     console.error('Error accepting friend request:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
-
 
 // ----------------- POST /decline/:id -----------------
 router.post('/decline/:id', async (req, res) => {
@@ -137,7 +127,6 @@ router.post('/decline/:id', async (req, res) => {
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
-
     res.status(200).json({ message: 'Friend request declined!' });
   } catch (err) {
     console.error('Decline error:', err);
@@ -152,18 +141,35 @@ router.get('/requests', async (req, res) => {
     if (!userId) return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
 
     const user = await User.findById(userId)
-      .populate('request.userId', 'first_name email profilePic')
+      .populate('request.userId', 'first_name email profile_pic friendsList')
+      .populate('friendsList.friendId', 'friendsList')
       .lean();
 
     if (!user) return res.status(404).json({ msg: 'User not found.' });
 
-    const formattedRequests = (user.request || []).map((r) => ({
-      _id: r.userId?._id || null,
-      name: r.userId?.first_name || r.username || 'Unknown',
-      email: r.userId?.email || '',
-      profilePic: r.userId?.profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-      mutualFriends: r.mutualFriends || 0
-    }));
+    const userFriendIds = new Set(
+      (user.friendsList || []).map(f => f.friendId?._id?.toString())
+    );
+
+    const formattedRequests = (user.request || []).map(r => {
+      const reqUser = r.userId;
+      if (!reqUser) return null;
+
+      const reqFriendIds = new Set(
+        (reqUser.friendsList || []).map(f => f.friendId?.toString())
+      );
+
+      // ✅ Find intersection
+      const mutualCount = [...userFriendIds].filter(id => reqFriendIds.has(id)).length;
+
+      return {
+        _id: reqUser._id,
+        name: reqUser.first_name || r.username || 'Unknown',
+        email: reqUser.email || '',
+        profilePic: reqUser.profile_pic || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+        mutualFriends: mutualCount
+      };
+    }).filter(Boolean);
 
     res.json(formattedRequests);
   } catch (err) {
@@ -179,7 +185,7 @@ router.get('/sent', async (req, res) => {
     if (!userId) return res.status(401).json({ msg: 'Unauthorized' });
 
     const user = await User.findById(userId)
-      .populate('sentRequest.userId', 'first_name email profilePic')
+      .populate('sentRequest.userId', 'first_name email profile_pic')
       .lean();
 
     if (!user) return res.status(404).json({ msg: 'User not found.' });
@@ -188,7 +194,7 @@ router.get('/sent', async (req, res) => {
       _id: s.userId?._id || null,
       name: s.userId?.first_name || s.username,
       email: s.userId?.email || '',
-      profilePic: s.userId?.profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+      profilePic: s.userId?.profile_pic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
     }));
 
     res.json(formatted);
@@ -199,29 +205,50 @@ router.get('/sent', async (req, res) => {
 });
 
 // ----------------- GET /friends -----------------
+// ----------------- GET /friends (with mutual friends count) -----------------
 router.get('/', async (req, res) => {
   try {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ msg: 'Unauthorized' });
 
-    // Populate friendId
+    // Get current user + their friends
     const user = await User.findById(userId)
-      .populate('friendsList.friendId', 'first_name profile_pic email')
+      .populate('friendsList.friendId', 'first_name profile_pic email friendsList')
       .lean();
 
     if (!user) return res.status(404).json({ msg: 'User not found.' });
 
-    // Map friends for frontend
-    const friends = (user.friendsList || []).map(f => ({
-      _id: f.friendId?._id || null,
-      name: f.friendId?.first_name || f.friendName || 'Unknown',
-      email: f.friendId?.email || '',
-      profilePic: f.friendId?.profile_pic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-    }));
+    const userFriendIds = new Set(
+      (user.friendsList || []).map(f => f.friendId?._id?.toString())
+    );
+
+    // Calculate mutual friends count for each friend
+    const friends = (user.friendsList || []).map(f => {
+      const friend = f.friendId;
+      if (!friend) return null;
+
+      const theirFriendIds = new Set(
+        (friend.friendsList || []).map(ff => ff.friendId?.toString())
+      );
+
+      // Intersection (mutual friends)
+      const mutualCount = [...userFriendIds].filter(id => theirFriendIds.has(id)).length;
+
+      return {
+        _id: friend._id,
+        name: friend.first_name || f.friendName || 'Unknown',
+        email: friend.email || '',
+        profilePic: friend.profile_pic || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+        mutualFriends: mutualCount
+      };
+    }).filter(Boolean);
+
+    // Sort by most mutual friends (optional)
+    friends.sort((a, b) => b.mutualFriends - a.mutualFriends);
 
     res.json(friends);
   } catch (err) {
-    console.error('Error fetching friends:', err);
+    console.error('Error fetching friends with mutual count:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -234,7 +261,7 @@ router.get('/suggestions', async (req, res) => {
     const formatted = users.map(u => ({
       _id: u._id,
       name: u.first_name,
-      profilePic: u.profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+      profilePic: u.profile_pic || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       mutualFriends: 0
     }));
     res.json(formatted);

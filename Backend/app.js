@@ -9,7 +9,7 @@ const postsRoutes = require('./routes/posts')
 const {connectToDatabase} = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
-
+const mutualRoutes = require("./routes/recommend");
 
 const app = express()
 const port = 3000
@@ -54,7 +54,7 @@ app.use('/upload', uploadRoutes)
 app.use('/posts', postsRoutes)
 app.use('/api/users', require('./routes/users'));
 app.use('/api/friends', friendsRoutes);
-
+app.use("/api/recommend", mutualRoutes); 
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -69,9 +69,6 @@ app.use((err, req, res, next) => {
         stack: err.stack // send stack trace for debugging
     });
 });
-
-
-
 
 connectToDatabase().then(() => {
     console.log('Connected to MongoDB')
