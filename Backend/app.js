@@ -9,6 +9,7 @@ const postsRoutes = require('./routes/posts')
 const {connectToDatabase} = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
+<<<<<<< HEAD
 const conversationRoutes = require("./routes/conversation.js");
 const messageRoutes = require("./routes/message.js");
 const http = require("http");
@@ -16,6 +17,9 @@ const { Server } = require("socket.io");
 const flash = require('connect-flash');
 const { initSocket } = require("./socket");
 
+=======
+const mutualRoutes = require("./routes/recommend");
+>>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
 
 const app = express();
 const port = 3000;
@@ -59,15 +63,22 @@ app.use('/upload', uploadRoutes);
 app.use('/posts', postsRoutes);
 app.use('/api/users', require('./routes/user'));
 app.use('/api/friends', friendsRoutes);
+<<<<<<< HEAD
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 
 // Error Handler
+=======
+app.use("/api/recommend", mutualRoutes); 
+
+// Error handling middleware
+>>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
 app.use((err, req, res, next) => {
   console.error("Error:", err);
   res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
+<<<<<<< HEAD
 // ================= Database + Server Start ===============
 connectToDatabase()
   .then(() => {
@@ -79,3 +90,12 @@ connectToDatabase()
 });
 
 module.exports.io = io;
+=======
+connectToDatabase().then(() => {
+    console.log('Connected to MongoDB')
+    app.listen(port, () => console.log(`Server is running on port ${port}!`))
+}).catch((err) => {
+    console.error('Failed to start server:', err)
+})
+
+>>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
