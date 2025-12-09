@@ -1,14 +1,12 @@
+// routes/friends.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/userSchema');
-const passport = require('passport');
-const { hashPassword, comparePassword } = require('../config/passport');
-const { auth_docs_model } = require('../models/auth');
-const jwt = require('jsonwebtoken');
-const cloudinary = require('../config/cloudinary'); // Import Cloudinary config
-const Post = require('../models/postSchema');
+const mongoose = require('mongoose');
+const User = require('../models/userSchema'); // adjust if needed
+const sendNotification = require('../utils/sendNotification'); // <- your helper
 
-<<<<<<< HEAD
+// ✅ Helper to get currently logged-in user's ID
+function getUserId(req) {
 // Signup route
 router.post('/signup', async (req, res) => {
     try {
@@ -32,10 +30,6 @@ router.post('/signup', async (req, res) => {
                 message: 'ID not registered'
             });
         }
-=======
-// ✅ Helper to get currently logged-in user's ID
-function getUserId(req) {
-  // Try Passport session → JWT user → frontend-sent userId
   return (
     req.user?.id ||
     req.session?.passport?.user ||
@@ -50,7 +44,21 @@ router.post('/request/:id', async (req, res) => {
   try {
     const senderId = getUserId(req);
     const receiverId = req.params.id;
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
+
+    if (!senderId)
+      return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
+
+    if (String(senderId) === String(receiverId))
+      return res.status(400).json({ msg: "You can't send request to yourself." });
+
+    const [sender, receiver] = await Promise.all([
+      User.findById(senderId),
+      User.findById(receiverId)
+    ]);
+
+    if (!sender || !receiver)
+      return res.status(404).json({ msg: 'User not found.' });
+
 
         // Check if user already exists
         const existingUser = await User.findOne({ 
@@ -81,7 +89,6 @@ router.post('/request/:id', async (req, res) => {
 
         const completionPercentage = (Object.values(profileFields).reduce((a, b) => a + b, 0) / Object.keys(profileFields).length) * 100;
 
-<<<<<<< HEAD
         // Hash the password using bcrypt
         const hashedPassword = await hashPassword(password);
 
@@ -99,17 +106,19 @@ router.post('/request/:id', async (req, res) => {
             created_at: new Date(),
             profile_completion: completionPercentage
         });
-=======
     if ((receiver.friendsList || []).some(f => String(f.friendId) === String(senderId)))
       return res.status(400).json({ msg: 'You are already friends.' });
 
     if ((receiver.request || []).some(r => String(r.userId) === String(senderId)))
       return res.status(400).json({ msg: 'Request already sent.' });
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
+
+    if ((sender.sentRequest || []).some(r => String(r.userId) === String(receiverId)))
+      return res.status(400).json({ msg: 'Request already sent.' });
+
+    // push into receiver.request and sender.sentRequest
 
         await newUser.save();
 
-<<<<<<< HEAD
         // Create session without passport login
         req.session.user = {
             id: newUser._id,
@@ -141,7 +150,6 @@ router.post('/request/:id', async (req, res) => {
             message: 'Error during signup',
             error: error.message
         });
-=======
     receiver.request = receiver.request || [];
     receiver.request.push({ username: sender.first_name, userId: sender._id });
     receiver.totalRequest = (receiver.totalRequest || 0) + 1;
@@ -150,6 +158,20 @@ router.post('/request/:id', async (req, res) => {
     sender.sentRequest.push({ username: receiver.first_name, userId: receiver._id });
 
     await Promise.all([receiver.save(), sender.save()]);
+
+    // Trigger notification (non-blocking)
+    try {
+      await sendNotification({
+        user_id: receiver._id,   // who should receive the notification
+        sender_id: sender._id,   // who triggered the action
+        type: 'friend_request',
+        meta: { senderName: sender.first_name }
+      });
+    } catch (notifErr) {
+      console.error('Notification error (friend request):', notifErr);
+      // don't fail the main operation if notification fails
+    }
+
     res.status(200).json({ message: 'Friend request sent!' });
   } catch (err) {
     console.error('Error sending request:', err);
@@ -179,7 +201,12 @@ router.post('/accept/:id', async (req, res) => {
 
     if (!receiver.friendsList.some(f => String(f.friendId) === String(senderId))) {
       receiver.friendsList.push({ friendName: sender.first_name, friendId: sender._id });
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
+    }
+
+    if (!sender.friendsList.some(f => String(f.friendId) === String(receiverId))) {
+      sender.friendsList.push({ friendName: receiver.first_name, friendId: receiver._id });
+    }
+
     }
 });
 
@@ -345,7 +372,6 @@ router.post('/editprofile', async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
 // Login route
 router.post('/login', passport.authenticate('local', {
     failureRedirect: '/auth/login-failure',
@@ -495,7 +521,6 @@ router.get('/profile-stats', async (req, res) => {
 });
 
 module.exports = router; 
-=======
     receiver.followers = receiver.followers || [];
     sender.following = sender.following || [];
 
@@ -507,6 +532,19 @@ module.exports = router;
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
+
+    // Trigger notification to original sender that their request was accepted
+    try {
+      await sendNotification({
+        user_id: sender._id,         // notify the sender (they will be notified)
+        sender_id: receiver._id,     // accepted by receiver
+        type: 'friend_accept',
+        meta: { accepterName: receiver.first_name }
+      });
+    } catch (notifErr) {
+      console.error('Notification error (friend accept):', notifErr);
+    }
+
     res.status(200).json({ message: 'Friend request accepted!' });
   } catch (err) {
     console.error('Error accepting friend request:', err);
@@ -536,6 +574,7 @@ router.post('/decline/:id', async (req, res) => {
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
+
     res.status(200).json({ message: 'Friend request declined!' });
   } catch (err) {
     console.error('Decline error:', err);
@@ -614,7 +653,6 @@ router.get('/sent', async (req, res) => {
 });
 
 // ----------------- GET /friends -----------------
-// ----------------- GET /friends (with mutual friends count) -----------------
 router.get('/', async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -662,7 +700,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 // ----------------- GET /suggestions -----------------
 router.get('/suggestions', async (req, res) => {
   try {
@@ -681,4 +718,4 @@ router.get('/suggestions', async (req, res) => {
 });
 
 module.exports = router;
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
+

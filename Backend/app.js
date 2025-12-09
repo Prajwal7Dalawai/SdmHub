@@ -6,9 +6,11 @@ require('./config/passport')
 const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
 const postsRoutes = require('./routes/posts')
-const {connectToDatabase} = require('./models/auth');
+const { connectToDatabase } = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
+const mutualRoutes = require("./routes/recommend");
+const NotificationsRoutes = require("./routes/notifications");
 const conversationRoutes = require("./routes/conversation.js");
 const messageRoutes = require("./routes/message.js");
 const http = require("http");
@@ -18,6 +20,25 @@ const { initSocket } = require("./socket");
 
 const mutualRoutes = require("./routes/recommend");
 
+// Middleware
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// Session configuration
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    }
+}))
 const app = express();
 const port = 3000;
 
