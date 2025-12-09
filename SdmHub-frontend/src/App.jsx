@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import FriendRequestPage from "./pages/FriendRequestPage";
-import ChatWindow from "./pages/ChatWindow";
+import ChatWindow from "./pages/ChatWindowDynamic"
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
 import EditProfile from "./pages/EditProfile";
