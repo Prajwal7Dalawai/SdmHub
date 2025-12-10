@@ -10,7 +10,6 @@ import EditProfile from "./pages/EditProfile";
 import SDMHUBAuth from "./pages/SDMHUBAuth";
 import NewsFeed from "./pages/NewsFeed";
 import ErrorPage from "./pages/ErrorPage";
-import Notifications from "./pages/Notifications";
 import React from "react";
 
 // Layout for authenticated pages
@@ -54,14 +53,6 @@ function App() {
           element={
             <LayoutWithHeader>
               <ChatWindow />
-            </LayoutWithHeader>
-          }
-        />
-        <Route
-          path="/notifications"
-          element={
-            <LayoutWithHeader>
-              <Notifications />
             </LayoutWithHeader>
           }
         />
