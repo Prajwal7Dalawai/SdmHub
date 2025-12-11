@@ -5,6 +5,8 @@ const Post = require('../models/postSchema');
 const User = require('../models/userSchema');
 const Like = require('../models/likeSchema');
 const Comment = require('../models/commentSchema');
+const Notification = require("../models/notificationSchema");
+
 
 // ----------------------
 // GET ALL POSTS + LIKED STATUS
@@ -23,13 +25,11 @@ router.get('/', async (req, res) => {
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
 
-        // ⭐ FETCH LAST 2 COMMENTS
         const comments = await Comment.find({ post_id: post._id })
           .sort({ created_at: -1 })
           .limit(2)
           .populate("author_id", "first_name profile_pic");
 
-        // ⭐ CHECK WHETHER USER LIKED THE POST
         const liked = await Like.findOne({
           user_id: userId,
           post_id: post._id
@@ -48,7 +48,6 @@ router.get('/', async (req, res) => {
           share_count: post.share_count,
           liked: !!liked,
 
-          // ⭐ SEND COMMENTS TO FRONTEND
           comments: comments.map(c => ({
             _id: c._id,
             content: c.content,
@@ -66,6 +65,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch posts', details: err.message });
   }
 });
+
 
 // ----------------------
 // CREATE NEW POST
@@ -100,8 +100,9 @@ router.post('/', async (req, res) => {
   }
 });
 
+
 // ----------------------
-// LIKE / UNLIKE POST
+// ✅ LIKE / UNLIKE POST + ✅ LIKE NOTIFICATION (FIXED)
 // ----------------------
 router.post('/like/:postId', async (req, res) => {
   try {
@@ -119,15 +120,45 @@ router.post('/like/:postId', async (req, res) => {
     const existing = await Like.findOne({ user_id: userId, post_id: postId });
 
     if (existing) {
-      // Unlike
+      // ✅ UNLIKE
       await Like.deleteOne({ _id: existing._id });
       await Post.findByIdAndUpdate(postId, { $inc: { like_count: -1 } });
       return res.json({ liked: false });
     }
 
-    // Like
+    // ✅ LIKE
     await Like.create({ user_id: userId, post_id: postId });
-    await Post.findByIdAndUpdate(postId, { $inc: { like_count: 1 } });
+
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { $inc: { like_count: 1 } },
+      { new: true }
+    );
+
+    // ✅ SEND LIKE NOTIFICATION
+    if (post && String(post.author_id) !== String(userId)) {
+      const existingNotif = await Notification.findOne({
+        sender_id: userId,
+        receiver_id: post.author_id,
+        target_id: postId,
+        type: "LIKE"
+      });
+
+      if (!existingNotif) {
+        await Notification.create({
+          sender_id: userId,
+          receiver_id: post.author_id,
+          message: `${req.session.user?.first_name} liked your post`,
+          type: "LIKE",
+          target_id: postId
+        });
+
+        // ✅ REAL-TIME SOCKET NOTIFICATION
+        if (global.io) {
+          global.io.to(String(post.author_id)).emit("newNotification");
+        }
+      }
+    }
 
     return res.json({ liked: true });
 
@@ -136,6 +167,7 @@ router.post('/like/:postId', async (req, res) => {
     res.status(500).json({ error: "Like error", details: err.message });
   }
 });
+
 
 // ----------------------
 // SHARE POST
@@ -163,8 +195,9 @@ router.post('/share/:postId', async (req, res) => {
   }
 });
 
+
 // ----------------------
-// COMMENT POST
+// ✅ COMMENT POST + ✅ COMMENT NOTIFICATION
 // ----------------------
 router.post('/comment/:postId', async (req, res) => {
   try {
@@ -184,7 +217,6 @@ router.post('/comment/:postId', async (req, res) => {
       return res.status(400).json({ error: "Comment cannot be empty" });
     }
 
-    // Create the comment
     const newComment = await Comment.create({
       post_id: postId,
       author_id: userId,
@@ -192,8 +224,23 @@ router.post('/comment/:postId', async (req, res) => {
       created_at: new Date(),
     });
 
-    // Increase comment count
     await Post.findByIdAndUpdate(postId, { $inc: { comment_count: 1 } });
+
+    const post = await Post.findById(postId);
+
+    if (post && String(post.author_id) !== String(userId)) {
+      await Notification.create({
+        sender_id: userId,
+        receiver_id: post.author_id,
+        message: `${req.session.user?.first_name} commented on your post`,
+        type: "COMMENT",
+        target_id: postId
+      });
+
+      if (global.io) {
+        global.io.to(String(post.author_id)).emit("newNotification");
+      }
+    }
 
     res.json({ success: true, comment: newComment });
 
@@ -203,6 +250,8 @@ router.post('/comment/:postId', async (req, res) => {
   }
 });
 
+
+// ----------------------
 router.get("/comments/:postId", async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -225,6 +274,5 @@ router.get("/comments/:postId", async (req, res) => {
     res.status(500).json({ error: "Failed to load comments" });
   }
 });
-
 
 module.exports = router;

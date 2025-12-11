@@ -164,5 +164,30 @@ const deleteMessage = async (req, res)=>{
 }
 }
 
+// ✅ NEW: Search users by name/email to start a chat
+const searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+    const userId = req.user?._id;
 
-module.exports = { sendMessage, getMessages, getChatList, deleteMessage };
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({ message: "Query is required" });
+    }
+
+    // Search users by first_name or email (case-insensitive)
+    const users = await User.find({
+      $or: [
+        { first_name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } }
+      ],
+      _id: { $ne: userId } // Exclude current user
+    }).select("_id first_name email profile_pic").limit(10);
+
+    return res.status(200).json(users);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchUsers };

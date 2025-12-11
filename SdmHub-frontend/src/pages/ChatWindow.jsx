@@ -63,8 +63,54 @@ const ChatWindow = () => {
   const [messageInput, setMessageInput] = useState('');
   const [selectedUser, setSelectedUser] = useState('Jenny Wilson');
   const [conversations, setConversations] = useState(userConversations);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const conversation = conversations[selectedUser] || [];
+
+  // ✅ Handle search input
+  const handleSearch = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim().length === 0) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const response = await fetch(`http://localhost:3000/api/messages/search?query=${encodeURIComponent(query)}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setSearchResults(data);
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+    }
+  };
+
+  // ✅ Select a user from search results
+  const handleSelectUserFromSearch = (user) => {
+    setSelectedUser(user.first_name);
+    // Initialize conversation for new user if not exists
+    if (!conversations[user.first_name]) {
+      setConversations(prev => ({
+        ...prev,
+        [user.first_name]: []
+      }));
+    }
+    setSearchQuery('');
+    setSearchResults([]);
+    setIsSearching(false);
+  };
 
   const sendMessage = () => {
     if (messageInput.trim() === '') return;
@@ -114,19 +160,47 @@ const ChatWindow = () => {
       <div className="chat-panel">
         <div className="chat-list-section">
           <h3 className="chat-list-heading">Chats</h3>
-          <input type="text" placeholder="Search..." className="chat-list-search-input" />
+          <input 
+            type="text" 
+            placeholder="Search users..." 
+            className="chat-list-search-input"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
           <div className="chat-list">
-            {messageListData.map((item) => (
-              <div key={item.id} onClick={() => setSelectedUser(item.name)}>
-                <MessageListItem
-                  avatar={item.avatar}
-                  name={item.name}
-                  lastMessage={item.lastMessage}
-                  active={item.name === selectedUser}
-                  sender={item.sender}
-                />
-              </div>
-            ))}
+            {/* Show search results if searching */}
+            {isSearching && searchResults.length > 0 ? (
+              searchResults.map((user) => (
+                <div 
+                  key={user._id} 
+                  onClick={() => handleSelectUserFromSearch(user)}
+                  style={{ cursor: 'pointer', padding: '10px', borderRadius: '8px', marginBottom: '8px', backgroundColor: '#f0f0f0' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img src={user.profile_pic} alt={user.first_name} style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
+                    <div>
+                      <strong>{user.first_name}</strong>
+                      <p style={{ fontSize: '12px', color: '#999', margin: 0 }}>{user.email}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : isSearching ? (
+              <div style={{ padding: '10px', color: '#999' }}>No users found</div>
+            ) : (
+              // Show default chat list
+              messageListData.map((item) => (
+                <div key={item.id} onClick={() => setSelectedUser(item.name)}>
+                  <MessageListItem
+                    avatar={item.avatar}
+                    name={item.name}
+                    lastMessage={item.lastMessage}
+                    active={item.name === selectedUser}
+                    sender={item.sender}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
 

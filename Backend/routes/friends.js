@@ -1,44 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/userSchema');
+const Notification = require("../models/notificationSchema");
 const passport = require('passport');
 const { hashPassword, comparePassword } = require('../config/passport');
 const { auth_docs_model } = require('../models/auth');
 const jwt = require('jsonwebtoken');
-const cloudinary = require('../config/cloudinary'); // Import Cloudinary config
+const cloudinary = require('../config/cloudinary');
 const Post = require('../models/postSchema');
 
-<<<<<<< HEAD
-// Signup route
-router.post('/signup', async (req, res) => {
-    try {
-        const {
-            first_name,
-            email,
-            USN,
-            password,
-            role,
-            department,
-            graduation_year,
-            enrollment_year,
-            bio
-        } = req.body;
-
-        // First check if USN exists in auth_docs
-        const authDoc = await auth_docs_model.findOne({ id: USN });
-        if (!authDoc) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID not registered'
-            });
-        }
-=======
-// ✅ Helper to get currently logged-in user's ID
+// ⭐ ADD THIS EXACTLY HERE
 function getUserId(req) {
-  // Try Passport session → JWT user → frontend-sent userId
   return (
     req.user?.id ||
     req.session?.passport?.user ||
+    req.session?.user?.id ||
     req.body?.userId ||
     req.query?.userId ||
     null
@@ -50,107 +26,53 @@ router.post('/request/:id', async (req, res) => {
   try {
     const senderId = getUserId(req);
     const receiverId = req.params.id;
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ 
-            $or: [
-                { email: email },
-                { USN: USN }
-            ]
-        });
+    if (!senderId)
+      return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
 
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'User with this email or USN already exists'
-            });
-        }
+    const [sender, receiver] = await Promise.all([
+      User.findById(senderId),
+      User.findById(receiverId)
+    ]);
 
-        // Calculate profile completion percentage
-        const profileFields = {
-            first_name: first_name ? 1 : 0,
-            email: email ? 1 : 0,
-            USN: USN ? 1 : 0,
-            role: role ? 1 : 0,
-            department: department ? 1 : 0,
-            graduation_year: graduation_year ? 1 : 0,
-            enrollment_year: enrollment_year ? 1 : 0,
-            bio: bio ? 1 : 0
-        };
+    if (!sender || !receiver)
+      return res.status(404).json({ msg: 'User not found.' });
 
-        const completionPercentage = (Object.values(profileFields).reduce((a, b) => a + b, 0) / Object.keys(profileFields).length) * 100;
-
-<<<<<<< HEAD
-        // Hash the password using bcrypt
-        const hashedPassword = await hashPassword(password);
-
-        // Create new user
-        const newUser = new User({
-            first_name,
-            email,
-            USN,
-            password_hash: hashedPassword,
-            role,
-            department,
-            graduation_year,
-            enrollment_year,
-            bio,
-            created_at: new Date(),
-            profile_completion: completionPercentage
-        });
-=======
     if ((receiver.friendsList || []).some(f => String(f.friendId) === String(senderId)))
       return res.status(400).json({ msg: 'You are already friends.' });
 
     if ((receiver.request || []).some(r => String(r.userId) === String(senderId)))
       return res.status(400).json({ msg: 'Request already sent.' });
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
 
-        await newUser.save();
-
-<<<<<<< HEAD
-        // Create session without passport login
-        req.session.user = {
-            id: newUser._id,
-            first_name: newUser.first_name,
-            email: newUser.email,
-            USN: newUser.USN,
-            role: newUser.role,
-            profile_completion: completionPercentage
-        };
-
-        return res.status(201).json({
-            success: true,
-            message: 'User registered successfully',
-            user: {
-                id: newUser._id,
-                first_name: newUser.first_name,
-                email: newUser.email,
-                USN: newUser.USN,
-                role: newUser.role,
-                profile_completion: completionPercentage
-            },
-            redirect: completionPercentage < 100 ? '/editprofile' : '/dashboard'
-        });
-
-    } catch (error) {
-        console.error('Signup error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error during signup',
-            error: error.message
-        });
-=======
+    // ✅ Update Receiver → incoming request
     receiver.request = receiver.request || [];
-    receiver.request.push({ username: sender.first_name, userId: sender._id });
+    receiver.request.push({ 
+      username: sender.first_name, 
+      userId: sender._id 
+    });
+
     receiver.totalRequest = (receiver.totalRequest || 0) + 1;
 
+    // ✅ Update Sender → sent request
     sender.sentRequest = sender.sentRequest || [];
-    sender.sentRequest.push({ username: receiver.first_name, userId: receiver._id });
+    sender.sentRequest.push({ 
+      username: receiver.first_name, 
+      userId: receiver._id 
+    });
 
     await Promise.all([receiver.save(), sender.save()]);
+
+    // 🔥 ADD NOTIFICATION HERE (NOW CONNECTED ✅)
+    await Notification.create({
+      sender_id: sender._id,
+      receiver_id: receiver._id,
+      message: `${sender.first_name} sent you a friend request`,
+      type: "FRIEND_REQUEST",
+      target_id: sender._id   // opens sender profile on click
+    });
+
     res.status(200).json({ message: 'Friend request sent!' });
+
   } catch (err) {
     console.error('Error sending request:', err);
     res.status(500).json({ msg: 'Server error' });
@@ -179,9 +101,41 @@ router.post('/accept/:id', async (req, res) => {
 
     if (!receiver.friendsList.some(f => String(f.friendId) === String(senderId))) {
       receiver.friendsList.push({ friendName: sender.first_name, friendId: sender._id });
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e
     }
+
+    if (!sender.friendsList.some(f => String(f.friendId) === String(receiverId))) {
+      sender.friendsList.push({ friendName: receiver.first_name, friendId: receiver._id });
+    }
+
+    receiver.followers = receiver.followers || [];
+    sender.following = sender.following || [];
+
+    if (!receiver.followers.includes(sender._id)) receiver.followers.push(sender._id);
+    if (!sender.following.includes(receiver._id)) sender.following.push(receiver._id);
+
+    receiver.request = (receiver.request || []).filter(r => String(r.userId) !== String(senderId));
+    sender.sentRequest = (sender.sentRequest || []).filter(r => String(r.userId) !== String(receiverId));
+    receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
+
+    await Promise.all([receiver.save(), sender.save()]);
+
+    // 🔥 SEND ACCEPTANCE NOTIFICATION
+    await Notification.create({
+      sender_id: receiver._id,
+      receiver_id: sender._id,
+      message: `${receiver.first_name} accepted your friend request`,
+      type: "FRIEND_REQUEST",
+      target_id: receiver._id
+    });
+
+    res.status(200).json({ message: 'Friend request accepted!' });
+  } catch (err) {
+    console.error('Error accepting friend request:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
+
+
 
 // Edit profile route
 router.post('/editprofile', async (req, res) => {
@@ -216,8 +170,6 @@ router.post('/editprofile', async (req, res) => {
             profile_pic_public_id,
             links
         } = req.body;
-
-        console.log('Received edit profile request body:', req.body);
 
         // Validate user_profile
         const validProfiles = ['Student', 'Alumni', 'Faculty'];
@@ -260,25 +212,24 @@ router.post('/editprofile', async (req, res) => {
             links
         };
 
-        // Remove undefined fields, but allow empty strings for profile fields
+        // Remove undefined fields
         Object.keys(updateData).forEach(key => {
             if (updateData[key] === undefined) {
                 delete updateData[key];
             }
         });
 
-        // If a new profile picture is uploaded and old public ID exists, delete the old one from Cloudinary
+        // If a new profile picture is uploaded, delete the old one from Cloudinary
         if (profile_pic_public_id && req.session.user.profile_pic_public_id && profile_pic_public_id !== req.session.user.profile_pic_public_id) {
             try {
                 await cloudinary.uploader.destroy(req.session.user.profile_pic_public_id);
-                console.log(`Old profile pic ${req.session.user.profile_pic_public_id} deleted from Cloudinary.`);
+                console.log(`Old profile pic deleted from Cloudinary.`);
             } catch (deleteError) {
                 console.error("Error deleting old Cloudinary image:", deleteError);
-                // Continue even if old image deletion fails
             }
         }
 
-        // Calculate new completion percentage based on all relevant fields
+        // Calculate profile completion percentage
         const userFields = await User.findById(userId);
         const currentProfile = { ...userFields._doc, ...updateData };
 
@@ -322,7 +273,6 @@ router.post('/editprofile', async (req, res) => {
             { new: true, runValidators: true }
         );
 
-        // Update session with all updated profile data
         req.session.user = {
             ...req.session.user,
             ...updatedUser.toObject()
@@ -345,176 +295,6 @@ router.post('/editprofile', async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
-// Login route
-router.post('/login', passport.authenticate('local', {
-    failureRedirect: '/auth/login-failure',
-    failureFlash: true
-}), (req, res) => {
-    const user = req.user;
-
-    req.session.user = {
-        id: user._id,
-        first_name: user.first_name,
-        email: user.email,
-        USN: user.USN,
-        role: user.role,
-        profile_completion: user.profile_completion
-    };
-
-    const redirectPath = user.profile_completion < 100 ? '/editprofile' : '/dashboard';
-
-    const token = jwt.sign({
-        id: user._id,
-        email: user.email,
-        role: user.role
-    }, 'your_jwt_secret', { expiresIn: '1h' }); // Replace with a strong secret from .env
-
-    res.json({
-        success: true,
-        message: 'Logged in successfully',
-        user: {
-            id: user._id,
-            first_name: user.first_name,
-            email: user.email,
-            USN: user.USN,
-            role: user.role,
-            profile_completion: user.profile_completion
-        },
-        token: token,
-        redirect: redirectPath
-    });
-});
-
-router.get('/login-failure', (req, res) => {
-    res.status(401).json({ success: false, message: 'Authentication failed' });
-});
-
-router.get('/logout', (req, res, next) => {
-    req.logout((err) => {
-        if (err) { return next(err); }
-        req.session.destroy((err) => {
-            if (err) { return next(err); }
-            res.json({ success: true, message: 'Logged out successfully' });
-        });
-    });
-});
-
-// Get user profile route
-router.get('/profile', async (req, res) => {
-    try {
-        if (!req.isAuthenticated()) {
-            return res.status(401).json({
-                success: false,
-                message: 'Not authenticated',
-            });
-        }
-
-        const userId = req.user._id; // Use req.user._id populated by Passport
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found',
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            user: user.toObject(),
-        });
-
-    } catch (error) {
-        console.error('Fetch profile error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error fetching profile',
-            error: error.message,
-        });
-    }
-});
-
-// Debug session route
-router.get('/session-debug', (req, res) => {
-    console.log('Session Debug: req.session =', req.session);
-    console.log('Session Debug: req.user =', req.user);
-    res.json({
-        authenticated: req.isAuthenticated(),
-        session: req.session,
-        user: req.user ? req.user.toObject() : null, // Convert Mongoose object to plain object
-        message: 'Session and user data for debugging'
-    });
-});
-
-// Update only profile picture
-router.post('/update-profile-pic', async (req, res) => {
-    try {
-        const userId = req.session.user?.id || req.user?._id;
-        if (!userId) {
-            return res.status(401).json({ success: false, message: 'Not authenticated' });
-        }
-        const { profile_pic, profile_pic_public_id } = req.body;
-        if (!profile_pic || !profile_pic_public_id) {
-            return res.status(400).json({ success: false, message: 'Missing image data' });
-        }
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { $set: { profile_pic, profile_pic_public_id } },
-            { new: true, runValidators: true }
-        );
-        req.session.user = { ...req.session.user, ...updatedUser.toObject() };
-        res.json({ success: true, message: 'Profile picture updated', user: updatedUser });
-    } catch (error) {
-        console.error('Update profile pic error:', error);
-        res.status(500).json({ success: false, message: 'Error updating profile picture', error: error.message });
-    }
-});
-
-// Get profile stats: posts, followers, following
-router.get('/profile-stats', async (req, res) => {
-  try {
-    const userId = req.session.user?.id || req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Not authenticated' });
-    }
-    const user = await User.findById(userId).populate('followers').populate('following');
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-    const posts = await Post.find({ author_id: userId }).sort({ created_at: -1 });
-    res.json({
-      success: true,
-      posts: posts.map(post => ({ content_url: post.content_url, _id: post._id })),
-      followersCount: user.followers.length,
-      followingCount: user.following.length
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching profile stats', error: error.message });
-  }
-});
-
-module.exports = router; 
-=======
-    receiver.followers = receiver.followers || [];
-    sender.following = sender.following || [];
-
-    if (!receiver.followers.includes(sender._id)) receiver.followers.push(sender._id);
-    if (!sender.following.includes(receiver._id)) sender.following.push(receiver._id);
-
-    receiver.request = (receiver.request || []).filter(r => String(r.userId) !== String(senderId));
-    sender.sentRequest = (sender.sentRequest || []).filter(r => String(r.userId) !== String(receiverId));
-    receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
-
-    await Promise.all([receiver.save(), sender.save()]);
-    res.status(200).json({ message: 'Friend request accepted!' });
-  } catch (err) {
-    console.error('Error accepting friend request:', err);
-    res.status(500).json({ msg: 'Server error' });
-  }
-});
-
-// ----------------- POST /decline/:id -----------------
 router.post('/decline/:id', async (req, res) => {
   try {
     const receiverId = getUserId(req);
@@ -681,4 +461,3 @@ router.get('/suggestions', async (req, res) => {
 });
 
 module.exports = router;
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e

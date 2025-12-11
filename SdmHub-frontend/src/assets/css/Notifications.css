@@ -1,0 +1,48 @@
+.notification-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid #b34040;
+  width: 500px;
+  margin: auto;
+}
+
+.notification-card h2 {
+  text-align: center;
+  color: #b34040;
+  margin-bottom: 20px;
+}
+
+.notif-item {
+  display: flex;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.notif-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.notif-item h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.notif-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.notif-time {
+  font-size: 0.75rem;
+  color: gray;
+}
+
+.notification-wrapper {
+  margin-top: 30px; /* adjust as needed */
+}
