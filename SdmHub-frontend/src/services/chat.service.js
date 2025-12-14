@@ -24,18 +24,44 @@ class ChatService{
       }
 
       async sendMessage(payload) {
-  try {
-    console.log("Payload:", payload);
-    const res = await apiService.post(
-      `${API_CONFIG.BASE_URL}/api/messages/send`,
-      payload   // <-- THIS. Not { payload }
-    );
+          try {
+            console.log("Payload:", payload);
+            const res = await apiService.post(
+              `${API_CONFIG.BASE_URL}/api/messages/send`,
+              payload   // <-- THIS. Not { payload }
+            );
+            return res.data;
+          } catch (err) {
+            console.error("Error sending the sendmessage request", err);
+            throw err;
+          }
+        }
+      
+    async createGroup(payload){
+      try{
+        console.log("Group details:", payload);
+        const res = await apiService.post(`${API_CONFIG.BASE_URL}/api/group/create`,payload, {withCredentials: true});
+        return res.data;
+      }
+      catch(err){
+        console.error("Error sending the sendmessage request", err);
+            throw err;
+      }
+    }
+
+   async getGroupMessages(conversationId) {
+    const res = await apiService.get(`${API_CONFIG.BASE_URL}/api/group/messages/${conversationId}`);
     return res.data;
-  } catch (err) {
-    console.error("Error sending the sendmessage request", err);
-    throw err;
   }
-}
+
+  async sendGroupMessage({ conversationId, message }) {
+    const res = await apiService.post(`${API_CONFIG.BASE_URL}/api/group/send`, {
+      conversationId,
+      message,
+    });
+    return res.data;
+  }
+      
 
 }
 

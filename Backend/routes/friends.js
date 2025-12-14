@@ -4,6 +4,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User = require('../models/userSchema'); // adjust if needed
 const sendNotification = require('../utils/sendNotification'); // <- your helper
+const passport = require('passport')
 
 // ✅ Helper to get currently logged-in user's ID
 function getUserId(req) {
@@ -15,6 +16,82 @@ function getUserId(req) {
     null
   );
 }
+
+// Signup route
+router.post('/signup', async (req, res) => {
+    try {
+        const {
+            first_name,
+            email,
+            USN,
+            password,
+            role,
+            department,
+            graduation_year,
+            enrollment_year,
+            bio
+        } = req.body;
+
+        // First check if USN exists in auth_docs
+        const authDoc = await auth_docs_model.findOne({ id: USN });
+        if (!authDoc) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID not registered'
+            });
+        }
+
+        // Hash the password using bcrypt
+        const hashedPassword = await hashPassword(password);
+
+        // Create new user
+        const newUser = new User({
+            first_name,
+            email,
+            USN,
+            password_hash: hashedPassword,
+            role,
+            department,
+            graduation_year,
+            enrollment_year,
+            bio,
+            created_at: new Date(),
+            profile_completion: completionPercentage
+        });
+
+        // Create session without passport login
+        req.session.user = {
+            id: newUser._id,
+            first_name: newUser.first_name,
+            email: newUser.email,
+            USN: newUser.USN,
+            role: newUser.role,
+            profile_completion: completionPercentage
+        };
+
+        return res.status(201).json({
+            success: true,
+            message: 'User registered successfully',
+            user: {
+                id: newUser._id,
+                first_name: newUser.first_name,
+                email: newUser.email,
+                USN: newUser.USN,
+                role: newUser.role,
+                profile_completion: completionPercentage
+            },
+            redirect: completionPercentage < 100 ? '/editprofile' : '/dashboard'
+        });
+
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error during signup',
+            error: error.message
+        });
+    }
+});
 
 // ----------------- POST /request/:id -----------------
 router.post('/request/:id', async (req, res) => {
@@ -45,8 +122,6 @@ router.post('/request/:id', async (req, res) => {
     if ((sender.sentRequest || []).some(r => String(r.userId) === String(receiverId)))
       return res.status(400).json({ msg: 'Request already sent.' });
 
-    // push into receiver.request and sender.sentRequest
-    receiver.request = receiver.request || [];
     receiver.request.push({ username: sender.first_name, userId: sender._id });
     receiver.totalRequest = (receiver.totalRequest || 0) + 1;
 
@@ -134,6 +209,133 @@ router.post('/accept/:id', async (req, res) => {
   }
 });
 
+// Login route
+router.post('/login', passport.authenticate('local', {
+    failureRedirect: '/auth/login-failure',
+    failureFlash: true
+}), (req, res) => {
+    const user = req.user;
+
+    req.session.user = {
+        id: user._id,
+        first_name: user.first_name,
+        email: user.email,
+        USN: user.USN,
+        role: user.role,
+        profile_completion: user.profile_completion
+    };
+
+    const redirectPath = user.profile_completion < 100 ? '/editprofile' : '/dashboard';
+
+    const token = jwt.sign({
+        id: user._id,
+        email: user.email,
+        role: user.role
+    }, 'your_jwt_secret', { expiresIn: '1h' }); // Replace with a strong secret from .env
+
+    res.json({
+        success: true,
+        message: 'Logged in successfully',
+        user: {
+            id: user._id,
+            first_name: user.first_name,
+            email: user.email,
+            USN: user.USN,
+            role: user.role,
+            profile_completion: user.profile_completion
+        },
+        token: token,
+        redirect: redirectPath
+    });
+});
+
+router.get('/login-failure', (req, res) => {
+    res.status(401).json({ success: false, message: 'Authentication failed' });
+});
+
+router.get('/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) { return next(err); }
+        req.session.destroy((err) => {
+            if (err) { return next(err); }
+            res.json({ success: true, message: 'Logged out successfully' });
+        });
+    });
+});
+
+// Get user profile route
+router.get('/profile', async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authenticated',
+            });
+        }
+
+        const userId = req.user._id; // Use req.user._id populated by Passport
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            user: user.toObject(),
+        });
+
+    } catch (error) {
+        console.error('Fetch profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching profile',
+            error: error.message,
+        });
+    }
+});
+
+// Debug session route
+router.get('/session-debug', (req, res) => {
+    console.log('Session Debug: req.session =', req.session);
+    console.log('Session Debug: req.user =', req.user);
+    res.json({
+        authenticated: req.isAuthenticated(),
+        session: req.session,
+        user: req.user ? req.user.toObject() : null, // Convert Mongoose object to plain object
+        message: 'Session and user data for debugging'
+    });
+});
+
+// Update only profile picture
+// Update only profile picture
+router.post('/update-profile-pic', async (req, res) => {
+    try {
+        const userId = req.session.user?.id || req.user?._id;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
+        }
+        const { profile_pic, profile_pic_public_id } = req.body;
+        if (!profile_pic || !profile_pic_public_id) {
+            return res.status(400).json({ success: false, message: 'Missing image data' });
+        }
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: { profile_pic, profile_pic_public_id } },
+            { new: true, runValidators: true }
+        );
+        req.session.user = { ...req.session.user, ...updatedUser.toObject() };
+        res.json({ success: true, message: 'Profile picture updated', user: updatedUser });
+    } catch (error) {
+        console.error('Update profile pic error:', error);
+        res.status(500).json({ success: false, message: 'Error updating profile picture', error: error.message });
+    }
+});
+
+// ----------------- POST /decline/:id -----------------
 // ----------------- POST /decline/:id -----------------
 router.post('/decline/:id', async (req, res) => {
   try {
@@ -300,3 +502,4 @@ router.get('/suggestions', async (req, res) => {
 });
 
 module.exports = router;
+

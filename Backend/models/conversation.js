@@ -14,14 +14,31 @@ const ConversationSchema = new mongoose.Schema(
         return this.type === "group";
       },
       default: null,
+      trim: true,
     },
 
+    conv_pic: {
+      type: String,
+      required: false, // 🔥 FIXED (optional)
+      default: null,
+    },
+
+    // 🔥 ADMINS (multiple allowed)
+    admin: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    // 🔥 CREATOR (single, immutable)
     creator_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: function () {
         return this.type === "group";
       },
+      immutable: true, // 🔥 VERY IMPORTANT
     },
   },
   { timestamps: true }

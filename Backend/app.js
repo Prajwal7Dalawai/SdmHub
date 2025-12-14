@@ -6,20 +6,40 @@ require('./config/passport')
 const authRoutes = require('./routes/auth')
 const uploadRoutes = require('./routes/upload')
 const postsRoutes = require('./routes/posts')
-const {connectToDatabase} = require('./models/auth');
+const { connectToDatabase } = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
+const NotificationsRoutes = require("./routes/notifications");
 const conversationRoutes = require("./routes/conversation.js");
+const groupRoute = require('./routes/groups.js');
 const messageRoutes = require("./routes/message.js");
 const http = require("http");
 const { Server } = require("socket.io");
 const flash = require('connect-flash');
 const { initSocket } = require("./socket");
-
 const mutualRoutes = require("./routes/recommend");
-
 const app = express();
 const port = 3000;
+
+// Middleware
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// Session configuration
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    }
+}))
 
 // ✅ Create one shared session middleware
 const sessionMiddleware = session({
@@ -62,10 +82,9 @@ app.use('/api/users', require('./routes/user'));
 app.use('/api/friends', friendsRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
-
-// Error Handler
+app.use('/api/notifications', NotificationsRoutes);
 app.use("/api/recommend", mutualRoutes); 
-
+app.use("/api/group", groupRoute);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error:", err);

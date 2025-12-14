@@ -19,7 +19,7 @@ function userToText(u) {
 // controller
 exports.getInterestRecommendations = async (req, res) => {
   try {
-    const userId = req.query.userId;
+    const userId = req.user._id;
     const topN = parseInt(req.query.n || '10', 10);
 
     const current = await User.findById(userId).lean();
@@ -62,7 +62,7 @@ exports.getInterestRecommendations = async (req, res) => {
         score: parseFloat(score.toFixed(3))
       });
     }
-
+    console.log("Scores:",scores);
     scores.sort((a, b) => b.score - a.score);
     return res.json(scores.slice(0, topN));
   } catch (err) {
