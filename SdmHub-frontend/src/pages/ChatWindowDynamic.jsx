@@ -107,7 +107,7 @@ const ChatWindow = () => {
       setLoadingMessages(true);
       try {
         let res;
-        console.log(selectedChat);
+        console.log("Seletced chat:",selectedChat);
         if (selectedChat.type === "group") {
           res = await chatService.getGroupMessages(selectedChat.conversationId);
         } else {
@@ -252,7 +252,7 @@ const ChatWindow = () => {
 
           <div className="chat-list">
             {chatList.map((c) => (
-              <div key={c.id} onClick={() => setSelectedChat(c)}>
+              <div key={c._id} onClick={() => setSelectedChat(c)}>
                 <MessageListItem
                   avatar={c.profile_pic}
                   name={c.name}
@@ -277,16 +277,23 @@ const ChatWindow = () => {
               <>
                 {messages.map((msg) => (
                   <ChatBubble
-                    key={msg._id}
+                    key={msg._id} 
+                    messageId={msg._id}   // for YOUR component
                     sender={
                       msg.sender_id?._id === currentUser?._id
                         ? "you"
                         : "other"
                     }
+                    senderName={
+                        msg.sender_id?._id === currentUser?._id
+                          ? "You"
+                          : msg.sender_id?.first_name || "Unknown"
+                      }
                     message={msg.content}
                     timestamp={msg.updatedAt}
                   />
                 ))}
+
                 <div ref={messagesEndRef} />
               </>
             )}

@@ -16,6 +16,7 @@ class ChatService{
 
       async deleteMessage(msgId){
         try{
+          console.log("Delete msg id:",msgId);
           await  apiService.delete(`${API_CONFIG.BASE_URL}/api/messages/deleteOne/${msgId}`);
         } catch(err){
           console.error("Error Deleting message", err);

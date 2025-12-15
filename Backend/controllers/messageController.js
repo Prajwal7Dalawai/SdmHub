@@ -5,6 +5,7 @@ const ConversationMember = require("../models/conversationMember.js");
 const User = require("../models/userSchema.js");
 const mongoose = require('mongoose')
 const Conversation = require("../models/conversation.js");
+const message = require("../models/message.js");
 
   async function sharedConversationEntity(req, recieverId){
     const user = req.user;
@@ -167,7 +168,7 @@ const getMessages = async (req, res) => {
     const messages = await Message.find({ conversation_id: conversationId })
       .populate("sender_id", "name username")
       .sort({ seq: 1 });
-
+      console.log("DM messages:",messages);
     return res.status(200).json({
       conversation_id: conversationId,
       messages

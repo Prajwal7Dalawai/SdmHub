@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../assets/css/style.css';
+import {chatService} from "../services/chat.service";
 
-const ChatBubble = ({id, sender, message, timestamp, onDelete}) => {
+const ChatBubble = ({messageId, sender, senderName,  message, timestamp, onDelete}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(message);
   const bubbleRef = useRef(null);
+
+  // Delete function
+  async function onDelete(id){
+   await chatService.deleteMessage(id);
+  }
 
   // Hide menu on outside click
   useEffect(() => {
@@ -62,6 +68,7 @@ const ChatBubble = ({id, sender, message, timestamp, onDelete}) => {
           <>{message}</>
         )}
         <div className="message-meta">
+          <span className='sendor-name'>{senderName.trim().split(" ")[0]}</span>
           <span className="timestamp">{formattedTime}</span>
           {sender === 'you' 
           // && (
@@ -76,7 +83,7 @@ const ChatBubble = ({id, sender, message, timestamp, onDelete}) => {
       {/* Context menu */}
        {showMenu && !editing && (
         <ul className="context-menu">
-          <li onClick={() => { onDelete(id); setShowMenu(false); }}>Delete</li>
+          <li onClick={() => { onDelete(messageId); setShowMenu(false); }}>Delete</li>
           <li onClick={() => { onForward(id); setShowMenu(false); }}>Forward</li>
           <li onClick={() => { onCopy(message); setShowMenu(false); }}>Copy</li>
           <li onClick={() => { setEditing(true); }}>Edit</li>
