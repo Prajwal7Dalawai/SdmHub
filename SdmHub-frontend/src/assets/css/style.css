@@ -766,3 +766,72 @@
 .chat-bubble.other .sender-name {
   text-align: left;
 }
+
+
+.single-panel-container {
+  width: 430px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.brand-heading {
+  font-size: 42px;
+  font-weight: 700;
+  color: #9b1c1c;
+  margin-bottom: 8px;
+}
+
+.brand-sub {
+  color: #555;
+  margin-bottom: 35px;
+  font-size: 15px;
+}
+
+.single-panel-form {
+  text-align: left;
+}
+
+.single-panel-form label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 7px;
+  margin-top: 15px;
+  color: #2a2a2a;
+}
+
+.single-panel-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1cccc;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 13px;
+  background: #9b1c1c;
+  color: white;
+  border: none;
+  margin-top: 28px;
+  font-size: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #7e1414;
+}
+
+.form-msg {
+  color: #9b1c1c;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.small-link {
+  display: block;
+  font-size: 14px;
+  color: #9b1c1c;
+  margin-top: 20px;
+}

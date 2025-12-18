@@ -129,6 +129,14 @@ google_uid: {
   type: String,
   unique: true,
   sparse: true
+},
+
+reset_password_otp:{
+  type: String
+},
+
+reset_password_expiry: {
+  type: Date
 }
 });
 

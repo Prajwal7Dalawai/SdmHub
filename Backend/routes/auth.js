@@ -427,5 +427,11 @@ router.post('/google', (req, res) => {
     controller.googleAuth(req, res);
 });
 
+router.post('/forgot-password', controller.forgotPassword);
+
+router.post('/verify-otp', controller.verifyReset);
+
+router.post('/reset-password', controller.resetPassword);
+
 
 module.exports = router; 

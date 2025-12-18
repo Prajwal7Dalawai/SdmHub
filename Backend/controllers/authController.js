@@ -1,6 +1,9 @@
 const admin = require('../utils/firebase-admin.js');
 const User = require('../models/userSchema');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const sendEmail = require('../services/mail-service.js');
 const googleAuth = async (req, res) => {
   try {
     const { idToken } = req.body;
@@ -116,4 +119,51 @@ const first_name =
   }
 };
 
-module.exports = { googleAuth };
+const forgotPassword = async (req,res)=>{
+    const {email} = req.body;
+    const user = await User.findOne({email});
+    if(!user){
+      return res.status(404).json({message: "User not found"});
+    }
+    const otp = crypto.randomInt(10000,99999).toString();
+    user.reset_password_otp = otp;
+    user.reset_password_expiry = Date.now() + 10 * 60 * 1000; //10min
+    await user.save();
+    await sendEmail(email,`Password Reset OTP...\nYour One Time Password is: ${otp}\nYour otp expires in 10 minutes`);
+    res.json({message: "OTP sent"});
+}
+
+const verifyReset = async (req,res) => {
+    const {email, otp} = req.body;
+    const user = await User.findOne({email});
+    if(!user || !user.reset_password_otp){
+       return res.status(400).json({ message: "Invalid request" });
+    }
+    if(user.reset_password_otp != otp){
+      return res.status(401).json({message:"Incorrect OTP entered"});
+    }
+    if(user.reset_password_expiry < Date.now()){
+      return res.status(410).json({message: "OTP has been expired, genarate new OTP"});
+    }
+    res.json({success: true, message: "OTP valid"});
+}
+
+const resetPassword = async (req,res) => {
+  const { email, oldPassword, newPassword } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  if (oldPassword === newPassword)
+    return res.json({ message: "old and new passwords cannot be same" });
+
+
+  user.password = await bcrypt.hash(newPassword, 10);
+
+  user.reset_password_otp = undefined;
+  user.reset_password_expiry = undefined;
+
+  await user.save();
+
+  res.json({ message: "Password reset successful" });
+}
+module.exports = { googleAuth, forgotPassword, verifyReset, resetPassword };

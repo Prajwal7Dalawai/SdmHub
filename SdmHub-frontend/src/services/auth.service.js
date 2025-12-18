@@ -43,8 +43,69 @@ async googleLogin() {
 
     } catch (err) {
         console.error("Google login failed", err);
+        }
     }
+
+    // FORGOT PASSWORD → SEND OTP
+  // ------------------------------------
+  async forgotPassword(email) {
+  try {
+    console.log("Service ige bande");
+    const res = await axios.post(
+      "http://localhost:3000/auth/forgot-password",
+      { email },
+      { withCredentials: true }
+    );
+    console.log(res);
+    return res;
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    throw err;
+  }
 }
+
+
+  // ------------------------------------
+  // VERIFY OTP
+  // ------------------------------------
+  async verifyOTP(email, otp) {
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/auth/verify-otp",
+      { email, otp },
+      { withCredentials: true }
+    );
+    return res;
+  } catch (err) {
+    console.error("OTP verification failed:", err);
+    throw err;
+  }
+}
+
+
+  // ------------------------------------
+  // RESET PASSWORD
+  // ------------------------------------
+ async resetPassword(payload) {
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/auth/reset-password",
+      payload,
+      { withCredentials: true }
+    );
+    return res;
+  } catch (err) {
+    console.error("Password reset failed:", err);
+    throw err;
+  }
+}
+
+
+  // optional: if you want logout from reset page navigation issues
+  logout() {
+    localStorage.removeItem("user");
+    localStorage.removeItem("RESET_EMAIL");
+  }
 }
 
 export const authService = new AuthService(); 

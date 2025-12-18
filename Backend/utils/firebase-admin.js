@@ -1,8 +1,9 @@
-const admin = require('firebase-admin');
-var serviceAccount = require('./morphis-app-firebase-adminsdk-fbsvc-b7e12e7970.json');
+const admin = require("firebase-admin");
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 module.exports = admin;
