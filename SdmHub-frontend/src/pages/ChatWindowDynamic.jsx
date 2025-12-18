@@ -61,6 +61,7 @@ const ChatWindow = () => {
         type: c.type,
         name: c.name,
         profile_pic: c.profilePic,
+        conversationId: c.conversationId
       }));
 
       setSearchResults(results);
@@ -86,6 +87,7 @@ const ChatWindow = () => {
         setCurrentUser(profile.data.user);
 
         const list = await userService.getChatList();
+        console.log("Chat list -",list)
         setChatList(list);
 
         if (list.length > 0) setSelectedChat(list[0]);
@@ -111,10 +113,11 @@ const ChatWindow = () => {
         if (selectedChat.type === "group") {
           res = await chatService.getGroupMessages(selectedChat.conversationId);
         } else {
-          res = await chatService.getMessages(selectedChat.id); // USER ID
+          res = await chatService.getMessages(selectedChat.conversationId); // USER ID
         }
-
+        setMessages([]);
         setMessages(res.messages || []);
+        console.log("Messages:", messages);
         setConversationId(res.conversation_id);
       } catch (err) {
         console.error("Fetch messages error:", err);
@@ -156,17 +159,13 @@ const ChatWindow = () => {
   setSending(true);
 
   try {
-    if (selectedChat.type === "group") {
-      await chatService.sendGroupMessage({
-        conversationId: selectedChat.id,
-        message: input.trim(),
-      });
-    } else {
-      await chatService.sendMessage({
-        recieverId: selectedChat.id,
-        message: input.trim(),
-      });
-    }
+    await chatService.sendMessage({
+      conversationId:
+        selectedChat.type === "dm"
+          ? selectedChat.conversationId
+          : selectedChat.id,
+      message: input.trim(),
+    });
 
     setInput("");
   } catch (err) {
@@ -175,6 +174,16 @@ const ChatWindow = () => {
     setSending(false);
   }
 };
+
+
+const handleDeleteMessage = async (messageId) => {
+  await chatService.deleteMessage(messageId);
+
+  setMessages(prev =>
+    prev.filter(msg => msg._id !== messageId)
+  );
+};
+
 
 
   /* ---------------- AUTOSCROLL ---------------- */
@@ -239,13 +248,36 @@ const ChatWindow = () => {
           {searchResults.length > 0 && (
             <div className="chat-list">
               {searchResults.map((c) => (
-                <div key={c.id} onClick={() => setSelectedChat(c)}>
+                <div
+                  key={c.id}
+                  onClick={async () => {
+                    try {
+                      const res = await chatService.startDM(c.id);
+                      const conversationId = res.conversationId;
+
+                      setSelectedChat({
+                        id: c.id,
+                        conversationId,
+                        type: 'dm',
+                        name: c.name,
+                        profile_pic: c.profile_pic,
+                      });
+
+                      setSearchTerm("");
+                      setSearchResults([]);
+
+                    } catch (err) {
+                      console.error("Failed to start DM:", err);
+                    }
+                  }}
+                >
                   <MessageListItem
                     avatar={c.profile_pic}
                     name={c.name}
                     active={selectedChat?.id === c.id}
                   />
                 </div>
+
               ))}
             </div>
           )}
@@ -291,9 +323,9 @@ const ChatWindow = () => {
                       }
                     message={msg.content}
                     timestamp={msg.updatedAt}
+                    onDelete={handleDeleteMessage}
                   />
                 ))}
-
                 <div ref={messagesEndRef} />
               </>
             )}

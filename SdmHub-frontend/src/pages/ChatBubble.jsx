@@ -8,11 +8,6 @@ const ChatBubble = ({messageId, sender, senderName,  message, timestamp, onDelet
   const [editText, setEditText] = useState(message);
   const bubbleRef = useRef(null);
 
-  // Delete function
-  async function onDelete(id){
-   await chatService.deleteMessage(id);
-  }
-
   // Hide menu on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -83,7 +78,10 @@ const ChatBubble = ({messageId, sender, senderName,  message, timestamp, onDelet
       {/* Context menu */}
        {showMenu && !editing && (
         <ul className="context-menu">
-          <li onClick={() => { onDelete(messageId); setShowMenu(false); }}>Delete</li>
+          <li onClick={() => {
+              onDelete(messageId);
+              setShowMenu(false);
+            }}>Delete</li>
           <li onClick={() => { onForward(id); setShowMenu(false); }}>Forward</li>
           <li onClick={() => { onCopy(message); setShowMenu(false); }}>Copy</li>
           <li onClick={() => { setEditing(true); }}>Edit</li>

@@ -12,7 +12,7 @@ class UserService {
     try {
       console.log("user id: ",userid);
       const response = await apiService.get(
-        `${API_CONFIG.BASE_URL}/api/messages/chat-list/${userid}`
+        `${API_CONFIG.BASE_URL}/api/messages/chat-list`
       );
       return response.data; // return list of users
     } catch (error) {

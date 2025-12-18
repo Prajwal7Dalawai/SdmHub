@@ -21,14 +21,17 @@ const UserSchema = new mongoose.Schema({
   },
   USN: {
     type: String,
-    required: [true, "USN is required"],
+    // required: [true, "USN is required"],
     unique: true,
     match: [/^2SD\d{2}[A-Z]{2}\d{3}$/, "Please enter a valid USN in the format 2SDYYSSNNN"]
   },
-  password_hash: {
-    type: String,
-    required: true
-  },
+    password_hash: {
+      type: String,
+      required: function () {
+        return this.auth_provider === 'local';
+      }
+    },
+
   user_profile: {
     type: String,
     enum: ['Student', 'Alumni', 'Faculty']
@@ -115,7 +118,18 @@ const UserSchema = new mongoose.Schema({
   totalRequest: {
     type: Number,
     default: 0
-  }
+  },
+  auth_provider: {
+  type: String,
+  enum: ['local', 'google'],
+  default: 'local'
+},
+
+google_uid: {
+  type: String,
+  unique: true,
+  sparse: true
+}
 });
 
 module.exports = mongoose.model('User', UserSchema);

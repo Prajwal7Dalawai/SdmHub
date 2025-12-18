@@ -1,7 +1,7 @@
 // routes/posts.js
 const express = require('express');
 const router = express.Router();
-
+const {auth} = require('../middleware/authMiddleware');
 const Post = require('../models/postSchema');
 const User = require('../models/userSchema');
 const Like = require('../models/likeSchema');

@@ -70,7 +70,7 @@ async function createGrp(req, res) {
 const getGroupMessages = async (req, res) => {
   try {
     const { conversationId } = req.params;
-    const userId = req.user._id;
+    const userId = req.session.user.id;
 
     // 1️⃣ Verify membership
     const isMember = await ConversationMember.exists({

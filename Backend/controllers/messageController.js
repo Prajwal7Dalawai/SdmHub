@@ -7,37 +7,9 @@ const mongoose = require('mongoose')
 const Conversation = require("../models/conversation.js");
 const message = require("../models/message.js");
 
-  async function sharedConversationEntity(req, recieverId){
-    const user = req.user;
-    console.log("User:", user);
-    const receiverObjectId = new mongoose.Types.ObjectId(recieverId);
-    const userObjectId = new mongoose.Types.ObjectId(user._id);
-    console.log("IDs:", receiverObjectId, userObjectId);
-
-    const sharedConversation = await ConversationMember.aggregate([
-      {
-        $match: {
-          user_id: { $in: [userObjectId, receiverObjectId] }
-        }
-      },
-      {
-        $group: {
-          _id: "$conversation_id",
-          members: { $addToSet: "$user_id" }
-        }
-      },
-      {
-        $match: {
-          members: { $size: 2 } // both users must be present
-        }
-      }
-    ]);
-    return sharedConversation;
-}
-
 const getChatList = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user.id;
 
     const memberships = await ConversationMember.find({ user_id: userId });
     const conversationIds = memberships.map(m => m.conversation_id);
@@ -85,41 +57,30 @@ const getChatList = async (req, res) => {
 
 const sendMessage = async (req, res) => {
   try {
-    const { recieverId, message } = req.body;
-    const senderId = req.user._id;
-    const memberIds = [senderId, recieverId];
+    const { conversationId, message } = req.body;
+    const senderId = req.session.user.id;
 
-    if (!recieverId || !message) {
+    if (!conversationId || !message.trim()) {
       return res.status(400).json({ message: "Invalid data" });
     }
 
-    let sharedConversation = await sharedConversationEntity(req, recieverId);
-
-    let conversationId;
-
-    // If NO conversation exists → Create one
-    if (!sharedConversation.length) {
-      const convo = await Conversation.create({
-        creator_id: senderId,
-        type: "dm",
-      });
-
-      const members = memberIds.map((uid) => ({
-        conversation_id: convo._id,
-        user_id: uid,
-      }));
-
-      await ConversationMember.insertMany(members);
-
-      // ⬅️ FIX: assign the new conversation
-      conversationId = convo._id;
-    } else {
-      // existing conversation found
-      conversationId = sharedConversation[0]._id;
+    if (!mongoose.isValidObjectId(conversationId)) {
+      return res.status(400).json({ message: "Invalid conversationId" });
     }
 
-    // Now conversationId is ALWAYS valid
+    // Validate membership
+    const membership = await ConversationMember.findOne({
+      conversation_id: conversationId,
+      user_id: senderId
+    });
 
+    if (!membership) {
+      return res.status(403).json({
+        message: "You are not a member of this conversation."
+      });
+    }
+
+    // Create seq counter
     const counter = await MessageCounter.findOneAndUpdate(
       { conversation_id: conversationId },
       { $inc: { seq: 1 } },
@@ -131,16 +92,15 @@ const sendMessage = async (req, res) => {
       sender_id: senderId,
       content: message,
       seq: counter.seq,
-      type: "text",
     });
 
     const populated = await Message.findById(msg._id)
-      .populate("sender_id", "name username profile_pic")
+      .populate("sender_id", "first_name profile_pic")
       .lean();
 
     const io = getIO();
 
-    io.to(conversationId.toString()).emit("new_message", populated);
+    io.to(conversationId).emit("new_message", populated);
 
     return res.status(201).json(populated);
 
@@ -150,25 +110,93 @@ const sendMessage = async (req, res) => {
   }
 };
 
-
-const getMessages = async (req, res) => {
+const startDirectChat = async (req, res) => {
   try {
-    const { recieverId } = req.params;
-    const sharedConversation = await sharedConversationEntity(req, recieverId);
+    const userId = req.user.id;
+    const { otherUserId } = req.body;
 
-    if (!sharedConversation || sharedConversation.length === 0) {
+    if (!mongoose.isValidObjectId(otherUserId)) {
+      return res.status(400).json({ message: "Invalid otherUserId" });
+    }
+
+    if (userId === otherUserId) {
+      return res.status(400).json({ message: "Cannot chat with yourself" });
+    }
+
+    // Check for existing conversation
+    const existing = await ConversationMember.aggregate([
+      {
+        $match: {
+          user_id: { $in: [userId, otherUserId] }
+        }
+      },
+      {
+        $group: {
+          _id: "$conversation_id",
+          members: { $addToSet: "$user_id" }
+        }
+      },
+      {
+        $match: {
+          members: { $size: 2 }
+        }
+      }
+    ]);
+
+    // If exists → return it
+    if (existing.length > 0) {
       return res.status(200).json({
-        conversation_id: null,
-        messages: []
+        conversationId: existing[0]._id.toString(),
       });
     }
 
-    const conversationId = sharedConversation[0]._id;
+    // Create conversation
+    const convo = await Conversation.create({
+      type: "dm"
+    });
+
+    await ConversationMember.insertMany([
+      { conversation_id: convo._id, user_id: userId },
+      { conversation_id: convo._id, user_id: otherUserId }
+    ]);
+
+    return res.status(201).json({
+      conversationId: convo._id.toString()
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "server error" });
+  }
+};
+
+
+const getMessages = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.id;
+
+    // Validate ID
+    if (!mongoose.isValidObjectId(conversationId)) {
+      return res.status(400).json({ message: "Invalid conversationId" });
+    }
+
+    // Validate membership
+    const membership = await ConversationMember.findOne({
+      conversation_id: conversationId,
+      user_id: userId
+    });
+
+    if (!membership) {
+      return res.status(403).json({
+        message: "Access denied. Not a member of this conversation."
+      });
+    }
 
     const messages = await Message.find({ conversation_id: conversationId })
-      .populate("sender_id", "name username")
-      .sort({ seq: 1 });
-      console.log("DM messages:",messages);
+      .populate("sender_id", "first_name")
+      .sort({ createdAt: 1 });
+
     return res.status(200).json({
       conversation_id: conversationId,
       messages
@@ -179,6 +207,7 @@ const getMessages = async (req, res) => {
     return res.status(500).json({ message: "server error" });
   }
 };
+
 
 
 const deleteMessage = async (req, res)=>{
@@ -249,4 +278,4 @@ const searchPplAndGrps = async (req, res) => {
 
 
 
-module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchPplAndGrps };
+module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchPplAndGrps, startDirectChat };

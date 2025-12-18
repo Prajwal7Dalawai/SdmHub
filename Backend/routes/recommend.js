@@ -6,7 +6,7 @@ const recommendations = require('../controller/recommendController');
 // ✅ Helper to get logged-in user ID (same as in friends.js)
 function getUserId(req) {
   return (
-    req.user?.id ||
+    req.session.user?.id ||
     req.session?.passport?.user ||
     req.body?.userId ||
     req.query?.userId ||

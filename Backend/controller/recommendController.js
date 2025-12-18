@@ -19,7 +19,7 @@ function userToText(u) {
 // controller
 exports.getInterestRecommendations = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user?.id || req.session?.passport?.user;
     const topN = parseInt(req.query.n || '10', 10);
 
     const current = await User.findById(userId).lean();

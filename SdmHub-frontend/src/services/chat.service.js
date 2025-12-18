@@ -2,10 +2,10 @@ import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
 
 class ChatService{
-    async getMessages(reciverId){
+    async getMessages(conversationId){
         try {
           const response = await apiService.get(
-            `${API_CONFIG.BASE_URL}/api/messages/get/${reciverId}`
+            `${API_CONFIG.BASE_URL}/api/messages/get/${conversationId}`
           );
           return response.data; // return list of users
         } catch (error) {
@@ -62,6 +62,15 @@ class ChatService{
     });
     return res.data;
   }
+
+  async startDM(otherUserId) {
+  const res = await apiService.post(
+    `${API_CONFIG.BASE_URL}/api/messages/dm/start`,
+    { otherUserId }
+  );
+  return res.data;
+}
+
       
 
 }

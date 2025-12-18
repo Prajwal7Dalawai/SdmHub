@@ -30,22 +30,17 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Session configuration
-app.use(session({
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000
-    }
-}))
-
-// ✅ Create one shared session middleware
 const sessionMiddleware = session({
-  secret: 'something',
+  name: 'sdmhub.sid',
+  secret: process.env.SESSION_SECRET || 'dev-secret',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: false,        // localhost only
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  }
 });
 
 app.use(sessionMiddleware);
