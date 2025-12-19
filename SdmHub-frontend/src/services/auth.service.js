@@ -68,11 +68,11 @@ async googleLogin() {
   // ------------------------------------
   // VERIFY OTP
   // ------------------------------------
-  async verifyOTP(email, otp) {
+  async verifyOTP(otp) {
   try {
     const res = await axios.post(
       "http://localhost:3000/auth/verify-otp",
-      { email, otp },
+      { otp },
       { withCredentials: true }
     );
     return res;
@@ -86,17 +86,22 @@ async googleLogin() {
   // ------------------------------------
   // RESET PASSWORD
   // ------------------------------------
- async resetPassword(payload) {
+async resetPassword(payload) {
   try {
     const res = await axios.post(
       "http://localhost:3000/auth/reset-password",
       payload,
       { withCredentials: true }
     );
-    return res;
+
+    return res.data; 
   } catch (err) {
-    console.error("Password reset failed:", err);
-    throw err;
+
+    if (err.response && err.response.data) {
+      throw err.response.data; 
+    }
+
+    throw { message: "Unknown error" };
   }
 }
 

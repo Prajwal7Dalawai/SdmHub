@@ -7,25 +7,28 @@ import { useNavigate } from "react-router-dom";
 export default function ResetPassword() {
     const navigate = useNavigate();
      usePageTitle('Reset password');
-  const [email, setEmail] = useState("");
-  const [oldPassword, setoldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [newPassword, setnewPassword] = useState("");
+  const [confirmNewPassword, setconfirmNewPassword] = useState("");
   const [msg, setMsg] = useState("");
 
   const submit = async (e) => {
     e.preventDefault();
 
-    if (newPassword.length < 6) {
+    if (confirmNewPassword.length < 6) {
       setMsg("Password must be 6+ characters");
+      return;
+    }
+    if(newPassword != confirmNewPassword){
+      setMsg("Password Mismatch!!");
       return;
     }
 
     try {
-        const payload = { email, oldPassword, newPassword };
+      const payload = { newPassword, confirmNewPassword };
       const res = await authService.resetPassword(payload);
-      console.log(res.data);
-      setMsg(res.data.message);
-      if(res.data.message == "Password reset successful")
+      console.log(res.message);
+      setMsg(res.message);
+      if(res.message === "Password reset successful")
       navigate("/login");
     } catch (err) {
       setMsg("Invalid request");
@@ -43,30 +46,21 @@ export default function ResetPassword() {
 
       <form onSubmit={submit} className="single-panel-form">
 
-        <label>Email ID</label>
-        <input
-          type="email"
-          placeholder="yourname@sdmcet.in"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <label>OTP</label>
-        <input
-          type="text"
-          placeholder="Your OTP"
-          value={oldPassword}
-          onChange={(e) => setoldPassword(e.target.value)}
-          required
-        />
-
         <label>New Password</label>
+        <input
+          type="Password"
+          placeholder="*********"
+          value={newPassword}
+          onChange={(e) => setnewPassword(e.target.value)}
+          required
+        />
+
+        <label>Confirm New Password</label>
         <input
           type="password"
           placeholder="********"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          value={confirmNewPassword}
+          onChange={(e) => setconfirmNewPassword(e.target.value)}
           required
         />
 

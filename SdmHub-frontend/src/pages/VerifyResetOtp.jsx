@@ -14,8 +14,8 @@ export default function VerifyOTP() {
   const submitOtp = async (e) => {
     e.preventDefault();
     try {
-      const res = await authService.verifyOTP(email, otp);
-      setMsg(res.message);
+      const res = await authService.verifyOTP(otp);
+      setMsg(res.data.message);
       console.log(res.data);
       if(res.data.success) navigate("/reset-password");
     } catch (err) {
@@ -34,14 +34,6 @@ export default function VerifyOTP() {
 
       <form onSubmit={submitOtp} className="single-panel-form">
 
-        <label>Email ID</label>
-        <input
-          type="email"
-          placeholder="yourname@sdmcet.in"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
 
         <label>OTP</label>
         <input

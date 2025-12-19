@@ -1,5 +1,6 @@
 const admin = require('../utils/firebase-admin.js');
 const User = require('../models/userSchema');
+const Otp = require('../models/verification.js');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
@@ -61,7 +62,9 @@ const first_name =
         first_name: user.first_name,
         email: user.email,
         USN: null,
-        profile_completion: user.profile_completion
+        profile_completion: user.profile_completion,
+        reset_password_otp: undefined,
+        reset_password_expiry: undefined 
       };
 
       return res.status(201).json({
@@ -120,50 +123,123 @@ const first_name =
 };
 
 const forgotPassword = async (req,res)=>{
-    const {email} = req.body;
+    try{
+      const {email} = req.body;
     const user = await User.findOne({email});
     if(!user){
       return res.status(404).json({message: "User not found"});
     }
-    const otp = crypto.randomInt(10000,99999).toString();
+    await Otp.deleteMany({ user_id: user._id });
+    const otp = crypto.randomInt(100000,999999).toString();
     user.reset_password_otp = otp;
     user.reset_password_expiry = Date.now() + 10 * 60 * 1000; //10min
     await user.save();
-    await sendEmail(email,`Password Reset OTP...\nYour One Time Password is: ${otp}\nYour otp expires in 10 minutes`);
+    const verify = await Otp.create({
+      otp,
+      expiry: Date.now() + 10 * 60 * 1000,
+      user_id: user._id
+    });
+    req.session.resetSession = {
+      userId : verify.user_id,
+      otp : verify.otp,
+      expiry : verify.expiry
+    }
+    await sendEmail(email,"OTP for password Verification",`Password Reset OTP...\nYour One Time Password is: ${otp}\nYour otp expires in 10 minutes`);
     res.json({message: "OTP sent"});
+  }catch(err){
+    console.error("OTP Request error: ", err);
+    return res.status(500).json({ message: "Server error" });
+  }
 }
 
 const verifyReset = async (req,res) => {
-    const {email, otp} = req.body;
-    const user = await User.findOne({email});
-    if(!user || !user.reset_password_otp){
-       return res.status(400).json({ message: "Invalid request" });
+    try{
+      const {otp} = req.body;
+      console.log("Session details:",req.session.resetSession)
+    const verify = await Otp.findOne({user_id: req.session?.resetSession.userId});
+    if(!verify || !verify.otp){
+       return res.status(400).json({ message: "Invalid request, Request for OTP first" });
     }
-    if(user.reset_password_otp != otp){
+    if(verify.otp != otp.toString().trim()){
       return res.status(401).json({message:"Incorrect OTP entered"});
     }
-    if(user.reset_password_expiry < Date.now()){
+    if(verify.expiry < Date.now()){
+      await Otp.deleteOne({ _id: verify._id });
       return res.status(410).json({message: "OTP has been expired, genarate new OTP"});
     }
     res.json({success: true, message: "OTP valid"});
+  }catch(err){
+    console.error("OTP Verification Error: ",err);
+    return res.status(500).json({ message: "Server error" });
+  }
 }
 
-const resetPassword = async (req,res) => {
-  const { email, oldPassword, newPassword } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ message: "User not found" });
+const resetPassword = async (req, res) => {
+    try {
+      const { newPassword, confirmNewPassword } = req.body;
 
-  if (oldPassword === newPassword)
-    return res.json({ message: "old and new passwords cannot be same" });
+      if (!newPassword || !confirmNewPassword) {
+        return res.status(400).json({ message: "Missing fields" });
+      }
 
+      if (newPassword !== confirmNewPassword) {
+        return res.status(400).json({ message: "Passwords mismatch!" });
+      }
 
-  user.password = await bcrypt.hash(newPassword, 10);
+      // ----------------- Validate session -----------------
+      if (!req.session?.resetSession?.userId) {
+        return res.status(403).json({
+          message: "No reset session found. Request OTP again."
+        });
+      }
 
-  user.reset_password_otp = undefined;
-  user.reset_password_expiry = undefined;
+      // ----------------- Fetch user -----------------
+      const user = await User.findById(req.session.resetSession.userId);
 
-  await user.save();
+      if (!user) return res.status(404).json({ message: "User not found" });
 
-  res.json({ message: "Password reset successful" });
-}
+      // ----------------- Check if new = old -----------------
+      const passwordAlreadySame = await bcrypt.compare(newPassword, user.password_hash);
+      if (passwordAlreadySame) {
+        return res.status(400).json({
+          message: "Old and new passwords cannot be same"
+        });
+      }
+
+      // ----------------- Validate OTP existence -----------------
+      const verification = await Otp.findOne({ user_id: user._id });
+
+      if (!verification) {
+        return res.status(403).json({
+          message:
+            "OTP expired or already used. Restart reset process."
+        });
+      }
+      await Otp.findByIdAndDelete(verification._id);
+      // ----------------- Hash & Update Password -----------------
+      const hashed = await bcrypt.hash(newPassword, 10);
+      user.password_hash = hashed;
+
+      await user.save();
+
+      // ----------------- Email user -----------------
+      await sendEmail(
+        user.email,
+        "Password Reset Successful",
+        `Hi ${user.first_name},
+        Your password has been changed successfully.
+        If this was not you, secure your account immediately.`
+      );
+
+      // ----------------- Kill reset session -----------------
+      req.session.resetSession = null;
+
+      return res.json({ message: "Password reset successful" });
+
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  };
+
 module.exports = { googleAuth, forgotPassword, verifyReset, resetPassword };

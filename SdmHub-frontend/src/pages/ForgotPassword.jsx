@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authService } from "../services/auth.service";
 import usePageTitle from '../hooks/usePageTitle';
 import "../assets/css/style.css";
@@ -9,17 +9,24 @@ export default function ForgotPassword() {
      usePageTitle('Forgot Password');
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
+  let [loading, setloading] = useState("");
+
+  useEffect(()=>{
+    loading = false;
+  },)
 
   const submit = async (e) => {
     e.preventDefault();
     try {
+      setloading(true);
         console.log("tadi bhai");
         const res = await authService.forgotPassword(email);
         if(!res) console.log("Response innu bandilla bhai");
         console.log(res);
+        setMsg(res.data?.message || "OTP sent!");
+        setloading(false);
         // Optional redirect after success:
         navigate("/verify-reset");
-        setMsg(res.data?.message || "OTP sent!");
 
     } catch (err) {
       setMsg(err.response?.data?.message || "Error sending OTP");
@@ -47,6 +54,7 @@ export default function ForgotPassword() {
         />
 
         {msg && <p className="form-msg">{msg}</p>}
+        {loading ? <p className="form-msg">Sending OTP</p> : null}
 
         <button type="submit" className="primary-btn">
           Send OTP
