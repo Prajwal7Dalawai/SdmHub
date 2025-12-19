@@ -4,11 +4,12 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User = require('../models/userSchema'); // adjust if needed
 const sendNotification = require('../utils/sendNotification'); // <- your helper
-
+const passport = require('passport')
+const middleware = require('../middleware/authMiddleware');
 // ✅ Helper to get currently logged-in user's ID
 function getUserId(req) {
   return (
-    req.user?.id ||
+    req.session.user?.id ||
     req.session?.passport?.user ||
     req.body?.userId ||
     req.query?.userId ||
@@ -17,7 +18,7 @@ function getUserId(req) {
 }
 
 // ----------------- POST /request/:id -----------------
-router.post('/request/:id', async (req, res) => {
+router.post('/request/:id',middleware.auth, async (req, res) => {
   try {
     const senderId = getUserId(req);
     const receiverId = req.params.id;
@@ -76,7 +77,7 @@ router.post('/request/:id', async (req, res) => {
 });
 
 // ----------------- POST /accept/:id -----------------
-router.post('/accept/:id', async (req, res) => {
+router.post('/accept/:id',middleware.auth, async (req, res) => {
   try {
     const receiverId = getUserId(req); // the user who accepted (current user)
     const senderId = req.params.id;    // the user who originally sent request
@@ -300,3 +301,4 @@ router.get('/suggestions', async (req, res) => {
 });
 
 module.exports = router;
+

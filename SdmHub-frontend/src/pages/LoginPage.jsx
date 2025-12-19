@@ -51,6 +51,7 @@ const RightPanel = () => {
       console.log('Login response data:', response);
       
       if (response.data.success) {
+        console.log("response data here lodu:",response.data.user);
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('token', response.data.token);
@@ -74,8 +75,37 @@ const RightPanel = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    alert('Google Login will be supported soon!');
+  const handleGoogleLogin = async (e) => {
+     e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await authService.googleLogin();
+      console.log('Login response data:', response);
+      
+      if (response.data.success) {
+        console.log("response data here lodu:",response.data.user);
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        
+        // Redirect based on user status
+        if (response.data.user.isNewUser) {
+          navigate('/editprofile');
+        } else if (response.data.user.profile_completion < 60) {
+          navigate('/editprofile');
+        } else {
+          navigate('/feed');
+        }
+      } else {
+        setError(response.data.message || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message || 'An error occurred during login. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 // routes/posts.js
 const express = require('express');
 const router = express.Router();
-
+const {auth} = require('../middleware/authMiddleware');
 const Post = require('../models/postSchema');
 const User = require('../models/userSchema');
 const Like = require('../models/likeSchema');
@@ -25,22 +25,22 @@ router.get('/', async (req, res) => {
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
 
-        // fetch last 2 comments
+        // ⭐ FETCH LAST 2 COMMENTS
         const comments = await Comment.find({ post_id: post._id })
           .sort({ created_at: -1 })
           .limit(2)
-          .populate('author_id', 'first_name profile_pic');
+          .populate("author_id", "first_name profile_pic");
 
-        // check whether current user liked the post
-        const liked = userId ? await Like.findOne({
+        // ⭐ CHECK WHETHER USER LIKED THE POST
+        const liked = await Like.findOne({
           user_id: userId,
           post_id: post._id
-        }) : null;
+        });
 
         return {
           _id: post._id,
-          user: post.author_id?.first_name || 'Unknown',
-          avatar: post.author_id?.profile_pic || '',
+          user: post.author_id?.first_name || "Unknown",
+          avatar: post.author_id?.profile_pic || "",
           caption: post.caption,
           image: post.content_url,
           time: post.created_at,
@@ -62,8 +62,9 @@ router.get('/', async (req, res) => {
     );
 
     res.json({ posts: formattedPosts });
+
   } catch (err) {
-    console.error('POST FETCH ERROR:', err);
+    console.error("POST FETCH ERROR:", err);
     res.status(500).json({ error: 'Failed to fetch posts', details: err.message });
   }
 });
@@ -81,7 +82,7 @@ router.post('/', async (req, res) => {
       req.user?._id;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Not authenticated' });
+      return res.status(401).json({ error: "Not authenticated" });
     }
 
     const newPost = new Post({
@@ -89,11 +90,115 @@ router.post('/', async (req, res) => {
       caption,
       content_url: image,
       created_at: new Date(),
-      visibility: 'visible'
+      visibility: "visible"
     });
 
     await newPost.save();
     res.status(201).json({ post: newPost });
+
+  } catch (err) {
+    console.error("POST CREATE ERROR:", err);
+    res.status(500).json({ error: "Failed to create post" });
+  }
+});
+
+// ----------------------
+// LIKE / UNLIKE POST
+// ----------------------
+router.post('/like/:postId', async (req, res) => {
+  try {
+    const userId =
+      req.session?.passport?.user ||
+      req.session?.user?.id ||
+      req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const postId = req.params.postId;
+
+    const existing = await Like.findOne({ user_id: userId, post_id: postId });
+
+    if (existing) {
+      // Unlike
+      await Like.deleteOne({ _id: existing._id });
+      await Post.findByIdAndUpdate(postId, { $inc: { like_count: -1 } });
+      return res.json({ liked: false });
+    }
+
+    // Like
+    await Like.create({ user_id: userId, post_id: postId });
+    await Post.findByIdAndUpdate(postId, { $inc: { like_count: 1 } });
+
+    return res.json({ liked: true });
+
+  } catch (err) {
+    console.error("LIKE ERROR:", err);
+    res.status(500).json({ error: "Like error", details: err.message });
+  }
+});
+
+// ----------------------
+// SHARE POST
+// ----------------------
+router.post('/share/:postId', async (req, res) => {
+  try {
+    const userId =
+      req.session?.passport?.user ||
+      req.session?.user?.id ||
+      req.user?._id;
+
+    const postId = req.params.postId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    await Post.findByIdAndUpdate(postId, { $inc: { share_count: 1 } });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("SHARE ERROR:", err);
+    res.status(500).json({ error: "Share error", details: err.message });
+  }
+});
+
+// ----------------------
+// COMMENT POST
+// ----------------------
+router.post('/comment/:postId', async (req, res) => {
+  try {
+    const { content } = req.body;
+    const postId = req.params.postId;
+
+    const userId =
+      req.session?.passport?.user ||
+      req.session?.user?.id ||
+      req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    if (!content || content.trim() === "") {
+      return res.status(400).json({ error: "Comment cannot be empty" });
+    }
+
+    // Create the comment
+    const newComment = await Comment.create({
+      post_id: postId,
+      author_id: userId,
+      content,
+      created_at: new Date(),
+    });
+
+    // Increase comment count
+    await Post.findByIdAndUpdate(postId, { $inc: { comment_count: 1 } });
+
+    res.json({ success: true, comment: newComment });
+
   } catch (err) {
     console.error('POST CREATE ERROR:', err);
     res.status(500).json({ error: 'Failed to create post' });
@@ -249,15 +354,16 @@ router.get('/comments/:postId', async (req, res) => {
       _id: c._id,
       content: c.content,
       time: c.created_at,
-      author: c.author_id?.first_name || 'User',
-      avatar: c.author_id?.profile_pic || ''
+      author: c.author_id?.first_name || "User",
+      avatar: c.author_id?.profile_pic || "",
     }));
 
     res.json({ comments: formatted });
   } catch (err) {
-    console.error('COMMENT FETCH ERROR:', err);
-    res.status(500).json({ error: 'Failed to load comments' });
+    console.error("COMMENT FETCH ERROR:", err);
+    res.status(500).json({ error: "Failed to load comments" });
   }
 });
+
 
 module.exports = router;

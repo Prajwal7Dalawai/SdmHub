@@ -7,6 +7,7 @@ const { auth_docs_model } = require('../models/auth');
 const jwt = require('jsonwebtoken');
 const cloudinary = require('../config/cloudinary'); // Import Cloudinary config
 const Post = require('../models/postSchema');
+const controller = require('../controllers/authController');
 
 // Signup route
 router.post('/signup', async (req, res) => {
@@ -218,7 +219,6 @@ router.post('/editprofile', async (req, res) => {
             first_name: currentProfile.first_name,
             email: currentProfile.email,
             USN: currentProfile.USN,
-            role: currentProfile.role,
             department: currentProfile.department,
             graduation_year: currentProfile.graduation_year,
             enrollment_year: currentProfile.enrollment_year,
@@ -289,7 +289,6 @@ router.post('/login', passport.authenticate('local', {
         first_name: user.first_name,
         email: user.email,
         USN: user.USN,
-        role: user.role,
         profile_completion: user.profile_completion
     };
 
@@ -299,7 +298,7 @@ router.post('/login', passport.authenticate('local', {
         id: user._id,
         email: user.email,
         role: user.role
-    }, 'your_jwt_secret', { expiresIn: '1h' }); // Replace with a strong secret from .env
+    }, process.env.JWT_SECRET, { expiresIn: '1h' }); // Replace with a strong secret from .env
 
     res.json({
         success: true,
@@ -309,7 +308,6 @@ router.post('/login', passport.authenticate('local', {
             first_name: user.first_name,
             email: user.email,
             USN: user.USN,
-            role: user.role,
             profile_completion: user.profile_completion
         },
         token: token,
@@ -334,14 +332,14 @@ router.get('/logout', (req, res, next) => {
 // Get user profile route
 router.get('/profile', async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
+        if (!req.session?.user?.id) {
             return res.status(401).json({
                 success: false,
                 message: 'Not authenticated',
             });
         }
 
-        const userId = req.user._id; // Use req.user._id populated by Passport
+        const userId = req.session.user.id; // Use session user ID
 
         const user = await User.findById(userId);
         if (!user) {
@@ -424,5 +422,16 @@ router.get('/profile-stats', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching profile stats', error: error.message });
   }
 });
+
+router.post('/google', (req, res) => {
+    controller.googleAuth(req, res);
+});
+
+router.post('/forgot-password', controller.forgotPassword);
+
+router.post('/verify-otp', controller.verifyReset);
+
+router.post('/reset-password', controller.resetPassword);
+
 
 module.exports = router; 

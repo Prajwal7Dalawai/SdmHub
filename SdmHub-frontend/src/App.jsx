@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import FriendRequestPage from "./pages/FriendRequestPage";
-import ChatWindow from "./pages/ChatWindow";
+import ChatWindow from "./pages/ChatWindowDynamic"
 import Header from "./components/Hearder";
 import Landing from "./pages/Landing";
 import EditProfile from "./pages/EditProfile";
@@ -11,6 +11,9 @@ import SDMHUBAuth from "./pages/SDMHUBAuth";
 import NewsFeed from "./pages/NewsFeed";
 import ErrorPage from "./pages/ErrorPage";
 import Notifications from "./pages/Notifications";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOtp from "./pages/VerifyResetOtp";
+import ResetPassword from "./pages/ResetPassword";
 import React from "react";
 
 // Layout for authenticated pages
@@ -81,6 +84,10 @@ function App() {
             </LayoutWithHeader>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-reset" element={<VerifyResetOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
       </Routes>
     </Router>
   );

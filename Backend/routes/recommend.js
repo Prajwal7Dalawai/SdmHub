@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/userSchema");
+const recommendations = require('../controller/recommendController');
 
 // ✅ Helper to get logged-in user ID (same as in friends.js)
 function getUserId(req) {
   return (
-    req.user?.id ||
+    req.session.user?.id ||
     req.session?.passport?.user ||
     req.body?.userId ||
     req.query?.userId ||
@@ -78,6 +79,11 @@ router.get("/mutual", async (req, res) => {
     console.error("Error in /recommend/mutual:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
   }
+});
+
+router.get('/community', async (req,res)=>{
+  console.log("entering into the community route");
+  await recommendations.getInterestRecommendations(req,res);
 });
 
 module.exports = router;
