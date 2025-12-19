@@ -11,6 +11,7 @@ import SDMHUBAuth from "./pages/SDMHUBAuth";
 import NewsFeed from "./pages/NewsFeed";
 import ErrorPage from "./pages/ErrorPage";
 import React, { useEffect } from "react";
+import PostDetail from "./pages/PostDetail";
 
 // 🔥 ADD THESE TWO IMPORTS
 import { io } from "socket.io-client";
@@ -60,6 +61,7 @@ function App() {
         <Route path="/signUp" element={<SDMHUBAuth />} />
         <Route path="/" element={<Landing />} />
         <Route path="/error" element={<ErrorPage />} />
+        <Route path="/post/:postId" element={<PostDetail />} />
 
         {/* 🔥 FIX THIS — it should show notification UI */}
         <Route path="/notifications" element={
