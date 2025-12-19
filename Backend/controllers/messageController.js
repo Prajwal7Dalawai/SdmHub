@@ -112,7 +112,7 @@ const sendMessage = async (req, res) => {
 
 const startDirectChat = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.session?.user.id;
     const { otherUserId } = req.body;
 
     if (!mongoose.isValidObjectId(otherUserId)) {
@@ -174,7 +174,7 @@ const startDirectChat = async (req, res) => {
 const getMessages = async (req, res) => {
   try {
     const { conversationId } = req.params;
-    const userId = req.user.id;
+    const userId = req.session?.user.id;
 
     // Validate ID
     if (!mongoose.isValidObjectId(conversationId)) {
