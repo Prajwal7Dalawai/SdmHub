@@ -46,6 +46,8 @@ router.post('/request/:id',middleware.auth, async (req, res) => {
     if ((sender.sentRequest || []).some(r => String(r.userId) === String(receiverId)))
       return res.status(400).json({ msg: 'Request already sent.' });
 
+    // push into receiver.request and sender.sentRequest
+    receiver.request = receiver.request || [];
     receiver.request.push({ username: sender.first_name, userId: sender._id });
     receiver.totalRequest = (receiver.totalRequest || 0) + 1;
 
@@ -133,6 +135,35 @@ router.post('/accept/:id',middleware.auth, async (req, res) => {
   }
 });
 
+// ----------------- POST /decline/:id -----------------
+router.post('/decline/:id', async (req, res) => {
+  try {
+    const receiverId = getUserId(req);
+    const senderId = req.params.id;
+
+    if (!receiverId)
+      return res.status(401).json({ msg: 'Unauthorized' });
+
+    const [receiver, sender] = await Promise.all([
+      User.findById(receiverId),
+      User.findById(senderId)
+    ]);
+
+    if (!receiver || !sender)
+      return res.status(404).json({ msg: 'User not found.' });
+
+    receiver.request = (receiver.request || []).filter(r => String(r.userId) !== String(senderId));
+    sender.sentRequest = (sender.sentRequest || []).filter(r => String(r.userId) !== String(receiverId));
+    receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
+
+    await Promise.all([receiver.save(), sender.save()]);
+
+    res.status(200).json({ message: 'Friend request declined!' });
+  } catch (err) {
+    console.error('Decline error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
 
 // ----------------- GET /requests -----------------
 router.get('/requests', async (req, res) => {

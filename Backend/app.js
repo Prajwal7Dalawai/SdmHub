@@ -61,6 +61,16 @@ io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, next);
 });
 
+// Routes
+app.use('/auth', authRoutes)
+app.use('/upload', uploadRoutes)
+app.use('/posts', postsRoutes)
+app.use('/api/users', require('./routes/users'));
+app.use('/api/friends', friendsRoutes);
+app.use("/api/recommend", mutualRoutes);
+
+// ⭐ ADD THIS
+app.use("/api/notifications", NotificationsRoutes);
 
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -82,9 +92,16 @@ app.use("/api/recommend", mutualRoutes);
 app.use("/api/group", groupRoute);
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).json({ success: false, message: 'Internal server error' });
-});
+    console.error('Error:', err);
+    if (err && err.stack) {
+        console.error('Stack:', err.stack);
+    }
+    res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: err.message,
+        stack: err.stack
+    });
 
 // ================= Database + Server Start ===============
 connectToDatabase()
