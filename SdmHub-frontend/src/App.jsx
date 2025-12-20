@@ -12,6 +12,10 @@ import NewsFeed from "./pages/NewsFeed";
 import ErrorPage from "./pages/ErrorPage";
 import React, { useEffect } from "react";
 import PostDetail from "./pages/PostDetail";
+import NotificationPage from "./pages/NotificationsPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOtp from "./pages/VerifyResetOtp";
+import ResetPassword from "./pages/ResetPassword";
 
 // 🔥 ADD THESE TWO IMPORTS
 import { io } from "socket.io-client";
@@ -99,7 +103,7 @@ function App() {
           path="/notifications"
           element={
             <LayoutWithHeader>
-              <Notifications />
+              <NotificationPage />
             </LayoutWithHeader>
           }
         />
