@@ -78,7 +78,7 @@ const Header = () => {
         </Link>
 
         {/* Notification icon */}
-        <Link to="/notifications" className="icon-container">
+        <Link to="/Notifications" className="icon-container">
           <FaBell className="icon" />
           <span className="badge">4</span>
         </Link>

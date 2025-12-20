@@ -4,6 +4,7 @@ import { postService } from '../services/post.service';
 import { authService } from '../services/auth.service';
 import { uploadService } from '../services/api.service';
 import usePageTitle from '../hooks/usePageTitle';
+import { useNavigate } from "react-router-dom";
 
 const NewsFeed = () => {
   usePageTitle('Feed');
@@ -18,7 +19,7 @@ const NewsFeed = () => {
   const [commentInput, setCommentInput] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
   const [sharePopup, setSharePopup] = useState({});
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -85,103 +86,86 @@ const NewsFeed = () => {
     return postDate.toLocaleDateString();
   }
 
-  const handleLike = async (postId) => {
+  const handleLike = async (engagementPostId) => {
     try {
-      const res = await postService.likePost(postId);
+      const res = await postService.likePost(engagementPostId);
 
-      setPosts(posts.map(p =>
-        p._id === postId
-          ? {
-              ...p,
-              liked: res.data.liked,
-              like_count: res.data.liked
-                ? p.like_count + 1
-                : p.like_count - 1
-            }
-          : p
-      ));
-
-    } catch (err) { console.error(err); }
+      setPosts(posts.map(p => {
+        if (p.engagementPostId === engagementPostId) {
+          return {
+            ...p,
+            like_count: res.data.liked
+              ? p.like_count + 1
+              : p.like_count - 1,
+            liked: res.data.liked
+          };
+        }
+        return p;
+      }));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const toggleCommentBox = (postId) => {
-    setCommentBoxOpen(prev => ({ ...prev, [postId]: !prev[postId] }));
+  const toggleCommentBox = (engagementPostId) => {
+    setCommentBoxOpen(prev => ({
+      ...prev,
+      [engagementPostId]: !prev[engagementPostId]
+    }));
   };
 
-  const handleCommentSubmit = async (postId) => {
-    if (!commentInput[postId]) return;
+  const handleCommentSubmit = async (engagementPostId) => {
+    if (!commentInput[engagementPostId]) return;
 
     try {
-      await postService.commentPost(postId, commentInput[postId]);
+      await postService.commentPost(
+        engagementPostId,
+        commentInput[engagementPostId]
+      );
 
-      setPosts(posts.map(p =>
-        p._id === postId
-          ? { ...p, comment_count: p.comment_count + 1 }
-          : p
-      ));
+      setPosts(posts.map(p => {
+        if (p.engagementPostId === engagementPostId) {
+          return { ...p, comment_count: p.comment_count + 1 };
+        }
+        return p;
+      }));
 
-      setCommentInput({ ...commentInput, [postId]: '' });
-    } catch (err) { console.error(err); }
+      setCommentInput(prev => ({
+        ...prev,
+        [engagementPostId]: ""
+      }));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  /** ⭐ LOAD ALL COMMENTS FOR A POST */
-const loadAllComments = async (postId) => {
-  try {
-    const res = await postService.getAllComments(postId);
-    const allComments = res.data.comments;
-
-    setPosts(posts.map(p =>
-      p._id === postId 
-        ? { ...p, comments: allComments } 
-        : p
-    ));
-
-    setShowAllComments(prev => ({ ...prev, [postId]: true }));
-
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-
-  const handleShare = async (postId) => {
+  const loadAllComments = async (engagementPostId) => {
     try {
-      await postService.sharePost(postId);
+      const res = await postService.getAllComments(engagementPostId);
 
-      setPosts(posts.map(p =>
-        p._id === postId
-          ? { ...p, share_count: p.share_count + 1 }
-          : p
-      ));
-    } catch (err) { console.error(err); }
+      setPosts(posts.map(p => {
+        if (p.engagementPostId === engagementPostId) {
+          return { ...p, comments: res.data.comments };
+        }
+        return p;
+      }));
+
+      setShowAllComments(prev => ({
+        ...prev,
+        [engagementPostId]: true
+      }));
+    } catch (err) {
+      console.error(err);
+    }
   };
-  /** ⭐ Copy Post Link */
-const copyLink = (postId) => {
-  const url = `${window.location.origin}/post/${postId}`;
-  navigator.clipboard.writeText(url);
-  alert("Link copied!");
-};
 
-/** ⭐ WhatsApp Share */
-const shareToWhatsApp = (postId) => {
-  const url = `${window.location.origin}/post/${postId}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, "_blank");
-};
+  const shareToFeed = async (post) => {
+    const caption = prompt("Add your thoughts (optional):");
+    if (caption === null) return;
 
-/** ⭐ Share to Feed (Repost) */
-const shareToFeed = async (post) => {
-  const caption = prompt("Add a caption to your repost:");
-
-  if (caption === null) return; // user cancelled
-
-  await postService.createPost({
-    caption: caption + "\n\n(Reposted)",
-    image: post.image
-  });
-
-  alert("Reposted to your feed!");
-};
-
+    await postService.repostPost(post.engagementPostId, caption);
+    window.location.reload();
+  };
 
   return (
     <div className="linkedin-container">
@@ -198,7 +182,6 @@ const shareToFeed = async (post) => {
           <div className="profile-org">🏫 SDM College of Engg & Tech , Dharwad</div>
         </div>
       </aside>
-
 
       {/* CENTER FEED */}
       <main className="linkedin-feed">
@@ -230,27 +213,23 @@ const shareToFeed = async (post) => {
 
           <div className="post-creator-actions">
             <label className="feed-action-btn">
-              <input type="file" style={{ display: "none" }} onChange={handleImageUpload} />
+              <input type="file" hidden onChange={handleImageUpload} />
               📷 Photo
             </label>
-            <button className="feed-action-btn">🎥 Video</button>
-              <button className="feed-action-btn">📝 Write article</button>
             <button className="post-submit-btn" onClick={handlePostSubmit}>
               {posting ? "Posting..." : "Post"}
             </button>
-
-              
           </div>
         </div>
 
-
-        {/* ALL POSTS */}
+        {/* POSTS */}
         {loading ? (
           <div>Loading...</div>
         ) : (
           posts.map((post) => (
             <div className="feed-card post-card" key={post._id}>
 
+              {/* HEADER */}
               <div className="post-header">
                 <img src={post.avatar} className="profile-avatar" />
                 <div>
@@ -259,108 +238,93 @@ const shareToFeed = async (post) => {
                 </div>
               </div>
 
+              {/* IMAGE (ONLY THIS OPENS DETAIL PAGE) */}
               {post.image && (
-                <div className="post-image">
+                <div
+                  className="post-image"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/post/${post.engagementPostId}`)}
+                >
                   <img src={post.image} />
                 </div>
               )}
 
-              {post.caption && <p className="post-caption">{post.caption}</p>}
-
-              {/* ACTION BUTTONS */}
-              <div className="post-actions">
-
-                {/* LIKE */}
-                <button 
-                  className={`action-btn ${post.liked ? "active-like" : ""}`} 
-                  onClick={() => handleLike(post._id)}
+              {/* CAPTION (OPTIONAL CLICK) */}
+              {post.caption && (
+                <p
+                  className="post-caption"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/post/${post.engagementPostId}`)}
                 >
-                  <span className="icon">
-                    <svg className="icon" viewBox="0 0 24 24"
-                      fill={post.liked ? "#0a66c2" : "none"}
-                      stroke={post.liked ? "#0a66c2" : "#555"}
-                      strokeWidth="2">
-                      <path d="M14 9V5a3 3 0 0 0-6 0v4H5v11h11l4-8V9h-6z"/>
-                    </svg>
-                  </span>
-                  {post.like_count}
+                  {post.caption}
+                </p>
+              )}
+
+              {/* ACTIONS */}
+              <div className="post-actions">
+                <button
+                  className={`action-btn ${post.liked ? "active-like" : ""}`}
+                  onClick={() => handleLike(post.engagementPostId)}
+                >
+                  👍 {post.like_count}
                 </button>
 
-                {/* COMMENT */}
-                <button className="action-btn" onClick={() => toggleCommentBox(post._id)}>
-                  <span className="icon">
-                    <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2">
-                      <path d="M21 11.5a8.38 8.38 0 0 1-1.9 5.4 8.5 8.5 0 0 1-11.8.9L3 21l1.2-4.1A8.38 8.38 0 0 1 3 11.5 8.5 8.5 0 0 1 11.5 3 8.5 8.5 0 0 1 21 11.5z"/>
-                    </svg>
-                  </span>
-                  {post.comment_count}
+                <button
+                  className="action-btn"
+                  onClick={() => toggleCommentBox(post.engagementPostId)}
+                >
+                  💬 {post.comment_count}
                 </button>
 
-                {/* SHARE */}
-                {/* SHARE BUTTON */}
-<button
-  className="action-btn"
-  onClick={() =>
-    setSharePopup(prev => ({ ...prev, [post._id]: !prev[post._id] }))
-  }
->
-  <span className="icon">
-    <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2">
-      <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
-      <polyline points="16 6 12 2 8 6"/>
-      <line x1="12" y1="2" x2="12" y2="15"/>
-    </svg>
-  </span>
-</button>
-
-{/* ⭐ SHARE POPUP ⭐ */}
-{sharePopup[post._id] && (
-  <div className="share-popup">
-    <button onClick={() => copyLink(post._id)}>🔗 Copy link</button>
-    <button onClick={() => shareToFeed(post)}>📤 Share to Feed</button>
-    <button onClick={() => alert("Chat sharing coming soon!")}>💬 Send in Chat</button>
-    <button onClick={() => shareToWhatsApp(post._id)}>📱 WhatsApp</button>
-  </div>
-)}
-
+                <button
+                  className="action-btn"
+                  onClick={() => shareToFeed(post)}
+                >
+                  🔁 Repost
+                </button>
               </div>
 
-              {/* COMMENT INPUT BOX */}
-              {commentBoxOpen[post._id] && (
+              {/* COMMENT INPUT */}
+              {commentBoxOpen[post.engagementPostId] && (
                 <div className="comment-box">
                   <input
                     type="text"
                     placeholder="Write a comment..."
-                    value={commentInput[post._id] || ""}
+                    value={commentInput[post.engagementPostId] || ""}
                     onChange={(e) =>
-                      setCommentInput({ ...commentInput, [post._id]: e.target.value })
+                      setCommentInput({
+                        ...commentInput,
+                        [post.engagementPostId]: e.target.value
+                      })
                     }
                   />
-                  <button onClick={() => handleCommentSubmit(post._id)}>Send</button>
+                  <button onClick={() => handleCommentSubmit(post.engagementPostId)}>
+                    Send
+                  </button>
                 </div>
               )}
 
               {/* COMMENT LIST */}
               {post.comments && (
                 <div className="post-comments">
-                  {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
-                    .map((c) => (
-                      <div key={c._id} className="comment-item">
-                        <img src={c.avatar} className="comment-avatar" />
-                        <div>
-                          <strong>{c.author}</strong>
-                          <p>{c.content}</p>
-                        </div>
+                  {(showAllComments[post.engagementPostId]
+                    ? post.comments
+                    : post.comments.slice(0, 2)
+                  ).map((c) => (
+                    <div key={c._id} className="comment-item">
+                      <img src={c.avatar} className="comment-avatar" />
+                      <div>
+                        <strong>{c.author}</strong>
+                        <p>{c.content}</p>
                       </div>
-                    ))
-                  }
+                    </div>
+                  ))}
 
-                  {/* SHOW MORE / LESS */}
                   {post.comment_count > 2 && (
-                    !showAllComments[post._id] ? (
+                    !showAllComments[post.engagementPostId] ? (
                       <button
                         className="show-more-btn"
-                        onClick={() => loadAllComments(post._id)}
+                        onClick={() => loadAllComments(post.engagementPostId)}
                       >
                         Show more comments ↓
                       </button>
@@ -368,7 +332,10 @@ const shareToFeed = async (post) => {
                       <button
                         className="show-more-btn"
                         onClick={() =>
-                          setShowAllComments(prev => ({ ...prev, [post._id]: false }))
+                          setShowAllComments(prev => ({
+                            ...prev,
+                            [post.engagementPostId]: false
+                          }))
                         }
                       >
                         Show less ↑
@@ -381,8 +348,8 @@ const shareToFeed = async (post) => {
             </div>
           ))
         )}
-
       </main>
+
       {/* RIGHT SIDEBAR */}
       <aside className="linkedin-rightbar">
         <div className="rightbar-card news-card">
@@ -396,8 +363,9 @@ const shareToFeed = async (post) => {
           </ul>
         </div>
       </aside>
+
     </div>
   );
 };
 
-export default NewsFeed;  
+export default NewsFeed;
