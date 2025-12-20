@@ -1,0 +1,172 @@
+/* ===============================
+   POST DETAIL PAGE CONTAINER
+================================ */
+
+.post-detail-container {
+  min-height: 100vh;
+  background: #f3f2ef;
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+/* ===============================
+   POST DETAIL CARD
+================================ */
+
+.post-detail-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 24px;
+}
+
+/* ===============================
+   POST HEADER (AUTHOR INFO)
+================================ */
+
+.post-detail-card .post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.post-detail-card .profile-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-detail-card .post-header strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1d2226;
+}
+
+/* ===============================
+   POST IMAGE
+================================ */
+
+.post-detail-image {
+  width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #f3f2ef;
+  margin: 12px 0 16px 0;
+}
+
+/* ===============================
+   POST CAPTION
+================================ */
+
+.post-detail-card .post-caption {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 8px 0 14px 0;
+  line-height: 1.5;
+}
+
+/* ===============================
+   POST STATS (LIKES / COMMENTS)
+================================ */
+
+.post-stats {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 600;
+  padding: 10px 0;
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   COMMENTS SECTION
+================================ */
+
+.post-comments {
+  margin-top: 12px;
+}
+
+/* ===============================
+   INDIVIDUAL COMMENT
+   (Reuses NewsFeed styles)
+================================ */
+
+.post-comments .comment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f3f6f8;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #e4e8eb;
+}
+
+.post-comments .comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-comments .comment-item strong {
+  font-size: 14px;
+  color: #1d2226;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.post-comments .comment-item p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #4c4e4f;
+  line-height: 1.4;
+}
+
+/* ===============================
+   EMPTY STATES
+================================ */
+
+.post-detail-container .empty-text {
+  text-align: center;
+  color: #888;
+  font-size: 1rem;
+  padding: 24px 0;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+  .post-detail-card {
+    padding: 18px;
+  }
+
+  .post-detail-image {
+    max-height: 360px;
+  }
+}
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
