@@ -10,6 +10,10 @@ import EditProfile from "./pages/EditProfile";
 import SDMHUBAuth from "./pages/SDMHUBAuth";
 import NewsFeed from "./pages/NewsFeed";
 import ErrorPage from "./pages/ErrorPage";
+import Notifications from "./pages/Notifications";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOtp from "./pages/VerifyResetOtp";
+import ResetPassword from "./pages/ResetPassword";
 import React from "react";
 
 // Layout for authenticated pages
@@ -57,6 +61,14 @@ function App() {
           }
         />
         <Route
+          path="/notifications"
+          element={
+            <LayoutWithHeader>
+              <Notifications />
+            </LayoutWithHeader>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <LayoutWithHeader>
@@ -72,6 +84,10 @@ function App() {
             </LayoutWithHeader>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-reset" element={<VerifyResetOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
       </Routes>
     </Router>
   );
