@@ -96,12 +96,13 @@ app.use((err, req, res, next) => {
     if (err && err.stack) {
         console.error('Stack:', err.stack);
     }
-    res.status(500).json({
+    return res.status(500).json({
         success: false,
         message: 'Internal server error',
         error: err.message,
         stack: err.stack
     });
+}); // <-- you were missing this
 
 // ================= Database + Server Start ===============
 connectToDatabase()
@@ -111,6 +112,6 @@ connectToDatabase()
   })
   .catch(err => {
     console.error('Failed to start server:', err);
-});
+  });
 
 module.exports.io = io;
