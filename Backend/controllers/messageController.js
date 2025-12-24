@@ -247,4 +247,4 @@ const searchUsers = async (req, res) => {
   }
 };
 
-module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchUsers };
+module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchUsers, startDirectChat };

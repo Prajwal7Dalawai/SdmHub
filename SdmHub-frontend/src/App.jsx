@@ -10,9 +10,11 @@ import EditProfile from "./pages/EditProfile";
 import SDMHUBAuth from "./pages/SDMHUBAuth";
 import NewsFeed from "./pages/NewsFeed";
 import ErrorPage from "./pages/ErrorPage";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import PostDetail from "./pages/PostDetail";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyResetOtp from "./pages/VerifyResetOtp";
+import ResetPassword from "./pages/ResetPassword";
 // 🔥 ADD THESE TWO IMPORTS
 import { io } from "socket.io-client";
 import NotificationsPage from "./pages/NotificationsPage";  // <- your existing UI page
@@ -92,14 +94,6 @@ function App() {
           element={
             <LayoutWithHeader>
               <ChatWindow />
-            </LayoutWithHeader>
-          }
-        />
-        <Route
-          path="/notifications"
-          element={
-            <LayoutWithHeader>
-              <Notifications />
             </LayoutWithHeader>
           }
         />

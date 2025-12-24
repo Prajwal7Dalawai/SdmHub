@@ -83,12 +83,11 @@ app.use('/upload', uploadRoutes);
 app.use('/posts', postsRoutes);
 app.use('/api/users', require('./routes/user'));
 app.use('/api/friends', friendsRoutes);
-<<<<<<< HEAD
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use("/api/recommend", mutualRoutes); 
 app.use('/api/notifications', notificationRoutes);
-
+app.use('/api/group',groupRoute);
 // ================= ERROR HANDLING =================
 app.use((err, req, res, next) => {
     console.error('Error:', err);
@@ -115,12 +114,3 @@ connectToDatabase()
 
 // Export io if needed elsewhere
 module.exports.io = io;
-=======
-connectToDatabase().then(() => {
-    console.log('Connected to MongoDB')
-    app.listen(port, () => console.log(`Server is running on port ${port}!`))
-}).catch((err) => {
-    console.error('Failed to start server:', err)
-})
-
->>>>>>> 6eb7c0c595a440b348a1fe6d94e042ae67924b4e

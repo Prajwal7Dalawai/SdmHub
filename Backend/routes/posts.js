@@ -12,7 +12,7 @@ const Notification = require("../models/notificationSchema");
 // ----------------------
 // GET ALL POSTS + LIKED STATUS (also last 2 comments)
 // ----------------------
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const userId =
       req.session?.passport?.user ||
@@ -20,59 +20,66 @@ router.get('/', async (req, res) => {
       req.user?._id;
 
     const posts = await Post.find({
-  visibility: 'visible',
-  postType: 'original'   // ⭐ ONLY ORIGINAL POSTS IN FEED
-})
-
+      visibility: 'visible',
+      postType: { $in: ['original', 'repost'] }
+    })
       .sort({ created_at: -1 })
       .populate('author_id', 'first_name profile_pic')
       .populate({
-        path: "originalPost",
+        path: 'originalPost',
         populate: {
-          path: "author_id",
-          select: "first_name profile_pic"
+          path: 'author_id',
+          select: 'first_name profile_pic'
         }
       });
 
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
 
-        // 🔁 CASE 1: REPOST
-        if (post.postType === "repost" && post.originalPost) {
+        const isRepost =
+          post.postType === 'repost' && post.originalPost;
 
-          const engagementPostId = post.originalPost._id;
+        // ⭐ engagement always happens on THIS ID
+        const engagementPostId = isRepost
+          ? post.originalPost._id
+          : post._id;
 
-          const comments = await Comment.find({ post_id: engagementPostId })
-            .sort({ created_at: -1 })
-            .limit(2)
-            .populate("author_id", "first_name profile_pic");
+        // ⭐ fetch comments
+        const comments = await Comment.find({
+          post_id: engagementPostId
+        })
+          .sort({ created_at: -1 })
+          .limit(2)
+          .populate('author_id', 'first_name profile_pic');
 
-          const liked = await Like.findOne({
-            user_id: userId,
-            post_id: engagementPostId
-          });
+        // ⭐ liked?
+        const liked = await Like.findOne({
+          user_id: userId,
+          post_id: engagementPostId
+        });
 
+        // ================== REPOST ==================
+        if (isRepost) {
           return {
             _id: post._id,
             isRepost: true,
 
-            repostedBy: post.author_id?.first_name || "User",
-            repostCaption: post.caption || "",
+            repostedBy: post.author_id?.first_name || 'User',
+            repostCaption: post.caption || '',
 
-            // ⭐ IMPORTANT FOR LIKE / COMMENT
             engagementPostId,
 
             originalPost: {
               _id: post.originalPost._id,
-              user: post.originalPost.author_id?.first_name || "Unknown",
-              avatar: post.originalPost.author_id?.profile_pic || "",
+              user: post.originalPost.author_id?.first_name || 'Unknown',
+              avatar: post.originalPost.author_id?.profile_pic || '',
               caption: post.originalPost.caption,
               image: post.originalPost.content_url,
               time: post.originalPost.created_at,
 
-              like_count: post.originalPost.like_count,
-              comment_count: post.originalPost.comment_count,
-              share_count: post.originalPost.share_count,
+              like_count: post.originalPost.like_count || 0,
+              comment_count: post.originalPost.comment_count || 0,
+              share_count: post.originalPost.share_count || 0,
               liked: !!liked,
 
               comments: comments.map(c => ({
@@ -85,25 +92,15 @@ router.get('/', async (req, res) => {
           };
         }
 
-        // 📝 CASE 2: NORMAL POST
-        const comments = await Comment.find({ post_id: post._id })
-          .sort({ created_at: -1 })
-          .limit(2)
-          .populate("author_id", "first_name profile_pic");
-
-        const liked = await Like.findOne({
-          user_id: userId,
-          post_id: post._id
-        });
-
+        // ================== ORIGINAL ==================
         return {
           _id: post._id,
           isRepost: false,
 
-          engagementPostId: post._id, // ⭐ IMPORTANT
+          engagementPostId,
 
-          user: post.author_id?.first_name || "Unknown",
-          avatar: post.author_id?.profile_pic || "",
+          user: post.author_id?.first_name || 'Unknown',
+          avatar: post.author_id?.profile_pic || '',
           caption: post.caption,
           image: post.content_url,
           time: post.created_at,
@@ -126,13 +123,14 @@ router.get('/', async (req, res) => {
     res.json({ posts: formattedPosts });
 
   } catch (err) {
-    console.error("POST FETCH ERROR:", err);
+    console.error('POST FETCH ERROR:', err);
     res.status(500).json({
       error: 'Failed to fetch posts',
       details: err.message
     });
   }
 });
+
 
 // ----------------------
 // GET USER POSTS (ORIGINAL + REPOSTS)
