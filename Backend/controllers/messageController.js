@@ -112,7 +112,7 @@ const sendMessage = async (req, res) => {
 
 const startDirectChat = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.session?.user.id;
     const { otherUserId } = req.body;
 
     if (!mongoose.isValidObjectId(otherUserId)) {
@@ -174,7 +174,7 @@ const startDirectChat = async (req, res) => {
 const getMessages = async (req, res) => {
   try {
     const { conversationId } = req.params;
-    const userId = req.user.id;
+    const userId = req.session?.user.id;
 
     // Validate ID
     if (!mongoose.isValidObjectId(conversationId)) {
@@ -221,61 +221,30 @@ const deleteMessage = async (req, res)=>{
 }
 }
 
-const searchPplAndGrps = async (req, res) => {
+// ✅ NEW: Search users by name/email to start a chat
+const searchUsers = async (req, res) => {
   try {
-    const query = req.query.query || "";
-    if (!query.trim()) return res.json([]);
+    const { query } = req.query;
+    const userId = req.user?._id;
 
-    /* ---------------- USERS ---------------- */
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({ message: "Query is required" });
+    }
+
+    // Search users by first_name or email (case-insensitive)
     const users = await User.find({
       $or: [
         { first_name: { $regex: query, $options: "i" } },
         { email: { $regex: query, $options: "i" } }
-      ]
-    })
-      .limit(10)
-      .lean();
+      ],
+      _id: { $ne: userId } // Exclude current user
+    }).select("_id first_name email profile_pic").limit(10);
 
-    const formattedUsers = users.map(user => ({
-      id: user._id,
-      type: "DM",
-      name: user.first_name,
-      email: user.email,
-      profilePic:
-        user.profile_pic ||
-        "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-      mutualFriends: 0
-    }));
-
-    /* ---------------- GROUPS ---------------- */
-    const groups = await Conversation.find({
-      type: "group",
-      title: { $regex: query, $options: "i" }
-    })
-      .limit(10)
-      .lean();
-
-    const formattedGroups = groups.map(group => ({
-      id: group._id,
-      type: "group",
-      name: group.title,
-      profilePic:
-        group.conv_pic ||
-        "https://cdn-icons-png.flaticon.com/512/847/847969.png",
-      membersCount: group.members?.length || 0
-    }));
-
-    /* ---------------- MERGE ---------------- */
-    const results = [...formattedUsers, ...formattedGroups];
-
-    return res.json(results);
+    return res.status(200).json(users);
   } catch (err) {
-    console.error("Search error:", err);
-    return res.status(500).json({ msg: "Server error" });
+    console.log(err);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
-
-
-
-module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchPplAndGrps, startDirectChat };
+module.exports = { sendMessage, getMessages, getChatList, deleteMessage, searchUsers, startDirectChat };

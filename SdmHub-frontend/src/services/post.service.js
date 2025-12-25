@@ -2,26 +2,30 @@ import { apiService } from './api.service';
 
 class PostService {
 
-  // Create a new post
+  // ----------------------
+  // CREATE POST
+  // ----------------------
   async createPost(postData) {
     return apiService.post('/posts', postData);
   }
 
-  // Get all posts
+  // ----------------------
+  // GET FEED POSTS
+  // ----------------------
   async getPosts() {
     return apiService.get('/posts');
   }
 
-  // ---------------------------------------
-  // 🔥 NEW METHODS ADDED (like, comment, share)
-  // ---------------------------------------
-
-  // Like or unlike a post
+  // ----------------------
+  // LIKE / UNLIKE
+  // ----------------------
   async likePost(postId) {
     return apiService.post(`/posts/like/${postId}`);
   }
 
-  // Add a comment
+  // ----------------------
+  // COMMENT
+  // ----------------------
   async commentPost(postId, content) {
     return apiService.post(`/posts/comment/${postId}`, { content });
   }
@@ -32,14 +36,24 @@ class PostService {
 }
 
 
-  // Share a post
-  async sharePost(postId) {
-    return apiService.post(`/posts/share/${postId}`);
+  // ----------------------
+  // GET ALL COMMENTS
+  // ----------------------
+  async getAllComments(postId) {
+    return apiService.get(`/posts/comments/${postId}`);
   }
 
-  getAllComments(postId) {
-  return apiService.get(`/posts/comments/${postId}`);
+  // ----------------------
+  // 🔁 LINKEDIN STYLE REPOST (NEW)
+  // ----------------------
+  async repostPost(postId, caption = "") {
+    return apiService.post(`/posts/repost/${postId}`, { caption });
+  }
+
+  getSinglePost(postId) {
+  return apiService.get(`/posts/${postId}`);
 }
+
 
 }
 

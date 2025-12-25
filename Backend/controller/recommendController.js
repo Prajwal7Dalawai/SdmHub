@@ -62,7 +62,7 @@ exports.getInterestRecommendations = async (req, res) => {
         score: parseFloat(score.toFixed(3))
       });
     }
-    console.log("Scores:",scores);
+
     scores.sort((a, b) => b.score - a.score);
     return res.json(scores.slice(0, topN));
   } catch (err) {

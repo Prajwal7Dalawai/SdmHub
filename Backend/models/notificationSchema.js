@@ -1,17 +1,21 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const NotificationSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Receiver
-  sender_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Who triggered
-  type: { 
-    type: String, 
-    enum: ["friend_request", "friend_accept", "like", "comment"], 
-    required: true 
+const notificationSchema = new mongoose.Schema({
+  sender_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  receiver_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  message: { type: String, required: true },
+
+  type: {
+    type: String,
+    enum: ["LIKE", "COMMENT", "FRIEND_REQUEST", "POST"],
+    required: true
   },
-  post_id: { type: mongoose.Schema.Types.ObjectId, ref: "Post", default: null },
-  message: { type: String },
+
+  // For posts → postId, for friend requests → sender profile ID  
+  target_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+
   isRead: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Notification", NotificationSchema);
+module.exports = mongoose.model("Notification", notificationSchema);

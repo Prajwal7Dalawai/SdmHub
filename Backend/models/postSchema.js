@@ -31,6 +31,18 @@ const PostSchema = new Schema({
     default: 'visible'
   },
 
+  postType: {
+  type: String,
+  enum: ["original", "repost"],
+  default: "original"
+},
+
+originalPost: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Post",
+  default: null
+},
+
   // ------------------------------------------
   // Added Social Media Interaction Fields
   // ------------------------------------------

@@ -17,7 +17,6 @@ function getUserId(req) {
 // ✅ Mutual friends recommendation
 router.get("/mutual", async (req, res) => {
   try {
-    console.log("Entering into mutual route");
     const userId = getUserId(req);
 
     // 🚨 Validate userId
@@ -74,7 +73,7 @@ router.get("/mutual", async (req, res) => {
 
     // ✅ Sort suggestions by highest mutual friends first
     suggestions.sort((a, b) => b.mutualFriends - a.mutualFriends);
-    console.log("Mutual suggestions", suggestions);
+
     res.json(suggestions);
   } catch (err) {
     console.error("Error in /recommend/mutual:", err);
