@@ -6,6 +6,8 @@ const Post = require('../models/postSchema');
 const User = require('../models/userSchema');
 const Like = require('../models/likeSchema');
 const Comment = require('../models/commentSchema');
+const { getIO } = require("../socket");
+
 
 // ----------------------
 // GET ALL POSTS + LIKED STATUS
@@ -35,6 +37,7 @@ router.get('/', async (req, res) => {
           user_id: userId,
           post_id: post._id
         });
+        const totalComments = await Comment.countDocuments({ post_id: post._id });
 
         return {
           _id: post._id,
@@ -45,7 +48,7 @@ router.get('/', async (req, res) => {
           time: post.created_at,
 
           like_count: post.like_count,
-          comment_count: post.comment_count,
+          comment_count: totalComments,
           share_count: post.share_count,
           liked: !!liked,
 
@@ -185,24 +188,52 @@ router.post('/comment/:postId', async (req, res) => {
       return res.status(400).json({ error: "Comment cannot be empty" });
     }
 
-    // Create the comment
-    const newComment = await Comment.create({
+    let newComment = await Comment.create({
       post_id: postId,
       author_id: userId,
       content,
       created_at: new Date(),
     });
 
-    // Increase comment count
-    await Post.findByIdAndUpdate(postId, { $inc: { comment_count: 1 } });
+    newComment = await newComment.populate(
+      "author_id",
+      "first_name profile_pic"
+    );
 
-    res.json({ success: true, comment: newComment });
+    await Post.findByIdAndUpdate(postId, {
+      $inc: { comment_count: 1 }
+    });
+
+    const io = getIO();
+    // console.log("SOCKET EMIT: comment:new", postId);
+    io.emit("comment:new", {
+    postId,
+    comment: {
+      _id: newComment._id,
+      content: newComment.content,
+      author: newComment.author_id.first_name,
+      avatar: newComment.author_id.profile_pic,
+      time: newComment.created_at
+    }
+   });
+
+    res.json({
+      success: true,
+      comment: {
+        _id: newComment._id,
+        content: newComment.content,
+        author: newComment.author_id.first_name,
+        avatar: newComment.author_id.profile_pic,
+        time: newComment.created_at
+      }
+    });
 
   } catch (err) {
     console.error("COMMENT ERROR:", err);
-    res.status(500).json({ error: 'Comment error', details: err.message });
+    res.status(500).json({ error: 'Comment error' });
   }
 });
+
 
 router.get("/comments/:postId", async (req, res) => {
   try {
@@ -227,5 +258,63 @@ router.get("/comments/:postId", async (req, res) => {
   }
 });
 
+router.delete("/comment/:commentId", async (req, res) => {
+  try {
+    const userId =
+      req.session?.passport?.user ||
+      req.session?.user?.id ||
+      req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    // find the post
+const post = await Post.findById(comment.post_id);
+if (!post) {
+  return res.status(404).json({ error: "Post not found" });
+}
+
+const isCommentOwner =
+  comment.author_id.toString() === userId.toString();
+
+const isPostOwner =
+  post.author_id.toString() === userId.toString();
+
+if (!isCommentOwner && !isPostOwner) {
+  return res.status(403).json({ error: "Not allowed" });
+}
+
+
+    await Comment.deleteOne({ _id: comment._id });
+
+    await Post.findByIdAndUpdate(comment.post_id, {
+      $inc: { comment_count: -1 }
+    });
+
+    // 🔥 SOCKET EMIT
+   const io = getIO();
+
+// emit to everyone EXCEPT the user who deleted
+io.emit("comment:delete", {
+  postId: comment.post_id,
+  commentId: comment._id
+});
+
+
+
+
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("DELETE COMMENT ERROR:", err);
+    res.status(500).json({ error: "Delete failed" });
+  }
+});
 
 module.exports = router;

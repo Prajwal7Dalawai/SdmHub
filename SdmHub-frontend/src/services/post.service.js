@@ -25,6 +25,12 @@ class PostService {
   async commentPost(postId, content) {
     return apiService.post(`/posts/comment/${postId}`, { content });
   }
+  deleteComment(commentId) {
+  return axios.delete(`/posts/comment/${commentId}`, {
+    withCredentials: true
+  });
+}
+
 
   // Share a post
   async sharePost(postId) {
