@@ -1,0 +1,12 @@
+# Node
+node_modules/
+Backend/node_modules/
+SdmHub-frontend/node_modules/
+
+# Env
+.env
+.env.*
+
+# Builds
+dist/
+build/

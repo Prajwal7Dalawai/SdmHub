@@ -10,7 +10,6 @@ const jwt = require('jsonwebtoken');
 const cloudinary = require('../config/cloudinary');
 const Post = require('../models/postSchema');
 const middleware = require('../middleware/authMiddleware');
-
 // ⭐ ADD THIS EXACTLY HERE
 function getUserId(req) {
   return (

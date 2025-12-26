@@ -87,7 +87,7 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use("/api/recommend", mutualRoutes); 
 app.use('/api/notifications', notificationRoutes);
-
+app.use('/api/group',groupRoute);
 // ================= ERROR HANDLING =================
 app.use((err, req, res, next) => {
     console.error('Error:', err);
