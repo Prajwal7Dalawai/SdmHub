@@ -231,26 +231,6 @@ const handleDeleteComment = async (commentId, postId) => {
   }
 };
 
-  const loadAllComments = async (engagementPostId) => {
-    try {
-      const res = await postService.getAllComments(engagementPostId);
-
-      setPosts(posts.map(p => {
-        if (p.engagementPostId === engagementPostId) {
-          return { ...p, comments: res.data.comments };
-        }
-        return p;
-      }));
-
-      setShowAllComments(prev => ({
-        ...prev,
-        [engagementPostId]: true
-      }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const shareToFeed = async (post) => {
     const caption = prompt("Add your thoughts (optional):");
     if (caption === null) return;
