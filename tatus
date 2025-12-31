@@ -1,0 +1,39 @@
+[33ma4b4658[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mneha[m[33m, [m[1;31morigin/neha[m[33m)[m Notification module
+[33m2ae8858[m Message module Implemented
+[33m6eb7c0c[m Friend system and like comment
+[33m320a96e[m Implemented complete friend system and updated profile page
+[33m19e1ee6[m Resolved authentication issue
+[33mb1c6486[m new additions
+[33m35acfc9[m Neha (#7)
+[33m9053171[m Merge branch 'main' of https://github.com/Prajwal7Dalawai/SdmHub
+[33m13ad023[m feat: Refactor SDMHUB frontend styles and components for improved responsiveness and user experience
+[33m994d55d[m feat: add responsive styles for various components and layouts
+[33m42ded12[m Delete Backend/node_modules directory
+[33me4714db[m Merge branch 'main' of https://github.com/Prajwal7Dalawai/SdmHub
+[33mf6bfc0d[m feat: Implement user authentication with signup, login, and logout routes
+[33m5289e99[m Added editProfile page and also changed in message part (#6)
+[33m5d8f20a[m Add group, like, and message schemas; update landing page styles and news post imports
+[33m8a6e019[m Merge branch 'main' of https://github.com/Prajwal7Dalawai/SdmHub
+[33m33da4c6[m Refactor post and comment schemas: remove unused postSchema and add necessary fields to postSchema
+[33m5118bee[m added landing page (#5)
+[33mc931b45[m Login, news feed pages update, backend schemas updated
+[33m23e1bb0[m Merge branch 'main' of https://github.com/Prajwal7Dalawai/SdmHub
+[33m70a38fb[m[33m ([m[1;31morigin/nikhil[m[33m)[m Merge pull request #4 from Prajwal7Dalawai/neha
+[33m7b48da7[m Updates all the changes for login, message, profile,notification, and side
+[33ma75dd7f[m Merge branch 'main' of https://github.com/Prajwal7Dalawai/SdmHub
+[33meb28ace[m Update react-router-dom to version 7.6.2 and clean up unused imports in App component
+[33m0ba1f22[m Merge pull request #3 from Prajwal7Dalawai/neha
+[33m43f2df3[m Added css to profile page
+[33m394e722[m Added css for web pages
+[33m6db1a71[m Merge branch 'main' of https://github.com/Prajwal7Dalawai/SdmHub
+[33m8ec780c[m Merge pull request #1 from Prajwal7Dalawai/neha
+[33mae8d994[m Merge branch 'main' into neha
+[33mabaccf4[m Added schemas
+[33mbe012e9[m Fix import path for SDMHUB logo in SDMHUBAuth component
+[33m44c17de[m Merge branch 'prateek' of https://github.com/Prajwal7Dalawai/SdmHub
+[33m0c0f7e6[m Refactor App component to remove unused elements and integrate SDMHUBAuth; update SDMHUBAuth CSS import path; initialize backend app.js file.
+[33m867ba3b[m Folder rearrange
+[33m38eb025[m prateek added two pages
+[33m83850c6[m Some web pages
+[33m24ff2e1[m Initial push
+[33me102f41[m Folder initialisation

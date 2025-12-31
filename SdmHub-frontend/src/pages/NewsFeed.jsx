@@ -376,6 +376,42 @@ const handleDeleteComment = async (commentId, postId) => {
                 </div>
               )}
 
+<<<<<<< HEAD
+        {/* COMMENT LIST */}
+        {post.comments && (
+          <div className="post-comments">
+            {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
+              .map((c) => (
+                <div key={c._id} className="comment-item" style={{ position: "relative" }}>
+                  <img src={c.avatar} className="comment-avatar" />
+
+                  <div>
+                    <strong>{c.author}</strong>
+                    <p>{c.content}</p>
+                  </div>
+
+                  {/* ✅ DELETE BUTTON (ONLY OWN COMMENTS) */}
+                  {(c.author === user?.first_name || post.user === user?.first_name) && (
+                    <span
+                      title="Delete comment"
+                      onClick={() => handleDeleteComment(c._id, post._id)}
+                      style={{
+                        position: "absolute",
+                        right: "8px",
+                        top: "8px",
+                        cursor: "pointer",
+                        color: "red",
+                        fontSize: "14px"
+                      }}
+                    >
+                      ❌
+                    </span>
+                  )}
+
+                </div>
+              ))
+            }
+=======
               {/* COMMENT LIST */}
               {post.comments && (
   <div className="post-comments">
@@ -383,11 +419,31 @@ const handleDeleteComment = async (commentId, postId) => {
       .map((c) => (
         <div key={c._id} className="comment-item" style={{ position: "relative" }}>
           <img src={c.avatar} className="comment-avatar" />
+>>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
 
-          <div>
-            <strong>{c.author}</strong>
-            <p>{c.content}</p>
+            {/* SHOW MORE / LESS */}
+            {post.comment_count > 2 && (
+              !showAllComments[post._id] ? (
+                <button
+                  className="show-more-btn"
+                  onClick={() => loadAllComments(post._id)}
+                >
+                  Show more comments ↓
+                </button>
+              ) : (
+                <button
+                  className="show-more-btn"
+                  onClick={() =>
+                    setShowAllComments(prev => ({ ...prev, [post._id]: false }))
+                  }
+                >
+                  Show less ↑
+                </button>
+              )
+            )}
           </div>
+<<<<<<< HEAD
+=======
 
           {/* ✅ DELETE BUTTON (ONLY OWN COMMENTS) */}
           {(c.author === user?.first_name || post.user === user?.first_name) && (
@@ -437,8 +493,12 @@ const handleDeleteComment = async (commentId, postId) => {
 
             </div>
           ))
+>>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
         )}
-      </main>
+      </div>
+    ))
+  )}
+</main>
 
       {/* RIGHT SIDEBAR */}
       <aside className="linkedin-rightbar">
@@ -458,6 +518,9 @@ const handleDeleteComment = async (commentId, postId) => {
   );
 };
 
+<<<<<<< HEAD
+export default NewsFeed;
+=======
 export default NewsFeed;  
 // import React, { useState, useEffect } from 'react';
 // import "../assets/css/NewsFeed.css";
@@ -648,3 +711,4 @@ export default NewsFeed;
 // };
 
 // export default NewsFeed;
+>>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
