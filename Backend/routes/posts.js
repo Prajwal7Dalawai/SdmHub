@@ -38,6 +38,7 @@ router.get('/', auth, async (req, res) => {
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
 
+<<<<<<< HEAD
         // 🔁 CASE 1: REPOST
         if (post.postType === "repost" && post.originalPost) {
 
@@ -88,6 +89,20 @@ router.get('/', auth, async (req, res) => {
 
         // 📝 CASE 2: NORMAL POST
         const comments = await Comment.find({ post_id: post._id })
+=======
+        const isRepost =
+          post.postType === 'repost' && post.originalPost;
+
+        // ⭐ engagement always happens on THIS ID
+        const engagementPostId = isRepost
+          ? post.originalPost._id
+          : post._id;
+
+        // ⭐ fetch comments
+        const comments = await Comment.find({
+          post_id: engagementPostId
+        })
+>>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
           .sort({ created_at: -1 })
           .limit(2)
           .populate('author_id', 'first_name profile_pic');
@@ -172,6 +187,10 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
 // ----------------------
 // GET USER POSTS (ORIGINAL + REPOSTS)
 // ----------------------
@@ -409,6 +428,7 @@ router.post('/comment/:postId', async (req, res) => {
       created_at: new Date(),
     });
 
+    // Increase comment count
     await Post.findByIdAndUpdate(postId, { $inc: { comment_count: 1 } });
 
     const io = getIO();
@@ -708,8 +728,6 @@ router.post('/comment/:postId', async (req, res) => {
   }
 });
 
-
-// ----------------------
 router.get("/comments/:postId", async (req, res) => {
   try {
     const postId = req.params.postId;
