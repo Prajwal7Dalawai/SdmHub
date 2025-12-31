@@ -38,18 +38,56 @@ router.get('/', auth, async (req, res) => {
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
 
-        const isRepost =
-          post.postType === 'repost' && post.originalPost;
+        // 🔁 CASE 1: REPOST
+        if (post.postType === "repost" && post.originalPost) {
 
-        // ⭐ engagement always happens on THIS ID
-        const engagementPostId = isRepost
-          ? post.originalPost._id
-          : post._id;
+          const engagementPostId = post.originalPost._id;
 
-        // ⭐ fetch comments
-        const comments = await Comment.find({
-          post_id: engagementPostId
-        })
+          const comments = await Comment.find({ post_id: engagementPostId })
+            .sort({ created_at: -1 })
+            .limit(2)
+            .populate("author_id", "first_name profile_pic");
+
+          const liked = await Like.findOne({
+            user_id: userId,
+            post_id: engagementPostId
+          });
+
+          return {
+            _id: post._id,
+            isRepost: true,
+
+            repostedBy: post.author_id?.first_name || "User",
+            repostCaption: post.caption || "",
+
+            // ⭐ IMPORTANT FOR LIKE / COMMENT
+            engagementPostId,
+
+            originalPost: {
+              _id: post.originalPost._id,
+              user: post.originalPost.author_id?.first_name || "Unknown",
+              avatar: post.originalPost.author_id?.profile_pic || "",
+              caption: post.originalPost.caption,
+              image: post.originalPost.content_url,
+              time: post.originalPost.created_at,
+
+              like_count: post.originalPost.like_count,
+              comment_count: post.originalPost.comment_count,
+              share_count: post.originalPost.share_count,
+              liked: !!liked,
+
+              comments: comments.map(c => ({
+                _id: c._id,
+                content: c.content,
+                author: c.author_id?.first_name,
+                avatar: c.author_id?.profile_pic
+              }))
+            }
+          };
+        }
+
+        // 📝 CASE 2: NORMAL POST
+        const comments = await Comment.find({ post_id: post._id })
           .sort({ created_at: -1 })
           .limit(2)
           .populate('author_id', 'first_name profile_pic');
@@ -133,7 +171,6 @@ router.get('/', auth, async (req, res) => {
     });
   }
 });
-
 
 // ----------------------
 // GET USER POSTS (ORIGINAL + REPOSTS)
