@@ -38,46 +38,76 @@ router.get('/', auth, async (req, res) => {
     const formattedPosts = await Promise.all(
   posts.map(async (post) => {
 
-    // ✅ DEFINE ONCE — ALWAYS
-    const engagementPostId =
-      post.postType === "repost" && post.originalPost
-        ? post.originalPost._id
-        : post._id;
+        const isRepost =
+          post.postType === 'repost' && post.originalPost;
 
-    // Fetch comments (always against engagement post)
-    const comments = await Comment.find({ post_id: engagementPostId })
-      .sort({ created_at: -1 })
-      .limit(2)
-      .populate("author_id", "first_name profile_pic");
+          const engagementPostId = post.originalPost._id;
 
-    // liked?
-    const liked = await Like.findOne({
-      user_id: userId,
-      post_id: engagementPostId
-    });
+        // ⭐ fetch comments
+        const comments = await Comment.find({
+          post_id: engagementPostId
+        })
+          .sort({ created_at: -1 })
+          .limit(2)
+          .populate('author_id', 'first_name profile_pic');
 
-    // 🔁 REPOST RESPONSE
-    if (post.postType === "repost" && post.originalPost) {
-      return {
-        _id: post._id,
-        isRepost: true,
+        // ⭐ liked?
+        const liked = await Like.findOne({
+          user_id: userId,
+          post_id: engagementPostId
+        });
 
-        repostedBy: post.author_id?.first_name || "User",
-        repostCaption: post.caption || "",
+        // ================== REPOST ==================
+        if (isRepost) {
+          return {
+            _id: post._id,
+            isRepost: true,
 
-        engagementPostId,
+            repostedBy: post.author_id?.first_name || 'User',
+            repostCaption: post.caption || '',
 
-        originalPost: {
-          _id: post.originalPost._id,
-          user: post.originalPost.author_id?.first_name || "Unknown",
-          avatar: post.originalPost.author_id?.profile_pic || "",
-          caption: post.originalPost.caption,
-          image: post.originalPost.content_url,
-          time: post.originalPost.created_at,
+            engagementPostId,
 
-          like_count: post.originalPost.like_count || 0,
-          comment_count: post.originalPost.comment_count || 0,
-          share_count: post.originalPost.share_count || 0,
+            originalPost: {
+              _id: post.originalPost._id,
+              user: post.originalPost.author_id?.first_name || 'Unknown',
+              avatar: post.originalPost.author_id?.profile_pic || '',
+              caption: post.originalPost.caption,
+              image: post.originalPost.content_url,
+              time: post.originalPost.created_at,
+
+              like_count: post.originalPost.like_count || 0,
+              comment_count: post.originalPost.comment_count || 0,
+              share_count: post.originalPost.share_count || 0,
+              liked: !!liked,
+
+              comments: comments.map(c => ({
+                _id: c._id,
+                content: c.content,
+                author: c.author_id?.first_name,
+                avatar: c.author_id?.profile_pic
+              }))
+            }
+          };
+        }
+
+        // ================== ORIGINAL ==================        const totalComments = await Comment.countDocuments({ post_id: post._id });
+
+        return {
+          _id: post._id,
+          isRepost: false,
+
+          engagementPostId,
+
+          user: post.author_id?.first_name || 'Unknown',
+          avatar: post.author_id?.profile_pic || '',
+          caption: post.caption,
+          image: post.content_url,
+          time: post.created_at,
+
+          like_count: post.like_count || 0,
+          comment_count: post.comment_count || 0,
+          share_count: post.share_count || 0,
           liked: !!liked,
 
           comments: comments.map(c => ({
