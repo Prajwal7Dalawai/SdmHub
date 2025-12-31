@@ -294,7 +294,7 @@ const handleDeleteComment = async (commentId, postId) => {
           </div>
         </div>
 
-        {/* POSTS */}
+{/* POSTS */}
         {loading ? (
           <div>Loading...</div>
         ) : (
@@ -376,80 +376,24 @@ const handleDeleteComment = async (commentId, postId) => {
                 </div>
               )}
 
-<<<<<<< HEAD
-        {/* COMMENT LIST */}
-        {post.comments && (
-          <div className="post-comments">
-            {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
-              .map((c) => (
-                <div key={c._id} className="comment-item" style={{ position: "relative" }}>
-                  <img src={c.avatar} className="comment-avatar" />
-
-                  <div>
-                    <strong>{c.author}</strong>
-                    <p>{c.content}</p>
-                  </div>
-
-                  {/* ✅ DELETE BUTTON (ONLY OWN COMMENTS) */}
-                  {(c.author === user?.first_name || post.user === user?.first_name) && (
-                    <span
-                      title="Delete comment"
-                      onClick={() => handleDeleteComment(c._id, post._id)}
-                      style={{
-                        position: "absolute",
-                        right: "8px",
-                        top: "8px",
-                        cursor: "pointer",
-                        color: "red",
-                        fontSize: "14px"
-                      }}
-                    >
-                      ❌
-                    </span>
-                  )}
-
-                </div>
-              ))
-            }
-=======
-              {/* COMMENT LIST */}
-              {post.comments && (
+{/* COMMENT LIST */}
+{post.comments && (
   <div className="post-comments">
     {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
       .map((c) => (
         <div key={c._id} className="comment-item" style={{ position: "relative" }}>
           <img src={c.avatar} className="comment-avatar" />
->>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
 
-            {/* SHOW MORE / LESS */}
-            {post.comment_count > 2 && (
-              !showAllComments[post._id] ? (
-                <button
-                  className="show-more-btn"
-                  onClick={() => loadAllComments(post._id)}
-                >
-                  Show more comments ↓
-                </button>
-              ) : (
-                <button
-                  className="show-more-btn"
-                  onClick={() =>
-                    setShowAllComments(prev => ({ ...prev, [post._id]: false }))
-                  }
-                >
-                  Show less ↑
-                </button>
-              )
-            )}
+          <div>
+            <strong>{c.author}</strong>
+            <p>{c.content}</p>
           </div>
-<<<<<<< HEAD
-=======
 
           {/* ✅ DELETE BUTTON (ONLY OWN COMMENTS) */}
           {(c.author === user?.first_name || post.user === user?.first_name) && (
             <span
               title="Delete comment"
-              onClick={() => handleDeleteComment(c._id)}
+              onClick={() => handleDeleteComment(c._id, post._id)}
               style={{
                 position: "absolute",
                 right: "8px",
@@ -490,15 +434,10 @@ const handleDeleteComment = async (commentId, postId) => {
   </div>
 )}
 
-
             </div>
           ))
->>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
         )}
-      </div>
-    ))
-  )}
-</main>
+      </main>
 
       {/* RIGHT SIDEBAR */}
       <aside className="linkedin-rightbar">
@@ -518,197 +457,4 @@ const handleDeleteComment = async (commentId, postId) => {
   );
 };
 
-<<<<<<< HEAD
 export default NewsFeed;
-=======
-export default NewsFeed;  
-// import React, { useState, useEffect } from 'react';
-// import "../assets/css/NewsFeed.css";
-// import { postService } from '../services/post.service';
-// import { authService } from '../services/auth.service';
-// import { uploadService } from '../services/api.service';
-// import usePageTitle from '../hooks/usePageTitle';
-// import { socket } from "../socket";
-
-// const NewsFeed = () => {
-//   usePageTitle('Feed');
-
-//   const [newPost, setNewPost] = useState({ caption: '', image: null });
-//   const [posts, setPosts] = useState([]);
-//   const [user, setUser] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [posting, setPosting] = useState(false);
-
-//   const [commentBoxOpen, setCommentBoxOpen] = useState({});
-//   const [commentInput, setCommentInput] = useState({});
-//   const [showAllComments, setShowAllComments] = useState({});
-//   const [sharePopup, setSharePopup] = useState({});
-
-//   // ================= INITIAL DATA =================
-//   useEffect(() => {
-//     async function fetchData() {
-//       setLoading(true);
-//       try {
-//         const [postsRes, userRes] = await Promise.all([
-//           postService.getPosts(),
-//           authService.getProfile()
-//         ]);
-//         setPosts(postsRes.data.posts || []);
-//         setUser(userRes.data.user);
-//       } catch {}
-//       setLoading(false);
-//     }
-//     fetchData();
-//   }, []);
-
-//   // ================= SOCKET LISTENERS =================
-//   useEffect(() => {
-//     socket.on("comment:new", ({ postId, comment }) => {
-//       setPosts(prev =>
-//         prev.map(p =>
-//           p._id === postId
-//             ? {
-//                 ...p,
-//                 comments: [comment, ...(p.comments || [])].slice(0, 2),
-//                 comment_count: p.comment_count + 1
-//               }
-//             : p
-//         )
-//       );
-//       setCommentBoxOpen(prev => ({ ...prev, [postId]: true }));
-//     });
-
-//     socket.on("comment:delete", ({ postId, commentId }) => {
-//       setPosts(prev =>
-//         prev.map(p =>
-//           p._id === postId
-//             ? {
-//                 ...p,
-//                 comments: p.comments?.filter(c => c._id !== commentId),
-//                 comment_count: Math.max(p.comment_count - 1, 0)
-//               }
-//             : p
-//         )
-//       );
-//     });
-
-//     return () => {
-//       socket.off("comment:new");
-//       socket.off("comment:delete");
-//     };
-//   }, []);
-
-//   // ================= CREATE POST =================
-//   const handlePostSubmit = async () => {
-//     if (!newPost.caption.trim() && !newPost.image) return;
-//     setPosting(true);
-
-//     try {
-//       let imageUrl = null;
-//       if (newPost.image) {
-//         const res = await fetch(newPost.image);
-//         const blob = await res.blob();
-//         const uploadRes = await uploadService.uploadPostImage(blob);
-//         imageUrl = uploadRes.data.url;
-//       }
-
-//       const res = await postService.createPost({
-//         caption: newPost.caption,
-//         image: imageUrl
-//       });
-
-//       setPosts([res.data.post, ...posts]);
-//       setNewPost({ caption: "", image: null });
-//     } catch {}
-//     setPosting(false);
-//   };
-
-//   // ================= COMMENT =================
-//   const handleCommentSubmit = async (postId) => {
-//     if (!commentInput[postId]?.trim()) return;
-//     try {
-//       await postService.commentPost(postId, commentInput[postId]);
-//       setCommentInput({ ...commentInput, [postId]: "" });
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   const handleDeleteComment = async (commentId) => {
-//     if (!window.confirm("Delete this comment?")) return;
-//     try {
-//       await postService.deleteComment(commentId);
-//     } catch {
-//       alert("Not allowed to delete this comment");
-//     }
-//   };
-
-//   const loadAllComments = async (postId) => {
-//     const res = await postService.getAllComments(postId);
-//     setPosts(posts.map(p =>
-//       p._id === postId ? { ...p, comments: res.data.comments } : p
-//     ));
-//     setShowAllComments(prev => ({ ...prev, [postId]: true }));
-//   };
-
-//   // ================= RENDER =================
-//   return (
-//     <div className="linkedin-container">
-//       <main className="linkedin-feed">
-
-//         {loading ? <div>Loading...</div> : posts.map(post => (
-//           <div className="feed-card post-card" key={post._id}>
-
-//             <strong>{post.user}</strong>
-
-//             {post.comments && (
-//               <div className="post-comments">
-//                 {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
-//                   .map(c => (
-//                     <div key={c._id} className="comment-item">
-//                       <img src={c.avatar} className="comment-avatar" />
-//                       <div>
-//                         <strong>{c.author}</strong>
-//                         <p>{c.content}</p>
-
-//                         {(post.authorId === user?._id || c.authorId === user?._id) && (
-//                           <button
-//                             className="delete-comment-btn"
-//                             onClick={() => handleDeleteComment(c._id)}
-//                           >
-//                             ❌
-//                           </button>
-//                         )}
-//                       </div>
-//                     </div>
-//                   ))
-//                 }
-
-//                 {post.comment_count > 2 && !showAllComments[post._id] && (
-//                   <button onClick={() => loadAllComments(post._id)}>
-//                     Show more comments ↓
-//                   </button>
-//                 )}
-//               </div>
-//             )}
-
-//             <div className="comment-box">
-//               <input
-//                 placeholder="Write a comment..."
-//                 value={commentInput[post._id] || ""}
-//                 onChange={(e) =>
-//                   setCommentInput({ ...commentInput, [post._id]: e.target.value })
-//                 }
-//               />
-//               <button onClick={() => handleCommentSubmit(post._id)}>Send</button>
-//             </div>
-
-//           </div>
-//         ))}
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default NewsFeed;
->>>>>>> 842e8be63a10bc1ed0a3894e764646d93fa5ba96
