@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import "../assets/css/NewsFeed.css";
 import { postService } from '../services/post.service';
 import { authService } from '../services/auth.service';
@@ -6,7 +6,7 @@ import { uploadService } from '../services/api.service';
 import usePageTitle from '../hooks/usePageTitle';
 import { useNavigate } from "react-router-dom";
 import { socket } from "../socket";
-
+import TechNewsCard from './TechNewsCard';
 const NewsFeed = () => {
   usePageTitle('Feed');
 
@@ -442,6 +442,7 @@ const handleDeleteComment = async (commentId, postId) => {
 
       {/* RIGHT SIDEBAR */}
       <aside className="linkedin-rightbar">
+        <TechNewsCard />
         <div className="rightbar-card news-card">
           <h3>SDM News</h3>
           <ul className="news-list">
