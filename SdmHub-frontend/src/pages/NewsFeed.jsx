@@ -231,15 +231,81 @@ const NewsFeed = () => {
                 </div>
               )}
 
-              {post.comments?.map(c => (
-                <div key={c._id}>
-                  <strong>{c.author}</strong>: {c.content}
-                  {(c.author === user?.first_name ||
-                    post.user === user?.first_name) && (
-                    <span onClick={() => handleDeleteComment(c._id)}>❌</span>
-                  )}
-                </div>
-              ))}
+              {/* COMMENT LIST */}
+              {post.comments && (
+  <div className="post-comments">
+    {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
+      .map((c) => (
+        <div key={c._id} className="comment-item" style={{ position: "relative" }}>
+          <img src={c.avatar} className="comment-avatar" />
+
+            {/* SHOW MORE / LESS */}
+            {post.comment_count > 2 && (
+              !showAllComments[post._id] ? (
+                <button
+                  className="show-more-btn"
+                  onClick={() => loadAllComments(post._id)}
+                >
+                  Show more comments ↓
+                </button>
+              ) : (
+                <button
+                  className="show-more-btn"
+                  onClick={() =>
+                    setShowAllComments(prev => ({ ...prev, [post._id]: false }))
+                  }
+                >
+                  Show less ↑
+                </button>
+              )
+            )}
+          </div>
+
+          {/* ✅ DELETE BUTTON (ONLY OWN COMMENTS) */}
+          {(c.author === user?.first_name || post.user === user?.first_name) && (
+            <span
+              title="Delete comment"
+              onClick={() => handleDeleteComment(c._id)}
+              style={{
+                position: "absolute",
+                right: "8px",
+                top: "8px",
+                cursor: "pointer",
+                color: "red",
+                fontSize: "14px"
+              }}
+            >
+              ❌
+            </span>
+          )}
+
+        </div>
+      ))
+    }
+
+    {/* SHOW MORE / LESS */}
+    {post.comment_count > 2 && (
+      !showAllComments[post._id] ? (
+        <button
+          className="show-more-btn"
+          onClick={() => loadAllComments(post._id)}
+        >
+          Show more comments ↓
+        </button>
+      ) : (
+        <button
+          className="show-more-btn"
+          onClick={() =>
+            setShowAllComments(prev => ({ ...prev, [post._id]: false }))
+          }
+        >
+          Show less ↑
+        </button>
+      )
+    )}
+  </div>
+)}
+
 
               {post.comment_count > 2 && !showAllComments[post._id] && (
                 <button onClick={() => loadAllComments(post._id)}>
@@ -249,7 +315,10 @@ const NewsFeed = () => {
             </div>
           ))
         )}
-      </main>
+      </div>
+    ))
+  )}
+</main>
 
       {/* RIGHT SIDEBAR */}
       <aside className="linkedin-rightbar">
