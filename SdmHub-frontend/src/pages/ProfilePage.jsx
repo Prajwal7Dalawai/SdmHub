@@ -91,6 +91,62 @@ const ProfilePage = () => {
     return <div className="profile-container">No profile data found.</div>;
   }
 
+  function normalizePost(post) {
+  const isRepost = post.postType === "repost" && post.originalPost;
+
+  if (isRepost) {
+    return {
+      _id: post._id,
+      isRepost: true,
+      repostedBy: post.author_id?.first_name,
+      repostCaption: post.caption || "",
+      engagementPostId: post.originalPost._id,
+      originalPost: {
+        _id: post.originalPost._id,
+        user: post.originalPost.author_id?.first_name,
+        avatar: post.originalPost.author_id?.profile_pic,
+        caption: post.originalPost.caption,
+        image: post.originalPost.content_url,
+        time: post.originalPost.created_at,
+        like_count: post.originalPost.like_count || 0,
+        comment_count: post.originalPost.comment_count || 0,
+        share_count: post.originalPost.share_count || 0,
+        comments: []
+      }
+    };
+  }
+
+  return {
+    _id: post._id,
+    isRepost: false,
+    engagementPostId: post._id,
+    user: post.author_id?.first_name,
+    avatar: post.author_id?.profile_pic,
+    caption: post.caption,
+    image: post.content_url,
+    time: post.created_at,
+    like_count: post.like_count || 0,
+    comment_count: post.comment_count || 0,
+    share_count: post.share_count || 0,
+    comments: []
+  };
+}
+
+const filteredPosts = userPosts
+  .map(normalizePost)
+  .filter((post) => {
+    if (activeTab === "images") {
+      const content = post.isRepost ? post.originalPost : post;
+      return !!content.image;
+    }
+    if (activeTab === "videos") {
+      return false; // future
+    }
+    return true; // posts tab
+  });
+
+
+
   /* ---------------- RENDER ---------------- */
   /* ---------------- RENDER ---------------- */
 return (
@@ -236,56 +292,72 @@ return (
         ))}
       </div>
 
-      {/* ---------------- POSTS GRID (ORIGINAL + REPOSTS) ---------------- */}
-      <div className="post-grid">
-        {userPosts.length === 0 && (
-          <div
-            style={{
-              gridColumn: '1/-1',
-              textAlign: 'center',
-              color: '#A22B29',
-              fontWeight: 600,
-              padding: '32px 0',
-            }}
-          >
-            No post has been shared yet.
+      {/* ---------------- USER POSTS (FEED STYLE) ---------------- */}
+      
+<div style={{ marginTop: "24px" }}>
+  {filteredPosts.length === 0 && (
+    <div style={{ textAlign: "center", color: "#A22B29", fontWeight: 600 }}>
+      No posts to display.
+    </div>
+  )}
+
+  {filteredPosts.map((post) => {
+    const isRepost = post.isRepost;
+    const content = isRepost ? post.originalPost : post;
+
+    return (
+      <div className="feed-card post-card" key={post._id}>
+        {/* HEADER */}
+        <div className="post-header">
+          <img
+            src={content.avatar || DEFAULT_PROFILE_PIC}
+            className="profile-avatar"
+            alt=""
+          />
+          <div>
+            <strong>{content.user}</strong>
+            <div className="time">
+              {new Date(content.time).toLocaleDateString()}
+            </div>
+            {isRepost && (
+              <div style={{ fontSize: 13, color: "#777" }}>
+                🔁 Reposted by {post.repostedBy}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* REPOST CAPTION */}
+        {isRepost && post.repostCaption && (
+          <p className="post-caption" style={{ fontStyle: "italic" }}>
+            {post.repostCaption}
+          </p>
+        )}
+
+        {/* IMAGE */}
+        {content.image && (
+          <div className="post-image">
+            <img src={content.image} alt="" />
           </div>
         )}
 
-        {userPosts.map((post) => {
-          const imageUrl =
-            post.content_url || post.originalPost?.content_url;
+        {/* CAPTION */}
+        {content.caption && (
+          <p className="post-caption">{content.caption}</p>
+        )}
 
-          return imageUrl && imageUrl.trim() !== '' ? (
-            <div
-              key={post._id}
-              className="post"
-              style={{ backgroundImage: `url(${imageUrl})` }}
-            />
-          ) : (
-            <div
-              key={post._id}
-              className="post text-post-box"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#fff',
-                border: '2px solid #A22B29',
-                borderRadius: '12px',
-                minHeight: '120px',
-                padding: '16px',
-                textAlign: 'center',
-                fontWeight: 500,
-                fontSize: '1.1rem',
-                color: '#A22B29',
-              }}
-            >
-              {post.caption}
-            </div>
-          );
-        })}
+        {/* STATS (READ ONLY) */}
+        <div className="post-actions">
+          <span>👍 {content.like_count}</span>
+          <span>💬 {content.comment_count}</span>
+          <span>🔁 {content.share_count}</span>
+        </div>
       </div>
+    );
+  })}
+</div>
+
+
 
       {/* ---------------- SOCIAL ICONS ---------------- */}
       <div

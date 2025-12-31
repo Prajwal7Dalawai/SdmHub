@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import "../assets/css/Notifications.css";
 import { notificationService } from "../services/notification.service";
 
-const socket = io("http://localhost:5000", {
+const socket = io("http://localhost:5173", {
   withCredentials: true,
 });
 
