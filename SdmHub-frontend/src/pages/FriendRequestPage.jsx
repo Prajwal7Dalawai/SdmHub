@@ -58,14 +58,20 @@ const FriendRequestPage = () => {
   // ---------- Suggestions Fetcher ----------
   const fetchSuggestions = async (filter = activeSuggestionFilter) => {
     try {
-      let endpoint = `${API_BASE}/recommend/mutual`;
-
-      if (filter === "community") {
-        endpoint = `${API_BASE}/community`;
-      }
-
+      const endpoint = `${API_BASE}/recommend/${filter}`;
       const res = await axios.get(endpoint, { withCredentials: true });
       let data = res.data || [];
+      console.log(`For the filter ${filter}, data is:`, data);
+
+      if(filter == "community"){
+        data = data.map(item => ({
+        _id: item.user._id,
+        name: item.user.first_name,
+        profilePic: item.user.profile_pic,
+        mutualFriends: 0, // community-based, not mutual-based
+        score: item.score
+      }));
+      }
 
       if (filter === "mutual") {
         // ✅ Show only top 5 based on mutual friends
@@ -156,7 +162,10 @@ const FriendRequestPage = () => {
     fetchSuggestions(activeSuggestionFilter);
   }, [activeSuggestionFilter]);
 
-  const filteredSuggestions = suggestions;
+  const filteredSuggestions = suggestions.filter(
+  (p) => p && p._id
+);
+
 
   // ---------- Render ----------
   return (
@@ -286,12 +295,14 @@ const FriendRequestPage = () => {
           >
             Based on Mutual Friends
           </button>
+
           <button
             className={`tab ${activeSuggestionFilter === "community" ? "active" : ""}`}
             onClick={() => setActiveSuggestionFilter("community")}
           >
             Explore by Domain
           </button>
+
         </div>
 
         <div className="section">

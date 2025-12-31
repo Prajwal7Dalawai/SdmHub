@@ -1,3 +1,4 @@
+// routes/friends.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/userSchema');
@@ -8,11 +9,11 @@ const { auth_docs_model } = require('../models/auth');
 const jwt = require('jsonwebtoken');
 const cloudinary = require('../config/cloudinary');
 const Post = require('../models/postSchema');
-
+const middleware = require('../middleware/authMiddleware');
 // ⭐ ADD THIS EXACTLY HERE
 function getUserId(req) {
   return (
-    req.user?.id ||
+    req.session.user?.id ||
     req.session?.passport?.user ||
     req.session?.user?.id ||
     req.body?.userId ||
@@ -22,7 +23,7 @@ function getUserId(req) {
 }
 
 // ----------------- POST /request/:id -----------------
-router.post('/request/:id', async (req, res) => {
+router.post('/request/:id',middleware.auth, async (req, res) => {
   try {
     const senderId = getUserId(req);
     const receiverId = req.params.id;
@@ -80,10 +81,10 @@ router.post('/request/:id', async (req, res) => {
 });
 
 // ----------------- POST /accept/:id -----------------
-router.post('/accept/:id', async (req, res) => {
+router.post('/accept/:id',middleware.auth, async (req, res) => {
   try {
-    const receiverId = getUserId(req);
-    const senderId = req.params.id;
+    const receiverId = getUserId(req); // the user who accepted (current user)
+    const senderId = req.params.id;    // the user who originally sent request
 
     if (!receiverId)
       return res.status(401).json({ msg: 'Unauthorized. Please log in.' });
@@ -316,6 +317,7 @@ router.post('/decline/:id', async (req, res) => {
     receiver.totalRequest = Math.max(0, (receiver.totalRequest || 0) - 1);
 
     await Promise.all([receiver.save(), sender.save()]);
+
     res.status(200).json({ message: 'Friend request declined!' });
   } catch (err) {
     console.error('Decline error:', err);
@@ -394,7 +396,6 @@ router.get('/sent', async (req, res) => {
 });
 
 // ----------------- GET /friends -----------------
-// ----------------- GET /friends (with mutual friends count) -----------------
 router.get('/', async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -441,7 +442,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 });
-
 
 // ----------------- GET /suggestions -----------------
 router.get('/suggestions', async (req, res) => {

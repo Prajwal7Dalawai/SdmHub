@@ -12,7 +12,6 @@ import {
 } from 'react-icons/fa';
 import logo from '../assets/images/app_logo_cropped.png';
 import { apiService } from '../services/api.service';
-
 const DEFAULT_PROFILE_PIC = 'https://res.cloudinary.com/drvcis27v/image/upload/v1750180422/default_rxs4pw.png';
 
 const Header = () => {

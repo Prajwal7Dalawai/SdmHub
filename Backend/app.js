@@ -10,7 +10,9 @@ const postsRoutes = require('./routes/posts');
 const { connectToDatabase } = require('./models/auth');
 const cors = require('cors');
 const friendsRoutes = require('./routes/friends');
+const NotificationsRoutes = require("./routes/notifications");
 const conversationRoutes = require("./routes/conversation.js");
+const groupRoute = require('./routes/groups.js');
 const messageRoutes = require("./routes/message.js");
 
 const http = require("http");
@@ -20,15 +22,29 @@ const { initSocket } = require("./socket");
 
 const notificationRoutes = require("./routes/notification");
 const mutualRoutes = require("./routes/recommend");
-
 const app = express();
 const port = 3000;
 
-// ✅ Create one shared session middleware
+// Middleware
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// Session configuration
 const sessionMiddleware = session({
-  secret: 'something',
+  name: 'sdmhub.sid',
+  secret: process.env.SESSION_SECRET || 'dev-secret',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: false,        // localhost only
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  }
 });
 
 app.use(sessionMiddleware);
@@ -71,12 +87,20 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use("/api/recommend", mutualRoutes); 
 app.use('/api/notifications', notificationRoutes);
-
+app.use('/api/group',groupRoute);
 // ================= ERROR HANDLING =================
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).json({ success: false, message: 'Internal server error' });
-});
+    console.error('Error:', err);
+    if (err && err.stack) {
+        console.error('Stack:', err.stack);
+    }
+    return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: err.message,
+        stack: err.stack
+    });
+}); // <-- you were missing this
 
 // ================= DATABASE + SERVER START =================
 connectToDatabase()

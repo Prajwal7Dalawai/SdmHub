@@ -5,6 +5,7 @@ import { authService } from '../services/auth.service';
 import { uploadService } from '../services/api.service';
 import usePageTitle from '../hooks/usePageTitle';
 import { useNavigate } from "react-router-dom";
+import { socket } from "../socket";
 
 const NewsFeed = () => {
   usePageTitle('Feed');
@@ -36,6 +37,54 @@ const NewsFeed = () => {
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+  socket.connect();   // ✅ THIS IS THE KEY LINE
+
+  socket.on("connect", () => {
+    console.log("SOCKET CONNECTED:", socket.id);
+  });
+
+  socket.on("comment:new", ({ postId, comment }) => {
+    console.log("SOCKET RECEIVED: comment:new", postId);
+
+    setPosts(prevPosts =>
+      prevPosts.map(p =>
+        p._id === postId
+          ? {
+              ...p,
+              comments: [comment, ...(p.comments || [])].slice(0, 2),
+              comment_count: p.comment_count + 1
+            }
+          : p
+      )
+    );
+  });
+
+  return () => {
+    socket.off("comment:new");
+    socket.disconnect();   // ✅ clean disconnect
+  };
+}, []);
+
+useEffect(() => {
+  socket.on("comment:delete", ({ postId, commentId }) => {
+    setPosts(prev =>
+      prev.map(p =>
+        p._id === postId
+          ? {
+              ...p,
+              comments: p.comments.filter(c => c._id !== commentId),
+              comment_count: p.comment_count - 1
+            }
+          : p
+      )
+    );
+  });
+
+  return () => socket.off("comment:delete");
+}, []);
+
 
   const handlePostChange = (e) => {
     setNewPost({ ...newPost, caption: e.target.value });
@@ -114,50 +163,73 @@ const NewsFeed = () => {
     }));
   };
 
-  const handleCommentSubmit = async (engagementPostId) => {
-    if (!commentInput[engagementPostId]) return;
+const handleCommentSubmit = async (postId) => {
+  if (!commentInput[postId]?.trim()) return;
 
-    try {
-      await postService.commentPost(
-        engagementPostId,
-        commentInput[engagementPostId]
-      );
+  try {
+    const res = await postService.commentPost(
+      postId,
+      commentInput[postId]
+    );
 
-      setPosts(posts.map(p => {
-        if (p.engagementPostId === engagementPostId) {
-          return { ...p, comment_count: p.comment_count + 1 };
-        }
-        return p;
-      }));
+    const newComment = res.data.comment;
 
-      setCommentInput(prev => ({
-        ...prev,
-        [engagementPostId]: ""
-      }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    setPosts(posts.map(p => {
+      if (p._id !== postId) return p;
 
-  const loadAllComments = async (engagementPostId) => {
-    try {
-      const res = await postService.getAllComments(engagementPostId);
+      const updatedComments = p.comments
+        ? [newComment, ...p.comments]
+        : [newComment];
 
-      setPosts(posts.map(p => {
-        if (p.engagementPostId === engagementPostId) {
-          return { ...p, comments: res.data.comments };
-        }
-        return p;
-      }));
+      return {
+        ...p,
+        comments: updatedComments.slice(0, 2), // keep last 2
+        comment_count: p.comment_count + 1
+      };
+    }));
 
-      setShowAllComments(prev => ({
-        ...prev,
-        [engagementPostId]: true
-      }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    setCommentInput({ ...commentInput, [postId]: "" });
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+  /** ⭐ LOAD ALL COMMENTS FOR A POST */
+const loadAllComments = async (postId) => {
+  try {
+    const res = await postService.getAllComments(postId);
+    const allComments = res.data.comments;
+
+    setPosts(posts.map(p =>
+      p._id === postId 
+        ? { ...p, comments: allComments } 
+        : p
+    ));
+
+    setShowAllComments(prev => ({ ...prev, [postId]: true }));
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleDeleteComment = async (commentId, postId) => {
+  try {
+    await fetch(`http://localhost:3000/posts/comment/${commentId}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+
+   // ❌ NO setPosts here
+    // ❌ NO decrement here
+    // Socket will handle UI update
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const shareToFeed = async (post) => {
     const caption = prompt("Add your thoughts (optional):");
@@ -306,44 +378,62 @@ const NewsFeed = () => {
 
               {/* COMMENT LIST */}
               {post.comments && (
-                <div className="post-comments">
-                  {(showAllComments[post.engagementPostId]
-                    ? post.comments
-                    : post.comments.slice(0, 2)
-                  ).map((c) => (
-                    <div key={c._id} className="comment-item">
-                      <img src={c.avatar} className="comment-avatar" />
-                      <div>
-                        <strong>{c.author}</strong>
-                        <p>{c.content}</p>
-                      </div>
-                    </div>
-                  ))}
+  <div className="post-comments">
+    {(showAllComments[post._id] ? post.comments : post.comments.slice(0, 2))
+      .map((c) => (
+        <div key={c._id} className="comment-item" style={{ position: "relative" }}>
+          <img src={c.avatar} className="comment-avatar" />
 
-                  {post.comment_count > 2 && (
-                    !showAllComments[post.engagementPostId] ? (
-                      <button
-                        className="show-more-btn"
-                        onClick={() => loadAllComments(post.engagementPostId)}
-                      >
-                        Show more comments ↓
-                      </button>
-                    ) : (
-                      <button
-                        className="show-more-btn"
-                        onClick={() =>
-                          setShowAllComments(prev => ({
-                            ...prev,
-                            [post.engagementPostId]: false
-                          }))
-                        }
-                      >
-                        Show less ↑
-                      </button>
-                    )
-                  )}
-                </div>
-              )}
+          <div>
+            <strong>{c.author}</strong>
+            <p>{c.content}</p>
+          </div>
+
+          {/* ✅ DELETE BUTTON (ONLY OWN COMMENTS) */}
+          {(c.author === user?.first_name || post.user === user?.first_name) && (
+            <span
+              title="Delete comment"
+              onClick={() => handleDeleteComment(c._id)}
+              style={{
+                position: "absolute",
+                right: "8px",
+                top: "8px",
+                cursor: "pointer",
+                color: "red",
+                fontSize: "14px"
+              }}
+            >
+              ❌
+            </span>
+          )}
+
+        </div>
+      ))
+    }
+
+    {/* SHOW MORE / LESS */}
+    {post.comment_count > 2 && (
+      !showAllComments[post._id] ? (
+        <button
+          className="show-more-btn"
+          onClick={() => loadAllComments(post._id)}
+        >
+          Show more comments ↓
+        </button>
+      ) : (
+        <button
+          className="show-more-btn"
+          onClick={() =>
+            setShowAllComments(prev => ({ ...prev, [post._id]: false }))
+          }
+        >
+          Show less ↑
+        </button>
+      )
+    )}
+  </div>
+)}
+
 
             </div>
           ))
