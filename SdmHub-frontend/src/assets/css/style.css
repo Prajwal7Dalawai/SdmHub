@@ -835,3 +835,44 @@
   color: #9b1c1c;
   margin-top: 20px;
 }
+
+/* Tech news card styles */
+
+.tech-news-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.tech-news-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  border-left: 5px solid #a22b29;
+  padding-left: 12px;
+  margin-bottom: 12px;
+}
+
+.tech-news-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tech-news-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.tech-news-item:last-child {
+  border-bottom: none;
+}
+
+.tech-news-item:hover {
+  color: #a22b29;
+}

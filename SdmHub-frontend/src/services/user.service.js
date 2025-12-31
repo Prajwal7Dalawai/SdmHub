@@ -21,6 +21,16 @@ class UserService {
     }
   }
 
+  async getTechNews(){
+    try {
+      const response = await apiService.get(`${API_CONFIG.BASE_URL}/api/news/tech`);
+      return response.data;
+    } catch(err) {
+      console.error("Error fetching news(from frontend).");
+      throw err;
+    }
+  }
+
 }
 
 export const userService = new UserService();

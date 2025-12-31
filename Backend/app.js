@@ -14,7 +14,7 @@ const NotificationsRoutes = require("./routes/notifications");
 const conversationRoutes = require("./routes/conversation.js");
 const groupRoute = require('./routes/groups.js');
 const messageRoutes = require("./routes/message.js");
-
+const newsRoute = require("./routes/news.js");
 const http = require("http");
 const { Server } = require("socket.io"); // (still fine if socket.js uses it)
 const flash = require('connect-flash');
@@ -88,6 +88,7 @@ app.use('/api/messages', messageRoutes);
 app.use("/api/recommend", mutualRoutes); 
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/group',groupRoute);
+app.use('/api/news', newsRoute);
 // ================= ERROR HANDLING =================
 app.use((err, req, res, next) => {
     console.error('Error:', err);
